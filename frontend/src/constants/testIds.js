@@ -1,0 +1,53 @@
+// Centralized data-testid map (kebab-case, role-based)
+export const TID = {
+  header: {
+    logo: 'header-logo',
+    navHome: 'nav-home-link',
+    navCatalogue: 'nav-catalogue-link',
+    navHow: 'nav-how-link',
+    navBlog: 'nav-blog-link',
+    navContact: 'nav-contact-link',
+    cta: 'header-cta-button',
+    langToggle: 'lang-toggle-button',
+    mobileMenu: 'mobile-menu-toggle',
+  },
+  hero: {
+    ctaPrimary: 'hero-start-plan-button',
+    ctaSecondary: 'hero-browse-catalogue-button',
+  },
+  features: {
+    section: 'features-section',
+    cta: (k) => `feature-${k}-cta-button`,
+  },
+  partners: 'partners-marquee',
+  categories: {
+    section: 'categories-section',
+    card: (k) => `category-${k}-card`,
+  },
+  why: 'why-smartpaw-section',
+  how: 'how-it-works-section',
+  blog: {
+    section: 'blog-section',
+    card: (k) => `blog-card-${k}`,
+    readAll: 'blog-read-all-link',
+  },
+  testimonials: 'testimonials-section',
+  whatsappFab: 'whatsapp-fab-button',
+  signup: {
+    open: 'open-signup-modal',
+    modal: 'signup-modal',
+    close: 'signup-modal-close',
+    name: 'signup-name-input',
+    email: 'signup-email-input',
+    phone: 'signup-phone-input',
+    petType: 'signup-pet-type-select',
+    petName: 'signup-pet-name-input',
+    petBreed: 'signup-pet-breed-input',
+    petAge: 'signup-pet-age-input',
+    notes: 'signup-notes-input',
+    submit: 'signup-submit-button',
+    success: 'signup-success-message',
+    error: 'signup-error-message',
+  },
+  footer: 'site-footer',
+};

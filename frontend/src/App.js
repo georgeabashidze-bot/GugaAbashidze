@@ -1,55 +1,48 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
-import { HOME } from "@/constants/testIds";
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          data-testid={HOME.emergentLink}
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+import React, { useState } from 'react';
+import '@/App.css';
+import { LangProvider } from '@/lib/LangContext';
+import Header from '@/components/Header';
+import Hero from '@/components/Hero';
+import Features from '@/components/Features';
+import PartnersMarquee from '@/components/PartnersMarquee';
+import Categories from '@/components/Categories';
+import WhySmartPaw from '@/components/WhySmartPaw';
+import HowItWorks from '@/components/HowItWorks';
+import Blog from '@/components/Blog';
+import Testimonials from '@/components/Testimonials';
+import Footer from '@/components/Footer';
+import WhatsAppFab from '@/components/WhatsAppFab';
+import SignupModal from '@/components/SignupModal';
 
 function App() {
+  const [signupOpen, setSignupOpen] = useState(false);
+
+  const openSignup = () => setSignupOpen(true);
+  const closeSignup = () => setSignupOpen(false);
+  const scrollToCatalogue = () => {
+    const el = document.getElementById('catalogue');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <LangProvider>
+      <div className="App relative overflow-x-clip">
+        <Header onOpenSignup={openSignup} />
+        <main>
+          <Hero onOpenSignup={openSignup} onBrowse={scrollToCatalogue} />
+          <PartnersMarquee />
+          <Features onOpenSignup={openSignup} />
+          <Categories onOpenSignup={openSignup} />
+          <WhySmartPaw onOpenSignup={openSignup} />
+          <HowItWorks onOpenSignup={openSignup} />
+          <Blog />
+          <Testimonials />
+        </main>
+        <Footer onOpenSignup={openSignup} />
+        <WhatsAppFab />
+        <SignupModal open={signupOpen} onClose={closeSignup} />
+      </div>
+    </LangProvider>
   );
 }
 

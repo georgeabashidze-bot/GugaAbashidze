@@ -1,12 +1,12 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
 
@@ -20,51 +20,103 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI()
+app = FastAPI(title="SmartPaw Food API")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
 
-# Define Models
+# ------------- Models -------------
 class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
+    model_config = ConfigDict(extra="ignore")
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     client_name: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+
 class StatusCheckCreate(BaseModel):
     client_name: str
 
-# Add your routes to the router instead of directly to app
+
+class LeadCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    email: EmailStr
+    phone: str = Field(min_length=4, max_length=40)
+    pet_type: str = Field(min_length=1, max_length=40)  # dog | cat | both
+    pet_name: Optional[str] = Field(default=None, max_length=80)
+    pet_breed: Optional[str] = Field(default=None, max_length=120)
+    pet_age: Optional[str] = Field(default=None, max_length=40)
+    notes: Optional[str] = Field(default=None, max_length=1000)
+
+
+class Lead(LeadCreate):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class LeadResponse(BaseModel):
+    id: str
+    name: str
+    email: EmailStr
+    created_at: datetime
+
+
+# ------------- Routes -------------
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "SmartPaw Food API is running"}
+
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.model_dump()
     status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
     doc = status_obj.model_dump()
     doc['timestamp'] = doc['timestamp'].isoformat()
-    
     _ = await db.status_checks.insert_one(doc)
     return status_obj
 
+
 @api_router.get("/status", response_model=List[StatusCheck])
 async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
     status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
     for check in status_checks:
         if isinstance(check['timestamp'], str):
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
     return status_checks
+
+
+@api_router.post("/leads", response_model=LeadResponse, status_code=201)
+async def create_lead(payload: LeadCreate):
+    lead = Lead(**payload.model_dump())
+    doc = lead.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.leads.insert_one(doc)
+    return LeadResponse(
+        id=lead.id,
+        name=lead.name,
+        email=lead.email,
+        created_at=lead.created_at,
+    )
+
+
+@api_router.get("/leads", response_model=List[LeadResponse])
+async def list_leads():
+    items = await db.leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    result: List[LeadResponse] = []
+    for it in items:
+        created = it.get('created_at')
+        if isinstance(created, str):
+            created = datetime.fromisoformat(created)
+        result.append(LeadResponse(
+            id=it['id'],
+            name=it['name'],
+            email=it['email'],
+            created_at=created,
+        ))
+    return result
+
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -77,12 +129,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
