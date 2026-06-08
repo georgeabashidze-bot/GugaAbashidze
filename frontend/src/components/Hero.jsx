@@ -6,7 +6,7 @@ import { TID } from '@/constants/testIds';
 const HERO_IMG = 'https://images.pexels.com/photos/20109380/pexels-photo-20109380.jpeg?auto=compress&cs=tinysrgb&w=1600';
 const HERO_IMG_2 = 'https://images.pexels.com/photos/31254347/pexels-photo-31254347.jpeg?auto=compress&cs=tinysrgb&w=1200';
 
-export default function Hero({ onOpenSignup, onBrowse }) {
+export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
   const { t } = useLang();
 
   return (
@@ -51,6 +51,13 @@ export default function Hero({ onOpenSignup, onBrowse }) {
               className="btn-secondary"
             >
               {t.hero.ctaSecondary}
+            </button>
+            <button
+              data-testid="hero-special-offers-button"
+              onClick={onSpecials}
+              className="btn-secondary"
+            >
+              {t.hero.ctaSpecials}
             </button>
           </div>
 

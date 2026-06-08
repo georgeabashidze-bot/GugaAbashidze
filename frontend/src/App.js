@@ -19,17 +19,19 @@ function App() {
 
   const openSignup = () => setSignupOpen(true);
   const closeSignup = () => setSignupOpen(false);
-  const scrollToCatalogue = () => {
-    const el = document.getElementById('catalogue');
+  const scrollToId = (id) => {
+    const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+  const scrollToCatalogue = () => scrollToId('catalogue');
+  const scrollToSpecials = () => scrollToId('special-offers');
 
   return (
     <LangProvider>
       <div className="App relative overflow-x-clip">
         <Header onOpenSignup={openSignup} />
         <main>
-          <Hero onOpenSignup={openSignup} onBrowse={scrollToCatalogue} />
+          <Hero onOpenSignup={openSignup} onBrowse={scrollToCatalogue} onSpecials={scrollToSpecials} />
           <PartnersMarquee />
           <WhySmartPaw onOpenSignup={openSignup} />
           <HowItWorks onOpenSignup={openSignup} />

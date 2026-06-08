@@ -22,6 +22,11 @@ export default function WhySmartPaw({ onOpenSignup }) {
           <p className="text-white/80 text-lg leading-relaxed mt-6 max-w-xl">
             {t.why.body}
           </p>
+          {t.why.bodyCite && (
+            <p className="text-white/55 text-sm mt-3 italic max-w-xl">
+              {t.why.bodyCite}
+            </p>
+          )}
           <button
             onClick={onOpenSignup}
             data-testid="why-cta-button"
