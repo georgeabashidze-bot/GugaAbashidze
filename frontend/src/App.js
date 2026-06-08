@@ -3,11 +3,11 @@ import '@/App.css';
 import { LangProvider } from '@/lib/LangContext';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
-import Features from '@/components/Features';
 import PartnersMarquee from '@/components/PartnersMarquee';
-import Categories from '@/components/Categories';
 import WhySmartPaw from '@/components/WhySmartPaw';
 import HowItWorks from '@/components/HowItWorks';
+import { RegularProducts, SpecialOffers } from '@/components/ProductSections';
+import TunedToPet from '@/components/TunedToPet';
 import Blog from '@/components/Blog';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
@@ -31,10 +31,11 @@ function App() {
         <main>
           <Hero onOpenSignup={openSignup} onBrowse={scrollToCatalogue} />
           <PartnersMarquee />
-          <Features onOpenSignup={openSignup} />
-          <Categories onOpenSignup={openSignup} />
           <WhySmartPaw onOpenSignup={openSignup} />
           <HowItWorks onOpenSignup={openSignup} />
+          <RegularProducts onOpenSignup={openSignup} />
+          <SpecialOffers onOpenSignup={openSignup} />
+          <TunedToPet onOpenSignup={openSignup} />
           <Blog />
           <Testimonials />
         </main>

@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Instagram, Facebook } from 'lucide-react';
 import { useLang } from '@/lib/LangContext';
 import { LANGS } from '@/lib/i18n';
 import { TID } from '@/constants/testIds';
 
 const LOGO = 'https://customer-assets.emergentagent.com/job_smart-feed-pets/artifacts/ygio5kkm_1Smartpaw%20Post%20-%2035%20copy.PNG';
+
+const SOCIALS = [
+  { name: 'Instagram', href: 'https://instagram.com/smartpaw', icon: Instagram },
+  { name: 'Facebook', href: 'https://facebook.com/smartpaw', icon: Facebook },
+  {
+    name: 'TikTok',
+    href: 'https://tiktok.com/@smartpaw',
+    icon: (props) => (
+      <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M16.5 3a5.5 5.5 0 0 0 4.5 4.5v3a8.5 8.5 0 0 1-4.5-1.3v6.6a6.2 6.2 0 1 1-6.2-6.2c.35 0 .69.03 1.02.09v3.1a3.2 3.2 0 1 0 2.18 3.02V3h3z" />
+      </svg>
+    ),
+  },
+];
 
 export default function Header({ onOpenSignup }) {
   const { lang, setLang, t } = useLang();
@@ -21,6 +35,7 @@ export default function Header({ onOpenSignup }) {
   const navItems = [
     { id: 'home', label: t.nav.home, tid: TID.header.navHome },
     { id: 'catalogue', label: t.nav.catalogue, tid: TID.header.navCatalogue },
+    { id: 'special-offers', label: t.nav.specials, tid: TID.header.navSpecials },
     { id: 'how', label: t.nav.how, tid: TID.header.navHow },
     { id: 'blog', label: t.nav.blog, tid: TID.header.navBlog },
     { id: 'contact', label: t.nav.contact, tid: TID.header.navContact },
@@ -40,30 +55,30 @@ export default function Header({ onOpenSignup }) {
           : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-5 md:px-10 h-20 flex items-center justify-between gap-6">
+      <div className="max-w-7xl mx-auto px-5 md:px-10 h-24 md:h-28 flex items-center justify-between gap-4">
         <button
           data-testid={TID.header.logo}
           onClick={() => scrollTo('home')}
-          className="flex items-center gap-2.5 group"
+          className="flex items-center gap-3 group shrink-0"
           aria-label="SmartPaw Food"
         >
           <img
             src={LOGO}
             alt="SmartPaw Food"
-            className="h-11 w-11 object-contain transition-transform duration-300 group-hover:rotate-[-6deg]"
+            className="h-16 w-16 md:h-20 md:w-20 object-contain transition-transform duration-300 group-hover:rotate-[-6deg]"
           />
-          <span className="font-display font-extrabold text-[#0A4D8C] text-lg tracking-tight hidden sm:block">
+          <span className="font-display font-extrabold text-[#0A4D8C] text-xl md:text-2xl tracking-tight hidden sm:block leading-none">
             SmartPaw <span className="text-[#F25C05]">Food</span>
           </span>
         </button>
 
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden xl:flex items-center gap-0.5">
           {navItems.map((it) => (
             <button
               key={it.id}
               data-testid={it.tid}
               onClick={() => scrollTo(it.id)}
-              className="px-4 py-2 text-sm font-medium text-[#05223D] hover:text-[#F25C05] transition-colors"
+              className="px-3.5 py-2 text-sm font-medium text-[#05223D] hover:text-[#F25C05] transition-colors whitespace-nowrap"
             >
               {it.label}
             </button>
@@ -71,6 +86,26 @@ export default function Header({ onOpenSignup }) {
         </nav>
 
         <div className="flex items-center gap-2">
+          {/* Socials (desktop only) */}
+          <div className="hidden lg:flex items-center gap-1 mr-1" aria-label="Social links">
+            {SOCIALS.map((s) => {
+              const Icon = s.icon;
+              return (
+                <a
+                  key={s.name}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.name}
+                  data-testid={`social-${s.name.toLowerCase()}-link`}
+                  className="w-9 h-9 rounded-full border border-[#0A4D8C1A] text-[#0A4D8C] flex items-center justify-center hover:bg-[#0A4D8C] hover:text-white hover:border-[#0A4D8C] transition-all"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              );
+            })}
+          </div>
+
           <div
             data-testid={TID.header.langToggle}
             className="hidden sm:flex items-center bg-white border border-[#0A4D8C1A] rounded-full p-1"
@@ -96,7 +131,7 @@ export default function Header({ onOpenSignup }) {
           <button
             data-testid={TID.header.cta}
             onClick={onOpenSignup}
-            className="hidden md:inline-flex btn-primary text-sm"
+            className="hidden md:inline-flex btn-primary text-sm whitespace-nowrap"
           >
             {t.nav.cta}
           </button>
@@ -104,7 +139,7 @@ export default function Header({ onOpenSignup }) {
           <button
             data-testid={TID.header.mobileMenu}
             onClick={() => setOpen((v) => !v)}
-            className="lg:hidden w-11 h-11 rounded-full border border-[#0A4D8C33] flex items-center justify-center text-[#0A4D8C]"
+            className="xl:hidden w-11 h-11 rounded-full border border-[#0A4D8C33] flex items-center justify-center text-[#0A4D8C]"
             aria-label="Open menu"
           >
             {open ? <X size={18} /> : <Menu size={18} />}
@@ -114,7 +149,7 @@ export default function Header({ onOpenSignup }) {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="lg:hidden bg-[#FDFBF7] border-t border-[#0A4D8C1A] px-5 py-6">
+        <div className="xl:hidden bg-[#FDFBF7] border-t border-[#0A4D8C1A] px-5 py-6">
           <div className="flex flex-col gap-1">
             {navItems.map((it) => (
               <button
@@ -131,6 +166,23 @@ export default function Header({ onOpenSignup }) {
             >
               {t.nav.cta}
             </button>
+            <div className="flex items-center justify-center gap-2 mt-5">
+              {SOCIALS.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <a
+                    key={s.name}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.name}
+                    className="w-10 h-10 rounded-full border border-[#0A4D8C1A] text-[#0A4D8C] flex items-center justify-center hover:bg-[#0A4D8C] hover:text-white hover:border-[#0A4D8C] transition-all"
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

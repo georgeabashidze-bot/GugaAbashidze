@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Sparkles, Truck, Repeat } from 'lucide-react';
+import { ArrowRight, Sparkles, Truck, ShieldCheck } from 'lucide-react';
 import { useLang } from '@/lib/LangContext';
 import { TID } from '@/constants/testIds';
 
@@ -57,7 +57,7 @@ export default function Hero({ onOpenSignup, onBrowse }) {
           <div className="mt-12 flex flex-wrap gap-6 text-sm">
             <Stat icon={<Sparkles size={16} />} label={t.hero.stat1} />
             <Stat icon={<Truck size={16} />} label={t.hero.stat2} />
-            <Stat icon={<Repeat size={16} />} label={t.hero.stat3} />
+            <Stat icon={<ShieldCheck size={16} />} label={t.hero.stat3} />
           </div>
         </div>
 

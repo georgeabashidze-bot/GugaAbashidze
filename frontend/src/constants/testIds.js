@@ -4,6 +4,7 @@ export const TID = {
     logo: 'header-logo',
     navHome: 'nav-home-link',
     navCatalogue: 'nav-catalogue-link',
+    navSpecials: 'nav-specials-link',
     navHow: 'nav-how-link',
     navBlog: 'nav-blog-link',
     navContact: 'nav-contact-link',

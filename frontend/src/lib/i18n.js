@@ -6,6 +6,7 @@ export const translations = {
     nav: {
       home: 'Home',
       catalogue: 'Catalogue',
+      specials: 'Special Offers',
       how: 'How it works',
       blog: 'Blog',
       contact: 'Contact',
@@ -15,12 +16,34 @@ export const translations = {
       eyebrow: 'Tbilisi · Pet care delivered',
       titleA: 'All your pet needs,',
       titleB: 'on a smarter schedule.',
-      sub: 'A subscription pet-care service for dogs and cats. Vet-approved shelf, free smart-dispenser, scheduled door-to-door delivery — across every Tbilisi district.',
+      sub: 'A subscription pet-care service for dogs and cats. Vet-approved shelf, free SmartPaw Feeder, scheduled door-to-door delivery — across every Tbilisi district.',
       ctaPrimary: 'Start your plan',
       ctaSecondary: 'Browse catalogue',
-      stat1: 'Free smart-dispenser',
-      stat2: 'Same-day delivery',
-      stat3: 'Cancel anytime',
+      stat1: 'Free SmartPaw Feeder',
+      stat2: 'Free Scheduled Delivery',
+      stat3: 'No product shortages',
+    },
+    products: {
+      regular: {
+        eyebrow: 'Regular Products',
+        title: 'Everyday essentials, on a schedule.',
+        body: 'The shelf your pet needs week after week — curated, vet-approved and restocked automatically.',
+        items: [
+          { key: 'food', title: 'Food', desc: 'Dry kibble, wet food and treats from trusted brands.' },
+          { key: 'hygiene', title: 'Hygiene', desc: 'Shampoos, litter, wipes and grooming basics.' },
+          { key: 'vitamins', title: 'Vitamins & Additives', desc: 'Supplements, probiotics and dietary boosters.' },
+        ],
+      },
+      specials: {
+        eyebrow: 'Special Offers',
+        title: 'Extras worth tail-wagging for.',
+        body: 'Rotating bundles, smart gadgets and add-on services to level up your pet’s routine.',
+        items: [
+          { key: 'toys', title: 'Toys & Accessories', desc: 'Collars, leashes, beds, toys and seasonal picks.' },
+          { key: 'tech', title: 'Innovation & Tech', desc: 'Smart feeders, paw-cams and connected devices.' },
+          { key: 'services', title: 'Services', desc: 'Grooming, vet check-ups and home visits.' },
+        ],
+      },
     },
     features: {
       f1: {
@@ -129,6 +152,7 @@ export const translations = {
     nav: {
       home: 'მთავარი',
       catalogue: 'კატალოგი',
+      specials: 'სპეციალური შეთავაზებები',
       how: 'როგორ მუშაობს',
       blog: 'ბლოგი',
       contact: 'კონტაქტი',
@@ -138,12 +162,34 @@ export const translations = {
       eyebrow: 'თბილისი · შინაური ცხოველის მოვლა მიწოდებით',
       titleA: 'შენი ცხოველის ყველაფერი —',
       titleB: 'ჭკვიანი გრაფიკით.',
-      sub: 'სააბონენტო სერვისი ძაღლებისა და კატებისთვის. ვეტექიმის მიერ დამოწმებული ბრენდები, უფასო ჭკვიანი ფიდერი და კარდაკარ მიწოდება — თბილისის ნებისმიერ რაიონში.',
+      sub: 'სააბონენტო სერვისი ძაღლებისა და კატებისთვის. ვეტექიმის მიერ დამოწმებული ბრენდები, უფასო SmartPaw ფიდერი და დაგეგმილი კარდაკარ მიწოდება — თბილისის ნებისმიერ რაიონში.',
       ctaPrimary: 'დაიწყე გეგმა',
       ctaSecondary: 'კატალოგი',
-      stat1: 'უფასო ჭკვიანი ფიდერი',
-      stat2: 'იმავე დღის მიწოდება',
-      stat3: 'გააუქმე ნებისმიერ დროს',
+      stat1: 'უფასო SmartPaw ფიდერი',
+      stat2: 'უფასო დაგეგმილი მიწოდება',
+      stat3: 'პროდუქცია არ ამოგეწურება',
+    },
+    products: {
+      regular: {
+        eyebrow: 'რეგულარული პროდუქცია',
+        title: 'ყოველდღიური საჭიროებები, გრაფიკით.',
+        body: 'თარო, რომელიც შენს ცხოველს ყოველკვირეულად სჭირდება — ვეტერინარის რჩევით, ავტომატური შევსებით.',
+        items: [
+          { key: 'food', title: 'საკვები', desc: 'მშრალი, სველი და წვრთნისთვის — სანდო ბრენდები.' },
+          { key: 'hygiene', title: 'ჰიგიენა', desc: 'შამპუნი, ქვიშა, ხელსახოცები და მოვლა.' },
+          { key: 'vitamins', title: 'ვიტამინები და დანამატები', desc: 'დიეტური დანამატები, პრობიოტიკები და სასარგებლო ნივთიერებები.' },
+        ],
+      },
+      specials: {
+        eyebrow: 'სპეციალური შეთავაზებები',
+        title: 'დამატებითი, რომელიც კუდს აქნევინებს.',
+        body: 'ცვალებადი ნაკრებები, ჭკვიანი მოწყობილობები და დამატებითი სერვისები.',
+        items: [
+          { key: 'toys', title: 'სათამაშოები და აქსესუარები', desc: 'საყელო, ლაშები, საწოლები, სათამაშოები და სეზონური არჩევანი.' },
+          { key: 'tech', title: 'ინოვაცია და ტექნოლოგია', desc: 'ჭკვიანი ფიდერი, paw-cam და მოწყობილობები.' },
+          { key: 'services', title: 'სერვისები', desc: 'მოვლა, ვეტერინარის შემოწმება და სახლის ვიზიტი.' },
+        ],
+      },
     },
     features: {
       f1: { kicker: 'ვეტერინარის რჩევით', title: 'თარო, რომელიც ცხოველებს ნამდვილად იცნობს.', body: 'პრემიუმ საკვები ძაღლებსა და კატებს, წვრთნისთვის და დანამატები. დატოვე რაც გიყვარს, შეცვალე ის, რაც არ მუშაობს — ჩვენ ვამარაგებთ ავტომატურად.', cta: 'კატალოგი' },
