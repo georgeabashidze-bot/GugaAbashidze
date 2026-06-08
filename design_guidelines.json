@@ -1,0 +1,148 @@
+{
+  "theme_archetype": {
+    "theme": "LIGHT",
+    "archetype": "Archetype 1 (Organic & Earthy)",
+    "rationale": "Pet wellness and care needs to feel warm, approachable, and trustworthy. The off-white base paired with the brand's navy and orange strikes a balance between premium service and friendly pet care."
+  },
+  "colors": {
+    "background": {
+      "base": "#FDFBF7",
+      "surface": "#FFFFFF",
+      "surface_alt": "#F5F2EB"
+    },
+    "brand": {
+      "primary": "#0A4D8C",
+      "primary_hover": "#083C6E",
+      "accent": "#F25C05",
+      "accent_hover": "#D95204"
+    },
+    "text": {
+      "main": "#05223D",
+      "muted": "#465B70",
+      "inverse": "#FFFFFF"
+    },
+    "border": {
+      "subtle": "#0A4D8C1A",
+      "strong": "#0A4D8C33"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "heading": "Cabinet Grotesk",
+      "body": "DM Sans",
+      "import_instructions": "Import via Google Fonts or Fontshare. Example: @import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,500,700,400&display=swap'); and @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');"
+    },
+    "scales": {
+      "h1": "text-5xl sm:text-6xl tracking-tighter leading-none font-bold",
+      "h2": "text-3xl sm:text-4xl tracking-tight leading-tight font-bold",
+      "h3": "text-2xl sm:text-3xl tracking-tight font-medium",
+      "h4": "text-xl font-medium",
+      "body_large": "text-lg leading-relaxed",
+      "body": "text-base leading-relaxed",
+      "label": "text-xs tracking-[0.2em] uppercase font-bold text-[#465B70]"
+    }
+  },
+  "spacing_and_layout": {
+    "philosophy": "Generous Spacing, Mobile-First, Asymmetrical where possible",
+    "containers": "max-w-7xl mx-auto px-6 md:px-12",
+    "section_gap": "py-24 md:py-32",
+    "bento_grid": "grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8",
+    "optical_alignment": "Align text left by default, avoid center-everything disease. Provide high padding (p-8 to p-12) inside bordered containers."
+  },
+  "surfaces_and_shadows": {
+    "cards": "bg-[#FFFFFF] border border-[#0A4D8C1A] rounded-3xl p-8 shadow-[0_4px_24px_rgba(10,77,140,0.03)]",
+    "header_nav": "bg-[#FDFBF7]/80 backdrop-blur-xl border-b border-[#0A4D8C1A]",
+    "floating_elements": "shadow-[0_12px_48px_rgba(5,34,61,0.08)] rounded-full"
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#F25C05] text-[#FFFFFF] font-bold rounded-full px-8 py-4 hover:bg-[#D95204] hover:-translate-y-1 transition-all duration-300",
+      "secondary": "bg-transparent text-[#0A4D8C] border-2 border-[#0A4D8C] font-bold rounded-full px-8 py-4 hover:bg-[#0A4D8C] hover:text-[#FFFFFF] hover:-translate-y-1 transition-all duration-300"
+    },
+    "badges": "inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F5F2EB] text-[#0A4D8C] font-medium text-sm",
+    "inputs": "bg-[#FFFFFF] border border-[#0A4D8C33] rounded-xl px-4 py-3 w-full text-[#05223D] placeholder:text-[#465B70]/60 focus:ring-2 focus:ring-[#F25C05] focus:border-transparent outline-none transition-all",
+    "whatsapp_fab": "fixed bottom-6 right-6 bg-[#25D366] text-white p-4 rounded-full shadow-[0_8px_32px_rgba(37,211,102,0.3)] hover:-translate-y-2 hover:shadow-[0_12px_48px_rgba(37,211,102,0.4)] transition-all duration-300 z-50 flex items-center justify-center"
+  },
+  "motion_interactions": {
+    "scroll": "Use Lenis for smooth momentum scrolling.",
+    "hover": "Cards lift slightly (-translate-y-1) and drop shadow deepens. Inner images zoom slightly scale-105 duration-500 ease-out.",
+    "reveal": "Use Framer Motion to stagger-fade elements into view on scroll."
+  },
+  "image_urls": {
+    "logo": {
+      "url": "https://customer-assets.emergentagent.com/job_smart-feed-pets/artifacts/ygio5kkm_1Smartpaw%20Post%20-%2035%20copy.PNG",
+      "description": "Smartpaw Brand Logo"
+    },
+    "hero_video_or_image": {
+      "url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?crop=entropy&cs=srgb&fm=jpg",
+      "description": "White dog and gray cat hugging (Alternative to video)"
+    },
+    "features_alternating": [
+      {
+        "url": "https://images.pexels.com/photos/20109380/pexels-photo-20109380.jpeg",
+        "description": "Tabby cat eating from a programmable smart pet feeder"
+      },
+      {
+        "url": "https://images.pexels.com/photos/31254347/pexels-photo-31254347.jpeg",
+        "description": "Close-up of a joyful golden retriever"
+      },
+      {
+        "url": "https://images.pexels.com/photos/35620584/pexels-photo-35620584.jpeg",
+        "description": "A fluffy ginger cat lounging comfortably"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1557495235-340eb888a9fb?crop=entropy&cs=srgb&fm=jpg",
+        "description": "Woman lovingly hugging her dog outdoors"
+      }
+    ],
+    "categories": [
+      {
+        "title": "Pet Food",
+        "url": "https://images.pexels.com/photos/8434637/pexels-photo-8434637.jpeg"
+      },
+      {
+        "title": "Pet Accessories",
+        "url": "https://images.pexels.com/photos/4445456/pexels-photo-4445456.jpeg"
+      },
+      {
+        "title": "Health & Hygiene",
+        "url": "https://images.pexels.com/photos/1436139/pexels-photo-1436139.jpeg"
+      },
+      {
+        "title": "Smartpaw Innovation",
+        "url": "https://images.pexels.com/photos/27435433/pexels-photo-27435433.jpeg"
+      }
+    ],
+    "blog_covers": [
+      {
+        "url": "https://images.pexels.com/photos/8498561/pexels-photo-8498561.jpeg"
+      },
+      {
+        "url": "https://images.pexels.com/photos/32137302/pexels-photo-32137302.jpeg"
+      },
+      {
+        "url": "https://images.pexels.com/photos/12441164/pexels-photo-12441164.jpeg"
+      }
+    ],
+    "partners": [
+      "https://smartpaw-draft-4.vercel.app/partners/1.png",
+      "https://smartpaw-draft-4.vercel.app/partners/2.png",
+      "https://smartpaw-draft-4.vercel.app/partners/3.png",
+      "https://smartpaw-draft-4.vercel.app/partners/4.png",
+      "https://smartpaw-draft-4.vercel.app/partners/5.png",
+      "https://smartpaw-draft-4.vercel.app/partners/6.png",
+      "https://smartpaw-draft-4.vercel.app/partners/7.png"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Build a static marketing landing page strictly following the layout sections of smartpaw-draft-4.vercel.app, using pure HTML and Tailwind for layout structures. Do not use generic Shadcn layout wrappers unless highly customized.",
+    "Use the exact color codes provided. No purple gradients or standard 'Vercel' looks.",
+    "Implement the 'Start your plan' flow as a Lead Capture Form (Name, Email, Phone, Pet Name, Pet Type, Breed/Age). It can be a modal or an inline section.",
+    "Add a fixed WhatsApp floating action button on the bottom right linking to +995591969901.",
+    "Include a language toggle (EN/KA) in the header (create the UI logic, can just change state/console log for now if no actual translation exists).",
+    "Partner logos must be a smooth infinite marquee using 'react-fast-marquee' or CSS animation.",
+    "Add 'data-testid' to ALL interactive elements (buttons, links, form inputs) using kebab-case role-based names (e.g., 'data-testid=\"start-plan-button\"').",
+    "Ensure 'Cabinet Grotesk' is loaded for headings and 'DM Sans' for body text.",
+    "Hero Section: Instead of the video (since it might fail to load), build an overlapping bento-style composition using the hero image provided, layered with text and dual CTAs."
+  ]
+}
