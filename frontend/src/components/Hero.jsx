@@ -3,8 +3,8 @@ import { ArrowRight, Sparkles, Truck, ShieldCheck } from 'lucide-react';
 import { useLang } from '@/lib/LangContext';
 import { TID } from '@/constants/testIds';
 
-const HERO_IMG = 'https://images.pexels.com/photos/20109380/pexels-photo-20109380.jpeg?auto=compress&cs=tinysrgb&w=1600';
-const HERO_IMG_2 = 'https://images.pexels.com/photos/31254347/pexels-photo-31254347.jpeg?auto=compress&cs=tinysrgb&w=1200';
+const HERO_IMG = 'https://images.pexels.com/photos/30769356/pexels-photo-30769356.jpeg?auto=compress&cs=tinysrgb&w=1600';
+const HERO_IMG_2 = 'https://images.pexels.com/photos/20109380/pexels-photo-20109380.jpeg?auto=compress&cs=tinysrgb&w=1200';
 
 export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
   const { t } = useLang();
@@ -23,12 +23,12 @@ export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
             {t.hero.eyebrow}
           </div>
 
-          <h1 className="font-display font-extrabold text-[#05223D] text-[30px] sm:text-[40px] lg:text-[52px] leading-[1.05] tracking-[-0.025em]">
+          <h1 className="font-display font-extrabold text-[#05223D] text-[26px] sm:text-[34px] lg:text-[44px] leading-[1.1] tracking-[-0.02em]">
             {t.hero.titleA}
             <br />
             <span className="relative inline-block mt-2">
               <span className="relative z-10 text-[#0A4D8C]">{t.hero.titleB}</span>
-              <span className="absolute left-0 right-0 bottom-1 h-3 md:h-4 bg-[#F25C05]/30 -z-0 rounded-full" aria-hidden />
+              <span className="absolute left-0 right-0 bottom-1 h-3 md:h-3.5 bg-[#F25C05]/30 -z-0 rounded-full" aria-hidden />
             </span>
           </h1>
 
@@ -73,7 +73,7 @@ export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
           <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden card-soft floaty">
             <img
               src={HERO_IMG}
-              alt="Tabby cat eating from a smart pet feeder"
+              alt="Dog eating from a SmartPaw feeder"
               className="absolute inset-0 w-full h-full object-cover"
               loading="eager"
             />
@@ -91,7 +91,7 @@ export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
           </div>
 
           <div className="hidden md:block absolute -bottom-8 -left-8 w-44 h-44 rounded-3xl overflow-hidden border-4 border-[#FDFBF7] shadow-xl rotate-[-6deg]">
-            <img src={HERO_IMG_2} alt="Joyful golden retriever" className="w-full h-full object-cover" />
+            <img src={HERO_IMG_2} alt="Curious cat" className="w-full h-full object-cover" />
           </div>
           <div className="hidden md:flex absolute -top-6 -right-4 bg-white rounded-2xl px-4 py-3 shadow-xl border border-[#0A4D8C1A] items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-[#F25C05]/15 flex items-center justify-center">

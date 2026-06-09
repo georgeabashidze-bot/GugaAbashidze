@@ -14,7 +14,7 @@ export const translations = {
     },
     hero: {
       eyebrow: 'Routine Feeding Simplified',
-      titleA: 'Fed up with pet shop visits, early wake-ups and other routine feeding related problems?',
+      titleA: 'Fed up with pet shop visits, early wake-ups and other feeding related problems?',
       titleB: 'Forget it — SmartPaw will take care.',
       sub: 'Register — choose your products — choose delivery dates, and we’ll do the rest. You’ll never forget, never run out of your pet’s products, and you won’t pay anything extra for regular deliveries. Plus, you’ll have our feeder, which will feed your pet even when you are not at home.',
       ctaPrimary: 'Start your plan',
@@ -162,7 +162,7 @@ export const translations = {
     },
     hero: {
       eyebrow: 'რეგულარული კვება გამარტივებული',
-      titleA: 'მობეზრდა ცხოველის მაღაზიის ვიზიტები, ადრე გაღვიძებები და სხვა რეგულარულ კვებასთან დაკავშირებული პრობლემები?',
+      titleA: 'მობეზრდა ცხოველის მაღაზიის ვიზიტები, ადრე გაღვიძებები და კვებასთან დაკავშირებული სხვა პრობლემები?',
       titleB: 'დაივიწყე — SmartPaw იზრუნებს.',
       sub: 'დარეგისტრირდი — აირჩიე პროდუქცია — აირჩიე მიწოდების თარიღები, დანარჩენი ჩვენი საქმეა. არასოდეს დაგავიწყდება, არ ამოგეწურება და დამატებითს არაფერს გადაიხდი რეგულარულ მიწოდებაში. დამატებით, გექნება ჩვენი ფიდერი, რომელიც შენი ცხოველის კვებას უზრუნველყოფს მაშინაც, როცა შინ არ ხარ.',
       ctaPrimary: 'დაიწყე გეგმა',
