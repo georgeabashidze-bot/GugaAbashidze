@@ -26,7 +26,7 @@ export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
           <h1 className="font-display font-extrabold text-[#05223D] text-[26px] sm:text-[34px] lg:text-[44px] leading-[1.1] tracking-[-0.02em]">
             {t.hero.titleA}
             <br />
-            <span className="relative inline-block mt-2">
+            <span className="relative inline-block mt-2 lg:whitespace-nowrap">
               <span className="relative z-10 text-[#0A4D8C]">{t.hero.titleB}</span>
               <span className="absolute left-0 right-0 bottom-1 h-3 md:h-3.5 bg-[#F25C05]/30 -z-0 rounded-full" aria-hidden />
             </span>
