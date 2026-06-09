@@ -23,11 +23,11 @@ export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
             {t.hero.eyebrow}
           </div>
 
-          <h1 className="font-display font-extrabold text-[#05223D] text-[42px] sm:text-6xl lg:text-[76px] leading-[0.95] tracking-[-0.03em]">
+          <h1 className="font-display font-extrabold text-[#05223D] text-[30px] sm:text-[40px] lg:text-[52px] leading-[1.05] tracking-[-0.025em]">
             {t.hero.titleA}
             <br />
-            <span className="relative inline-block">
-              <span className="relative z-10">{t.hero.titleB}</span>
+            <span className="relative inline-block mt-2">
+              <span className="relative z-10 text-[#0A4D8C]">{t.hero.titleB}</span>
               <span className="absolute left-0 right-0 bottom-1 h-3 md:h-4 bg-[#F25C05]/30 -z-0 rounded-full" aria-hidden />
             </span>
           </h1>
