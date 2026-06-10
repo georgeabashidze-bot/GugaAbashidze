@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import PageShell from '@/components/PageShell';
+import PromoBanner from '@/components/PromoBanner';
 import { ROUTES } from '@/constants/routes';
 
 const SUB_IMAGES = {
@@ -22,12 +23,21 @@ export default function SpecialOffersPage() {
     <PageShell
       eyebrow="Special Offers"
       title="Rotating bundles, smart gadgets and add-on services."
-      intro="A second shelf of extras worth tail-wagging for. We’re finalizing launch offers with partners — register now to be first in line."
+      intro="A second shelf worth tail-wagging for — current launch perks, seasonal bundles and partner services curated alongside your subscription."
       image="https://images.pexels.com/photos/27435433/pexels-photo-27435433.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Smart pet feeder on a kitchen counter"
-      comingSoon
-      comingSoonNote="launch bundles dropping soon"
     >
+      <div className="mb-14 md:mb-20">
+        <PromoBanner />
+      </div>
+
+      <div className="mb-7 md:mb-9">
+        <p className="text-xs tracking-[0.22em] uppercase font-bold text-[#F25C05]">Shelves</p>
+        <h2 className="font-display font-bold text-[#05223D] text-3xl md:text-4xl tracking-[-0.02em] leading-tight mt-2">
+          Browse the special offers shelf.
+        </h2>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-7">
         {subs.map(([key, sub]) => (
           <Link

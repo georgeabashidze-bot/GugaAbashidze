@@ -82,6 +82,8 @@ export function ToysPage() {
       intro="Collars, leashes, beds, plush, ropes, balls and seasonal bundles — handpicked for durability, not Instagram looks alone."
       image="https://images.pexels.com/photos/4445456/pexels-photo-4445456.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Dog with a toy"
+      category="specials"
+      subCategory="toys-accessories"
       willInclude={[
         'Collars, harnesses and leashes (everyday + walk gear)',
         'Beds and crate mats sized to your pet',
@@ -105,6 +107,8 @@ export function InnovationTechPage() {
       intro="Smart feeders, paw-cams, GPS trackers and connected devices — vetted, set up and integrated with your SmartPaw plan."
       image="https://images.pexels.com/photos/27435433/pexels-photo-27435433.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Smart pet feeder"
+      category="specials"
+      subCategory="innovation-tech"
       willInclude={[
         'SmartPaw Feeder — free with eligible plans',
         'Smart water fountains with filtration',
@@ -128,6 +132,8 @@ export function ServicesPage() {
       intro="Grooming, vet check-ups and home visits — coordinated through one trusted partner network, all bookable from your account."
       image="https://images.pexels.com/photos/6816858/pexels-photo-6816858.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Pet grooming"
+      category="specials"
+      subCategory="services"
       willInclude={[
         'Mobile grooming at your door',
         'Vet check-ups and vaccination reminders',

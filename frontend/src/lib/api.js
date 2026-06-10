@@ -25,6 +25,7 @@ export const api = {
     return request(`/api/products${qs ? `?${qs}` : ''}`);
   },
   getProduct: (slug) => request(`/api/products/${slug}`),
+  listPromos: () => request('/api/promos'),
   createLead: (payload) =>
     request('/api/leads', { method: 'POST', body: JSON.stringify(payload) }),
 };

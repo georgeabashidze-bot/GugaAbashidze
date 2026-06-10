@@ -249,7 +249,7 @@ PRODUCTS: List[Dict] = [
 ]
 
 
-def _expand(p: dict) -> dict:
+def _expand(p: dict, category: str = "catalogue") -> dict:
     """Add the fields every Product document needs in MongoDB."""
     import uuid
     return {
@@ -257,7 +257,7 @@ def _expand(p: dict) -> dict:
         "slug": p["slug"],
         "name": p["name"],
         "brand": p["brand"],
-        "category": "catalogue",
+        "category": p.get("category", category),
         "sub_category": p["sub_category"],
         "pet_type": p.get("pet_type", "both"),
         "image": p["image"],
@@ -271,17 +271,19 @@ def _expand(p: dict) -> dict:
 
 
 async def seed_products_if_empty(db) -> int:
-    """Insert sample catalogue products if the products collection is empty.
+    """Insert sample products (catalogue + specials) if collection is empty.
 
-    Returns the number of products inserted (0 if nothing was done).
+    Returns total inserted (0 if collection already had docs).
     """
     existing = await db.products.count_documents({})
     if existing > 0:
         return 0
-    docs = [_expand(p) for p in PRODUCTS]
+    from seed_specials import SPECIALS_PRODUCTS
+
+    docs = [_expand(p, "catalogue") for p in PRODUCTS]
+    docs += [_expand(p, "specials") for p in SPECIALS_PRODUCTS]
     if docs:
         await db.products.insert_many(docs)
-        # Ensure unique slug index for fast lookups + integrity.
         await db.products.create_index("slug", unique=True)
         await db.products.create_index([("category", 1), ("sub_category", 1)])
     return len(docs)

@@ -1,0 +1,35 @@
+{
+  "summary": "Phase 3 Special Offers engine tested end-to-end (backend + frontend). All 16 backend pytest cases pass (36 products with 6 per sub_category, /promos returns 3 active promos with full fields & correct cta_routes, Phase 2 regression on /products and /leads intact). Frontend PromoBanner is fully functional on /special-offers (title/badge/CTA, 3 dots, prev/next advance correctly, auto-rotate via TanStack Query, 'coming soon' removed). All 3 specials sub-pages render their grids with 6 product cards each and the expected brand checkboxes (Toys: Ferplast/Hunter/Kong/Outward Hound/PetSafe/Trixie; Tech: SmartPaw/Petkit/Tractive/Furbo/PetSafe/Sure Petcare; Services: SmartPaw Partners/Partner Vets/Trusted Walkers/Certified Trainers). Product card click opens global signup-modal. Catalogue regression (/catalogue/food) still 6 cards, WhatsApp FAB present everywhere, zero console errors.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "tests_executed": [
+    "Backend pytest (16 tests, all PASS): products total=36, six per sub_category x6, ?category=specials -> 18, ?category=specials&sub_category={toys-accessories|innovation-tech|services} -> 6 each, GET /products/{smartpaw-smart-feeder-pro|kong-classic-rubber-toy|mobile-grooming-session} -> 200, GET /promos returns 3 active promos with all required fields and correct cta_routes (free-feeder-annual -> /special-offers/innovation-tech, winter-toys-bundle -> /special-offers/toys-accessories, first-groom-half -> /special-offers/services), promos sorted by order, ?sub_category=food -> 6, ?pet_type=cat filter works, POST/GET /api/leads round-trip OK",
+    "Frontend /special-offers: PromoBanner visible (data-testid promo-banner), title/badge/subtitle/CTA rendered for slide-1 'Free SmartPaw Feeder' with cta_href=/special-offers/innovation-tech. 3 dots present (promo-banner-dot-0/1/2). Click NEXT advances to 'Winter toys bundle, -20%' (cta=/special-offers/toys-accessories). Click PREV returns to slide-1. Click dot-2 jumps to 'First mobile groom at 50%' (cta=/special-offers/services). 'coming soon' text absent. Sub-category cards present (testids: specials-toys-card, specials-tech-card, specials-services-card - route-key based, NOT the long sub_category slugs from the review brief).",
+    "Frontend /special-offers/toys-accessories: data-testid specials-toys-accessories-grid renders 6 product cards. Brand checkboxes: Ferplast, Hunter, Kong, Outward Hound, PetSafe, Trixie (all expected brands present). Product card click opens [data-testid=signup-modal] OK.",
+    "Frontend /special-offers/innovation-tech: data-testid specials-innovation-tech-grid renders 6 product cards. Brands: Furbo, Petkit, PetSafe, SmartPaw, Sure Petcare, Tractive (all expected brands present).",
+    "Frontend /special-offers/services: data-testid specials-services-grid renders 6 product cards. Brands: Certified Trainers, Partner Vets, SmartPaw Partners, Trusted Walkers (all expected brands present).",
+    "Regression /catalogue/food: catalogue-food-grid still 6 cards, pet-type Dogs filter narrows to 3, WhatsApp FAB visible, 0 console errors."
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_phase3_specials.py",
+    "/app/test_reports/pytest/phase3_specials.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Spec/test-id mismatch (cosmetic): the review brief refers to the special-offers root cards as 'specials-{toys-accessories|innovation-tech|services}-card', but the implementation uses the ROUTES key (toys/tech/services) so the actual testids are specials-toys-card, specials-tech-card, specials-services-card. Cards work and navigate correctly. Either align the testids to the sub_category slug for consistency with grid testids, or accept the route-key convention.",
+    "Minor: PromoBanner setInterval auto-advance (6s) runs even when the tab is backgrounded; consider pausing on document.visibilityState !== 'visible' to save renders and React Query refetches.",
+    "Minor: GET /api/promos query builds an $and with two $or arrays - works but is slightly heavier than needed. Indexes (active, order) are created in seed but the query also filters on starts_at/ends_at strings - acceptable at 3 docs scale but if promos collection grows, switch starts_at/ends_at to native datetime + add a compound index (active, starts_at, ends_at).",
+    "Minor: PromoBanner uses string ISO timestamps for date filtering, which only works for UTC-suffixed ISO strings (correct in seed). If a future ingest writes naive datetimes, the $lte/$gte string compare will silently mis-filter. Consider storing BSON dates."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "100% (16/16)", "frontend": "100%" },
+  "seed_data_creation": "none - app auto-seeded 36 products + 3 promos on startup as designed",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Phase 3 fully green. Backend: /app/backend/tests/test_phase3_specials.py covers totals + sub_category counts + product detail + /promos + Phase 2 regression. Run with: pytest /app/backend/tests/test_phase3_specials.py -v. Frontend specials sub-pages share the CatalogueShelf component used in Phase 2 - same filter testids work. Note: the root /special-offers sub-category card testids are specials-toys-card / specials-tech-card / specials-services-card (route-key based), not the longer sub_category slugs.",
+  "rca of the issue": "n/a - no defects found."
+}

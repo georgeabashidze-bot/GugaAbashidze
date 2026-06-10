@@ -11,6 +11,7 @@ import uuid
 from datetime import datetime, timezone
 
 from seed_products import seed_products_if_empty
+from seed_promos import seed_promos_if_empty
 
 
 ROOT_DIR = Path(__file__).parent
@@ -196,6 +197,40 @@ async def get_product(slug: str):
     return _serialize_product(doc)
 
 
+# ---- Promos ----
+class Promo(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: str
+    slug: str
+    title: str
+    subtitle: str
+    badge: Optional[str] = None
+    cta_label: str
+    cta_route: str
+    image: str
+    accent: Optional[str] = None
+    starts_at: Optional[str] = None
+    ends_at: Optional[str] = None
+    active: bool = True
+    order: int = 100
+
+
+@api_router.get("/promos", response_model=List[Promo])
+async def list_promos():
+    """Return promos that are active and within their date window."""
+    now_iso = datetime.now(timezone.utc).isoformat()
+    query = {
+        "active": True,
+        "$and": [
+            {"$or": [{"starts_at": None}, {"starts_at": {"$lte": now_iso}}]},
+            {"$or": [{"ends_at": None}, {"ends_at": {"$gte": now_iso}}]},
+        ],
+    }
+    items = await db.promos.find(query, {"_id": 0}).sort("order", 1).to_list(50)
+    return [Promo(**it) for it in items]
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
@@ -219,9 +254,15 @@ async def startup_seed_products():
     try:
         inserted = await seed_products_if_empty(db)
         if inserted:
-            logger.info("Seeded %d products into catalogue.", inserted)
+            logger.info("Seeded %d products.", inserted)
     except Exception as e:  # noqa: BLE001
         logger.error("Product seeding failed: %s", e)
+    try:
+        inserted = await seed_promos_if_empty(db)
+        if inserted:
+            logger.info("Seeded %d promos.", inserted)
+    except Exception as e:  # noqa: BLE001
+        logger.error("Promo seeding failed: %s", e)
 
 
 @app.on_event("shutdown")
