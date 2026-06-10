@@ -1,0 +1,47 @@
+{
+  "summary": "Iteration 7 — Validated Phase 4 CSS regression fix and full Phase 5 Inside Marketing Pages overhaul (HowItWorks, About, Contact, FAQ) plus backend contact-inquiries + regression of leads/products/promos. 6/6 backend tests pass. Frontend: 22/22 HowItWorks, 20/20 About, 16/16 Contact, 13/14 FAQ pass. Plans regression FIXED — featured Free+Feeder card computed border-color is now rgb(242, 92, 5) with 2px width. Only minor finding: FAQ page currently has 22 questions, not 23 as the request spec stated; footer correctly shows 'Showing 22 of 22 questions.' (data short by one item — likely a content omission, not a render bug).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "content_issues": [
+      {
+        "component": "FAQPage / FAQS data",
+        "issue": "Spec required 23 questions across 5 categories but only 22 are present (Plans 5, Delivery 5, Products 4, Feeder 4, Account 4). Footer correctly reflects the actual count ('Showing 22 of 22 questions.'). Add one more question (recommend Products & Brands or SmartPaw Feeder) to match spec.",
+        "selector": "[data-testid='faq-results-list']",
+        "priority": "LOW"
+      }
+    ]
+  },
+  "verified_behaviour": {
+    "plans_regression": "computed border-color of [data-testid='plan-feeder-card'] = 'rgb(242, 92, 5)', border-width = '2px' — fix from index.css @layer components wrap of .card-soft works.",
+    "how_it_works": "Hero title 'Sign up, sit back.' present. how-it-works-section + how-timeline-section render. 6 timeline steps (1..6) present, no step-7. Step-1 has 3 bullet items. CTA opens signup-modal. WhatsApp link href = https://wa.me/995591969901. why-smartpaw-section + how-inline-faq-section render with 5 items; faq-toggle-0 open by default (aria-expanded=true); clicking faq-toggle-1 expands it.",
+    "about": "founder-section has 5 <p> paragraphs. metrics-section has 4 tiles with values 1,200+, 36, 60 min, 0 GEL. All 4 value cards (vet-aligned, honest-pricing, tbilisi-roots, quietly-modern) present. team-section has 4 cards mentioning Tornike, Nina, Luka, Mariam. mid-cta-section: about-start-plan-button opens signup-modal; about-contact-link href = /contact.",
+    "contact": "details-card shows +995 591 96 99 01 and hello@smartpaw.ge. Map iframe present with google.com/maps src inside contact-map-card. WhatsApp button href = https://wa.me/995591969901 exactly. All 4 department buttons present. Submitting empty form shows contact-form-error and makes NO POST. Switching to 'partnerships' updates routed-to email from hello@smartpaw.ge to partners@smartpaw.ge. Happy-path submit POSTs to /api/contact-inquiries returning 201, contact-form-success becomes visible.",
+    "faq": "controls block with search + 6 category pills (all/plans/delivery/products/feeder/account) present. faq-results-list renders. faq-toggle-0 open by default. Delivery filter -> exactly 5 items. Search 'feeder' -> 5 results (filter works). 'zzznonsense' -> faq-empty-state with faq-empty-whatsapp-link. Footer shortcut 'Showing 22 of 22 questions.' (count off-by-one vs spec)."
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_contact_inquiries.py",
+    "/app/test_reports/pytest/contact_inquiries.xml"
+  ],
+  "action_items": [
+    "Add one more FAQ question to /app/frontend/src/pages/FAQPage.jsx so the total becomes 23 and the footer reads 'Showing 23 of 23 questions.' (no other regressions found)."
+  ],
+  "critical_code_review_comments": [
+    "Phase 4 CSS specificity fix is good: wrapping .card-soft in @layer components allows Tailwind utilities (border-[#F25C05]) to win on border-color. Worth applying the same @layer components pattern to other shared component classes in index.css (e.g. .form-input) to avoid future Tailwind override surprises.",
+    "Backend ContactInquiry endpoints persist and serialize cleanly (use {'_id': 0} projection, ISO timestamps). EmailStr validation correctly rejects bad emails with 422. No issues.",
+    "/api/contact-inquiries currently has no auth or rate limiting — fine for a public lead form, but adding a basic abuse guard (per-IP throttle / honeypot) before production is recommended.",
+    "/app/frontend/src/pages/HowItWorksPage.jsx, AboutPage.jsx and FAQPage.jsx have well-organised constants (TIMELINE, INLINE_FAQS, FAQS, etc.). HowItWorksPage is fairly long — if more content is added consider extracting the timeline + inline FAQ blocks into sub-components."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_contact_inquiries.py (new pytest module)"
+  ],
+  "success_rate": {"backend": "100% (6/6)", "frontend": "98.6% (71/72 assertions)"},
+  "test_credentials": "n/a",
+  "seed_data_creation": "Created several TEST_-prefixed contact inquiries + one TEST_ lead via the public APIs during testing.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Plans /plans regression is permanently resolved (computed border-color confirmed). Phase 5 pages are all functional. Only outstanding nit: FAQ count is 22, not 23. Main agent can self-test by adding one FAQ entry and confirming faq-footer-shortcut updates.",
+  "rca of the issue": "FAQ count gap RCA: FAQS array in /app/frontend/src/pages/FAQPage.jsx lines 16-45 contains 5 plans + 5 delivery + 4 products + 4 feeder + 4 account = 22 entries. The request spec stated 23 across 5 categories. Either spec is off by one or one item was dropped. Mitigation: append one additional question object (e.g. another 'products' or 'feeder' entry) so total reaches 23. No render logic change is required — the footer shortcut already uses filtered.length and FAQS.length so it will auto-update."
+}

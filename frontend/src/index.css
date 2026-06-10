@@ -134,11 +134,38 @@ body {
   transform: translateY(-2px);
 }
 
-.card-soft {
-  background-color: var(--sp-surface);
-  border: 1px solid var(--sp-border-subtle);
-  border-radius: 1.75rem;
-  box-shadow: 0 4px 24px rgba(10, 77, 140, 0.04);
+@layer components {
+  .card-soft {
+    background-color: var(--sp-surface);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--sp-border-subtle);
+    border-radius: 1.75rem;
+    box-shadow: 0 4px 24px rgba(10, 77, 140, 0.04);
+  }
+}
+
+.form-input {
+  width: 100%;
+  background-color: #FDFBF7;
+  border: 1px solid rgba(10, 77, 140, 0.18);
+  border-radius: 0.85rem;
+  padding: 0.85rem 1rem;
+  color: #05223D;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.form-input::placeholder {
+  color: rgba(70, 91, 112, 0.55);
+}
+.form-input:hover {
+  border-color: rgba(10, 77, 140, 0.32);
+}
+.form-input:focus {
+  outline: none;
+  background-color: #fff;
+  border-color: #F25C05;
+  box-shadow: 0 0 0 4px rgba(242, 92, 5, 0.12);
 }
 
 /* Custom scrollbar */

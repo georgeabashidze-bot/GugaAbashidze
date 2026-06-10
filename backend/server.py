@@ -124,6 +124,60 @@ async def create_lead(payload: LeadCreate):
     )
 
 
+class ContactInquiryCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    email: EmailStr
+    subject: str = Field(min_length=1, max_length=180)
+    message: str = Field(min_length=1, max_length=4000)
+    department: Optional[str] = Field(default='general', max_length=40)
+
+
+class ContactInquiry(ContactInquiryCreate):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class ContactInquiryResponse(BaseModel):
+    id: str
+    name: str
+    email: EmailStr
+    subject: str
+    created_at: datetime
+
+
+@api_router.post("/contact-inquiries", response_model=ContactInquiryResponse, status_code=201)
+async def create_contact_inquiry(payload: ContactInquiryCreate):
+    inquiry = ContactInquiry(**payload.model_dump())
+    doc = inquiry.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.contact_inquiries.insert_one(doc)
+    return ContactInquiryResponse(
+        id=inquiry.id,
+        name=inquiry.name,
+        email=inquiry.email,
+        subject=inquiry.subject,
+        created_at=inquiry.created_at,
+    )
+
+
+@api_router.get("/contact-inquiries", response_model=List[ContactInquiryResponse])
+async def list_contact_inquiries():
+    items = await db.contact_inquiries.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    result: List[ContactInquiryResponse] = []
+    for it in items:
+        created = it.get('created_at')
+        if isinstance(created, str):
+            created = datetime.fromisoformat(created)
+        result.append(ContactInquiryResponse(
+            id=it['id'],
+            name=it['name'],
+            email=it['email'],
+            subject=it['subject'],
+            created_at=created,
+        ))
+    return result
+
+
 @api_router.get("/leads", response_model=List[LeadResponse])
 async def list_leads():
     items = await db.leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)

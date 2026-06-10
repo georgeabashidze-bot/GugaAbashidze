@@ -28,4 +28,6 @@ export const api = {
   listPromos: () => request('/api/promos'),
   createLead: (payload) =>
     request('/api/leads', { method: 'POST', body: JSON.stringify(payload) }),
+  createContactInquiry: (payload) =>
+    request('/api/contact-inquiries', { method: 'POST', body: JSON.stringify(payload) }),
 };
