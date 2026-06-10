@@ -31,6 +31,7 @@ const FAQS = [
   { cat: 'products', q: 'What if my pet doesn’t like a product?', a: 'Tell us and we’ll swap it on your next delivery at no extra cost. We track what your pet actually eats and refine the box over time.' },
   { cat: 'products', q: 'Do you stock prescription diets?', a: 'Yes — renal, urinary, weight management, sensitivity and hypoallergenic lines from Royal Canin, Hill’s and Purina Pro Plan. Share the vet prescription on WhatsApp and we’ll add it to your plan.' },
   { cat: 'products', q: 'Do you sell only food?', a: 'No. We also stock hygiene basics, vitamins, toys, accessories and tech. The Special Offers page has the full Toys, Innovation & Tech and Services shelves.' },
+  { cat: 'products', q: 'Where do your brands come from?', a: 'Most of our food and hygiene lines are sourced through official European distributors (Royal Canin, Hill’s, Acana, Orijen, Beaphar, Virbac). Tech and accessories come from authorised regional partners. Every SKU is sealed, in date, and stored in temperature-controlled warehousing.' },
 
   // Feeder
   { cat: 'feeder', q: 'What is the free SmartPaw Feeder?', a: 'A programmable smart feeder that portions meals automatically. It ships free with eligible plans (currently the 150 GEL/month bundle) — keep it as long as your subscription is active.' },
