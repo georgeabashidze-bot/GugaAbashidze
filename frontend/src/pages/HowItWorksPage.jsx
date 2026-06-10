@@ -3,6 +3,7 @@ import { ClipboardList, PackageSearch, CalendarClock, Truck, RefreshCw, HeartHan
 import PageShell from '@/components/PageShell';
 import HowItWorks from '@/components/HowItWorks';
 import WhySmartPaw from '@/components/WhySmartPaw';
+import SeoMeta, { breadcrumbJsonLd } from '@/components/SeoMeta';
 import { useSignup } from '@/lib/SignupContext';
 
 const TIMELINE = [
@@ -62,6 +63,14 @@ export default function HowItWorksPage() {
   const { openSignup } = useSignup();
   return (
     <>
+      <SeoMeta
+        title="How it works — sign up, sit back"
+        description="The exact six-step workflow we run for every SmartPaw subscription in Tbilisi — from pet profile to door-to-door delivery."
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', path: '/' },
+          { name: 'How it works', path: '/how-it-works' },
+        ])}
+      />
       <PageShell
         eyebrow="How It Works"
         title="Sign up, sit back."

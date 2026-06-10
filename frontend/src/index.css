@@ -168,6 +168,91 @@ body {
   box-shadow: 0 0 0 4px rgba(242, 92, 5, 0.12);
 }
 
+/* Blog article body — rendered from Markdown via react-markdown */
+.prose-smartpaw {
+  color: #2A3E54;
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+.prose-smartpaw > * + * { margin-top: 1.25rem; }
+.prose-smartpaw h2 {
+  font-family: 'Cabinet Grotesk', 'DM Sans', sans-serif;
+  font-weight: 700;
+  color: #05223D;
+  font-size: 2rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-top: 3rem;
+}
+.prose-smartpaw h3 {
+  font-family: 'Cabinet Grotesk', 'DM Sans', sans-serif;
+  font-weight: 700;
+  color: #05223D;
+  font-size: 1.4rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-top: 2.25rem;
+}
+.prose-smartpaw p { color: #2A3E54; }
+.prose-smartpaw a {
+  color: #0A4D8C;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(242, 92, 5, 0.5);
+  text-decoration-thickness: 2px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+.prose-smartpaw a:hover {
+  color: #F25C05;
+  text-decoration-color: #F25C05;
+}
+.prose-smartpaw strong { color: #05223D; font-weight: 700; }
+.prose-smartpaw em { color: #465B70; }
+.prose-smartpaw blockquote {
+  border-left: 4px solid #F25C05;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  color: #05223D;
+  font-style: italic;
+  font-size: 1.15rem;
+  margin: 2rem 0;
+}
+.prose-smartpaw ul,
+.prose-smartpaw ol {
+  padding-left: 1.5rem;
+}
+.prose-smartpaw ul { list-style: disc; }
+.prose-smartpaw ol { list-style: decimal; }
+.prose-smartpaw li { margin: 0.4rem 0; }
+.prose-smartpaw li::marker { color: #F25C05; }
+.prose-smartpaw code {
+  background: #F5F2EB;
+  color: #0A4D8C;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.4rem;
+  font-size: 0.9em;
+}
+.prose-smartpaw table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+.prose-smartpaw thead { background: #F5F2EB; }
+.prose-smartpaw th,
+.prose-smartpaw td {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(10, 77, 140, 0.12);
+}
+.prose-smartpaw th { color: #05223D; font-weight: 700; }
+.prose-smartpaw hr {
+  border: 0;
+  height: 1px;
+  background: rgba(10, 77, 140, 0.15);
+  margin: 2.5rem 0;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--sp-bg); }

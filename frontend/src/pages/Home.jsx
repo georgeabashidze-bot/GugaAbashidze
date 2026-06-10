@@ -8,6 +8,7 @@ import { RegularProducts, SpecialOffers } from '@/components/ProductSections';
 import TunedToPet from '@/components/TunedToPet';
 import Blog from '@/components/Blog';
 import Testimonials from '@/components/Testimonials';
+import SeoMeta, { organizationJsonLd } from '@/components/SeoMeta';
 import { useSignup } from '@/lib/SignupContext';
 import { ROUTES } from '@/constants/routes';
 
@@ -19,6 +20,11 @@ export default function Home() {
 
   return (
     <>
+      <SeoMeta
+        title="Smart pet food, delivered."
+        description="SmartPaw Food — a Tbilisi subscription that keeps your dog or cat’s shelf stocked. Vet-aligned brands, free SmartPaw Feeder, free door-to-door delivery."
+        jsonLd={organizationJsonLd()}
+      />
       <Hero onOpenSignup={openSignup} onBrowse={goCatalogue} onSpecials={goSpecials} />
       <PartnersMarquee />
       <WhySmartPaw onOpenSignup={openSignup} />

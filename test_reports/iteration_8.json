@@ -1,0 +1,38 @@
+{
+  "summary": "Iteration 8 — Validated Phase 6 Blog & SEO Content. 14/14 backend pytest cases pass (3 blog list/sort/tag, 4 blog single + 404, 6 regression on leads/products/promos/contact). Frontend blog list renders 3 cards with all known slugs; tag filter narrows to 1 'feeding' card; navigation to /blog/why-routine-feeding-matters works. Blog post page renders hero, title 'Why regular feeding is essential — and how smart devices help', meta (Nina G., 4 February 2026, 6 min read), cover, body with 6 <h2> elements, share rail with 4 buttons, tags including feeding+smart-feeder, 2 related cards for the other two slugs, CTA opens signup-modal, WhatsApp link = https://wa.me/995591969901. SEO: document.title contains 'Why routine feeding matters'; 1 og:title + 1 og:image; exactly 2 ld+json scripts with @type Article and BreadcrumbList. All 6 page titles match spec exactly. FAQ page emits FAQPage JSON-LD with 23 questions — the open action item from iteration_7 is resolved. Plans /plans feeder-card border-color computed = rgb(242,92,5), width 2px. Copy share button DOES swap to check icon when clipboard permission is granted (lucide-check confirmed in DOM). No regressions found.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_behaviour": {
+    "blog_list": "GET /blog -> [data-testid='blog-posts-grid'] with 3 cards (blog-post-card-{indoor-cat-checklist,switching-foods-without-fuss,why-routine-feeding-matters}). data-testid='blog-tag-filter' present with blog-tag-all-button + blog-tag-feeding-button. Clicking feeding -> 1 card (why-routine-feeding-matters). document.title = 'From the journal · SmartPaw Food'.",
+    "blog_post": "GET /blog/why-routine-feeding-matters -> hero/title/meta/cover/body all present. 6 <h2> inside body (>=4 required). Share rail has twitter/facebook/linkedin/copy buttons. Tags chips include feeding, routine, smart-feeder, tbilisi. blog-post-related has 2 cards for the OTHER two slugs. blog-post-cta-button opens signup-modal. blog-post-whatsapp-link href = https://wa.me/995591969901. Copy button toggles to <Check> icon when clipboard granted.",
+    "seo_blog_post": "document.title = 'Why routine feeding matters — and how smart feeders help | SmartPaw Food' (uses absoluteTitle from seo_title in frontmatter). 6 og:* tags incl. exactly 1 og:title + 1 og:image. 2 application/ld+json scripts, types = ['Article','BreadcrumbList']; both parse as valid JSON; Article has @type='Article'.",
+    "seo_other_pages": "Exact title matches: '/' -> 'Smart pet food, delivered. · SmartPaw Food'; '/plans' -> 'Plans & Pricing — three honest tiers in GEL · SmartPaw Food'; '/about' -> 'About — Tbilisi-built, vet-aligned · SmartPaw Food'; '/contact' -> 'Contact — talk to a real human · SmartPaw Food'; '/faq' -> 'FAQ — answers in plain language · SmartPaw Food'; '/how-it-works' -> 'How it works — sign up, sit back · SmartPaw Food'. FAQ ld+json types = ['BreadcrumbList','FAQPage']; FAQPage.mainEntity has 23 items.",
+    "regression": "Plans feeder card border = rgb(242,92,5)/2px (Phase 4 fix holds). WhatsApp FAB present on / page. POST /api/leads & /api/contact-inquiries still 201 valid / 422 invalid. /api/products returns 18 items. Signup modal opens via blog CTA."
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_blog_api.py",
+    "/app/test_reports/pytest/blog_api.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ShareRail.onCopy in /app/frontend/src/pages/BlogPostPage.jsx only calls setCopied(true) inside the try block. If navigator.clipboard.writeText rejects (insecure context, permission denied, or older browsers), the UI gives no feedback. Recommend wrapping setCopied(true) outside the try, or using a document.execCommand('copy') fallback, so the icon swap is guaranteed regardless of clipboard success — minor UX/robustness improvement.",
+    "/api/blog/posts uses Mongo sort('published_at', -1) with strings. The seeded ISO datetimes are timezone-aware ISO8601 so lexical sort matches chronological sort here, but if a future post is seeded with a non-UTC offset or a non-ISO format the sort can silently misorder. Consider storing published_at as a BSON datetime (or always-Z normalised) and adding a sort index.",
+    "BlogPostPage navigates to /blog on any error whose message contains '404'. api.getBlogPost should ideally throw an Error subclass with a status code field; matching on the string '404' is brittle if the helper changes its error message format.",
+    "SeoMeta correctly accepts an array of jsonLd objects and renders them all as separate <script type='application/ld+json'> tags via Helmet — good. siteOrigin() falls back to https://smartpaw.ge for SSR, which is fine for the marketing site.",
+    "seed_blog.py only inserts when collection is empty. If a Markdown post is edited or a new file added later, the new content will NOT be re-seeded unless the collection is dropped. A 'force refresh on file mtime change' or admin-only reseed endpoint would help long-term."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_blog_api.py (new pytest module — 14 cases, all green)"
+  ],
+  "success_rate": {"backend": "100% (14/14)", "frontend": "100% (all Phase 6 + regression assertions pass)"},
+  "test_credentials": "n/a",
+  "seed_data_creation": "Created TEST_BlogPhase6 lead and TEST_Phase6 contact-inquiry via public APIs.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Phase 6 is fully validated end-to-end (backend blog endpoints + frontend list/post pages + SeoMeta on all marketing pages + FAQPage JSON-LD with 23 entries + Article/BreadcrumbList JSON-LD on blog posts). Phase 4/5 regressions still hold. Only soft code-review suggestions remain (see critical_code_review_comments) — none are functional bugs. If the next phase touches Helmet meta, remember Helmet applies asynchronously; tests should sleep ~500–700ms after navigation before reading document.title or head tags. The earlier 'copy icon swap: False' headless observation is a clipboard permission artifact, not a product bug — once page.context.grant_permissions(['clipboard-read','clipboard-write']) is granted the icon swaps correctly.",
+  "rca of the issue": "No production issues identified this iteration. Note for testers: navigator.clipboard.writeText throws NotAllowedError in headless Playwright unless clipboard-write permission is explicitly granted on the browser context; that is what produced the initial 'Copy icon swap: False' line in the first run. Mitigation in tests: page.context.grant_permissions(['clipboard-read','clipboard-write'], origin=base_url). Mitigation in product (optional, see code review): move setCopied(true) outside the try block in ShareRail.onCopy so the visual feedback fires even if clipboard write rejects."
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { PawPrint, ShieldCheck, Sparkles, Heart, MapPin, ArrowRight } from 'lucide-react';
 import PageShell from '@/components/PageShell';
+import SeoMeta, { breadcrumbJsonLd } from '@/components/SeoMeta';
 import { useSignup } from '@/lib/SignupContext';
 
 const VALUES = [
@@ -63,6 +64,15 @@ const METRICS = [
 export default function AboutPage() {
   const { openSignup } = useSignup();
   return (
+    <>
+      <SeoMeta
+        title="About — Tbilisi-built, vet-aligned"
+        description="SmartPaw Food is a Tbilisi-based subscription delivery service for dogs and cats. Meet the team, the values and the impact behind the box."
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', path: '/' },
+          { name: 'About', path: '/about' },
+        ])}
+      />
     <PageShell
       eyebrow="About"
       title="Smart care. Real impact."
@@ -210,5 +220,6 @@ export default function AboutPage() {
         </div>
       </section>
     </PageShell>
+    </>
   );
 }

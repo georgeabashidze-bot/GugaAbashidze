@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Minus, ArrowUpRight, Sparkles } from 'lucide-react';
 import PageShell from '@/components/PageShell';
+import SeoMeta, { breadcrumbJsonLd } from '@/components/SeoMeta';
 import { useSignup } from '@/lib/SignupContext';
 
 // Plans as confirmed by the founder (Feb 2026)
@@ -108,6 +109,15 @@ function Cell({ value }) {
 export default function PlansPage() {
   const { openSignup } = useSignup();
   return (
+    <>
+      <SeoMeta
+        title="Plans & Pricing — three honest tiers in GEL"
+        description="Three plans for Tbilisi pet parents. Free with delivery, 150 GEL/month with a free SmartPaw Feeder, or 15 GEL custom delivery. No minimums, no contracts."
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', path: '/' },
+          { name: 'Plans', path: '/plans' },
+        ])}
+      />
     <PageShell
       eyebrow="Plans & Pricing"
       title="Pick your routine. Pay only what makes sense."
@@ -279,5 +289,6 @@ export default function PlansPage() {
         Final terms (minimum monthly spend, feeder return policy and service pricing) are confirmed on signup. Need a custom set-up? Message us on WhatsApp.
       </p>
     </PageShell>
+    </>
   );
 }

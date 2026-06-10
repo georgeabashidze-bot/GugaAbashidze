@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 
 from seed_products import seed_products_if_empty
 from seed_promos import seed_promos_if_empty
+from seed_blog import seed_blog_posts_if_empty
 
 
 ROOT_DIR = Path(__file__).parent
@@ -285,6 +286,82 @@ async def list_promos():
     return [Promo(**it) for it in items]
 
 
+# ---- Blog ----
+class BlogPostSummary(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    slug: str
+    title: str
+    excerpt: str
+    tag: Optional[str] = None
+    category: Optional[str] = None
+    cover_image: str
+    cover_alt: Optional[str] = None
+    author_name: str
+    author_role: Optional[str] = None
+    author_avatar: Optional[str] = None
+    read_minutes: int = 5
+    published_at: str
+    tags: List[str] = Field(default_factory=list)
+
+
+class BlogPost(BlogPostSummary):
+    content: str
+    seo_title: Optional[str] = None
+    seo_description: Optional[str] = None
+
+
+@api_router.get("/blog/posts", response_model=List[BlogPostSummary])
+async def list_blog_posts(tag: Optional[str] = None, limit: int = 24):
+    query: dict = {"status": "published"}
+    if tag:
+        query["tags"] = tag
+    items = await db.blog_posts.find(query, {"_id": 0, "content": 0}).sort("published_at", -1).to_list(limit)
+    result: List[BlogPostSummary] = []
+    for it in items:
+        result.append(BlogPostSummary(
+            slug=it["slug"],
+            title=it["title"],
+            excerpt=it.get("excerpt", ""),
+            tag=it.get("tag"),
+            category=it.get("category"),
+            cover_image=it.get("cover_image", ""),
+            cover_alt=it.get("cover_alt"),
+            author_name=it.get("author_name", "SmartPaw Team"),
+            author_role=it.get("author_role"),
+            author_avatar=it.get("author_avatar"),
+            read_minutes=int(it.get("read_minutes", 5)),
+            published_at=it["published_at"],
+            tags=it.get("tags", []),
+        ))
+    return result
+
+
+@api_router.get("/blog/posts/{slug}", response_model=BlogPost)
+async def get_blog_post(slug: str):
+    doc = await db.blog_posts.find_one({"slug": slug, "status": "published"}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Blog post not found")
+    return BlogPost(
+        slug=doc["slug"],
+        title=doc["title"],
+        excerpt=doc.get("excerpt", ""),
+        tag=doc.get("tag"),
+        category=doc.get("category"),
+        cover_image=doc.get("cover_image", ""),
+        cover_alt=doc.get("cover_alt"),
+        author_name=doc.get("author_name", "SmartPaw Team"),
+        author_role=doc.get("author_role"),
+        author_avatar=doc.get("author_avatar"),
+        read_minutes=int(doc.get("read_minutes", 5)),
+        published_at=doc["published_at"],
+        tags=doc.get("tags", []),
+        content=doc.get("content", ""),
+        seo_title=doc.get("seo_title"),
+        seo_description=doc.get("seo_description"),
+    )
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
@@ -317,6 +394,12 @@ async def startup_seed_products():
             logger.info("Seeded %d promos.", inserted)
     except Exception as e:  # noqa: BLE001
         logger.error("Promo seeding failed: %s", e)
+    try:
+        inserted = await seed_blog_posts_if_empty(db)
+        if inserted:
+            logger.info("Seeded %d blog posts.", inserted)
+    except Exception as e:  # noqa: BLE001
+        logger.error("Blog seeding failed: %s", e)
 
 
 @app.on_event("shutdown")

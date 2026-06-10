@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Plus, Minus, Search, MessageCircle } from 'lucide-react';
 import PageShell from '@/components/PageShell';
+import SeoMeta, { breadcrumbJsonLd } from '@/components/SeoMeta';
 
 const CATEGORIES = [
   { key: 'all', label: 'All' },
@@ -66,6 +67,26 @@ export default function FAQPage() {
   };
 
   return (
+    <>
+      <SeoMeta
+        title="FAQ — answers in plain language"
+        description="Quick answers about SmartPaw Food plans, deliveries, products and the SmartPaw Feeder. Search 23 questions or WhatsApp us in Tbilisi."
+        jsonLd={[
+          breadcrumbJsonLd([
+            { name: 'Home', path: '/' },
+            { name: 'FAQ', path: '/faq' },
+          ]),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: FAQS.map((f) => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a },
+            })),
+          },
+        ]}
+      />
     <PageShell
       eyebrow="FAQ"
       title="Questions, answered."
@@ -179,5 +200,6 @@ export default function FAQPage() {
         </a>
       </div>
     </PageShell>
+    </>
   );
 }

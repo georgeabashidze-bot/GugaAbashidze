@@ -26,6 +26,13 @@ export const api = {
   },
   getProduct: (slug) => request(`/api/products/${slug}`),
   listPromos: () => request('/api/promos'),
+  listBlogPosts: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+    ).toString();
+    return request(`/api/blog/posts${qs ? `?${qs}` : ''}`);
+  },
+  getBlogPost: (slug) => request(`/api/blog/posts/${slug}`),
   createLead: (payload) =>
     request('/api/leads', { method: 'POST', body: JSON.stringify(payload) }),
   createContactInquiry: (payload) =>

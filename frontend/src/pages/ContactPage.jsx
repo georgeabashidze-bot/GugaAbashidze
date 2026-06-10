@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, MessageCircle, Send, CheckCircle2, AlertCircle, Building2, Newspaper, Briefcase, HeartHandshake } from 'lucide-react';
 import PageShell from '@/components/PageShell';
+import SeoMeta, { breadcrumbJsonLd } from '@/components/SeoMeta';
 import { api } from '@/lib/api';
 import { useSignup } from '@/lib/SignupContext';
 
@@ -71,6 +72,15 @@ export default function ContactPage() {
   };
 
   return (
+    <>
+      <SeoMeta
+        title="Contact — talk to a real human"
+        description="Get in touch with SmartPaw Food in Tbilisi. WhatsApp +995 591 96 99 01, hello@smartpaw.ge, or pick a department and send a message."
+        jsonLd={breadcrumbJsonLd([
+          { name: 'Home', path: '/' },
+          { name: 'Contact', path: '/contact' },
+        ])}
+      />
     <PageShell
       eyebrow="Contact"
       title="Let’s talk pet routines."
@@ -250,6 +260,7 @@ export default function ContactPage() {
         </form>
       </section>
     </PageShell>
+    </>
   );
 }
 
