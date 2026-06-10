@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useLang } from '@/lib/LangContext';
 import { useReveal } from '@/lib/useReveal';
@@ -23,8 +24,8 @@ export default function Blog() {
               {t.blog.title}
             </h2>
           </div>
-          <a
-            href="#blog"
+          <Link
+            to="/blog"
             data-testid={TID.blog.readAll}
             className="inline-flex items-center gap-2 text-[#0A4D8C] font-bold hover:text-[#F25C05] transition-colors group self-start md:self-end"
           >
@@ -32,7 +33,7 @@ export default function Blog() {
             <span className="w-9 h-9 rounded-full border-2 border-[#0A4D8C] flex items-center justify-center group-hover:bg-[#F25C05] group-hover:border-[#F25C05] group-hover:text-white transition-all">
               <ArrowUpRight size={16} />
             </span>
-          </a>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-7">

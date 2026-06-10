@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import { Menu, X, Instagram, Facebook } from 'lucide-react';
 import { useLang } from '@/lib/LangContext';
 import { LANGS } from '@/lib/i18n';
@@ -33,19 +34,15 @@ export default function Header({ onOpenSignup }) {
   }, []);
 
   const navItems = [
-    { id: 'home', label: t.nav.home, tid: TID.header.navHome },
-    { id: 'catalogue', label: t.nav.catalogue, tid: TID.header.navCatalogue },
-    { id: 'special-offers', label: t.nav.specials, tid: TID.header.navSpecials },
-    { id: 'how', label: t.nav.how, tid: TID.header.navHow },
-    { id: 'blog', label: t.nav.blog, tid: TID.header.navBlog },
-    { id: 'contact', label: t.nav.contact, tid: TID.header.navContact },
+    { to: '/', label: t.nav.home, tid: TID.header.navHome, end: true },
+    { to: '/catalogue', label: t.nav.catalogue, tid: TID.header.navCatalogue },
+    { to: '/special-offers', label: t.nav.specials, tid: TID.header.navSpecials },
+    { to: '/how-it-works', label: t.nav.how, tid: TID.header.navHow },
+    { to: '/blog', label: t.nav.blog, tid: TID.header.navBlog },
+    { to: '/contact', label: t.nav.contact, tid: TID.header.navContact },
   ];
 
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    setOpen(false);
-  };
+  const closeMobile = () => setOpen(false);
 
   return (
     <header
@@ -56,9 +53,10 @@ export default function Header({ onOpenSignup }) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-5 md:px-10 h-24 md:h-28 flex items-center justify-between gap-4">
-        <button
+        <Link
           data-testid={TID.header.logo}
-          onClick={() => scrollTo('home')}
+          to="/"
+          onClick={closeMobile}
           className="flex items-center gap-3 group shrink-0"
           aria-label="SmartPaw Food"
         >
@@ -70,18 +68,23 @@ export default function Header({ onOpenSignup }) {
           <span className="font-display font-extrabold text-[#0A4D8C] text-xl md:text-2xl tracking-tight hidden sm:block leading-none">
             SmartPaw <span className="text-[#F25C05]">Food</span>
           </span>
-        </button>
+        </Link>
 
         <nav className="hidden xl:flex items-center gap-0.5">
           {navItems.map((it) => (
-            <button
-              key={it.id}
+            <NavLink
+              key={it.to}
+              to={it.to}
+              end={it.end}
               data-testid={it.tid}
-              onClick={() => scrollTo(it.id)}
-              className="px-3.5 py-2 text-sm font-medium text-[#05223D] hover:text-[#F25C05] transition-colors whitespace-nowrap"
+              className={({ isActive }) =>
+                `px-3.5 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                  isActive ? 'text-[#F25C05]' : 'text-[#05223D] hover:text-[#F25C05]'
+                }`
+              }
             >
               {it.label}
-            </button>
+            </NavLink>
           ))}
         </nav>
 
@@ -152,17 +155,25 @@ export default function Header({ onOpenSignup }) {
         <div className="xl:hidden bg-[#FDFBF7] border-t border-[#0A4D8C1A] px-5 py-6">
           <div className="flex flex-col gap-1">
             {navItems.map((it) => (
-              <button
-                key={it.id}
-                onClick={() => scrollTo(it.id)}
-                className="text-left px-3 py-3 rounded-xl text-[#05223D] hover:bg-[#F5F2EB] font-medium"
+              <NavLink
+                key={it.to}
+                to={it.to}
+                end={it.end}
+                onClick={closeMobile}
+                data-testid={`${it.tid}-mobile`}
+                className={({ isActive }) =>
+                  `text-left px-3 py-3 rounded-xl font-medium ${
+                    isActive ? 'bg-[#F5F2EB] text-[#F25C05]' : 'text-[#05223D] hover:bg-[#F5F2EB]'
+                  }`
+                }
               >
                 {it.label}
-              </button>
+              </NavLink>
             ))}
             <button
-              onClick={() => { onOpenSignup(); setOpen(false); }}
+              onClick={() => { onOpenSignup(); closeMobile(); }}
               className="btn-primary mt-3 justify-center"
+              data-testid={`${TID.header.cta}-mobile`}
             >
               {t.nav.cta}
             </button>

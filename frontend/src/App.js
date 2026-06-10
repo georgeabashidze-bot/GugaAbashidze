@@ -1,51 +1,53 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import '@/App.css';
-import { LangProvider } from '@/lib/LangContext';
-import Header from '@/components/Header';
-import Hero from '@/components/Hero';
-import PartnersMarquee from '@/components/PartnersMarquee';
-import WhySmartPaw from '@/components/WhySmartPaw';
-import HowItWorks from '@/components/HowItWorks';
-import { RegularProducts, SpecialOffers } from '@/components/ProductSections';
-import TunedToPet from '@/components/TunedToPet';
-import Blog from '@/components/Blog';
-import Testimonials from '@/components/Testimonials';
-import Footer from '@/components/Footer';
-import WhatsAppFab from '@/components/WhatsAppFab';
-import SignupModal from '@/components/SignupModal';
+import Layout from '@/components/Layout';
+import Home from '@/pages/Home';
+import CataloguePage from '@/pages/CataloguePage';
+import SpecialOffersPage from '@/pages/SpecialOffersPage';
+import HowItWorksPage from '@/pages/HowItWorksPage';
+import PlansPage from '@/pages/PlansPage';
+import AboutPage from '@/pages/AboutPage';
+import BlogPage from '@/pages/BlogPage';
+import BlogPostPage from '@/pages/BlogPostPage';
+import ContactPage from '@/pages/ContactPage';
+import FAQPage from '@/pages/FAQPage';
+import NotFoundPage from '@/pages/NotFoundPage';
+import { FoodPage, HygienePage, VitaminsPage, ToysPage, InnovationTechPage, ServicesPage } from '@/pages/SubPages';
+import { PrivacyPage, TermsPage, DeliveryPage, RefundPage } from '@/pages/LegalPages';
 
 function App() {
-  const [signupOpen, setSignupOpen] = useState(false);
-
-  const openSignup = () => setSignupOpen(true);
-  const closeSignup = () => setSignupOpen(false);
-  const scrollToId = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-  const scrollToCatalogue = () => scrollToId('catalogue');
-  const scrollToSpecials = () => scrollToId('special-offers');
-
   return (
-    <LangProvider>
-      <div className="App relative overflow-x-clip">
-        <Header onOpenSignup={openSignup} />
-        <main>
-          <Hero onOpenSignup={openSignup} onBrowse={scrollToCatalogue} onSpecials={scrollToSpecials} />
-          <PartnersMarquee />
-          <WhySmartPaw onOpenSignup={openSignup} />
-          <HowItWorks onOpenSignup={openSignup} />
-          <RegularProducts onOpenSignup={openSignup} />
-          <SpecialOffers onOpenSignup={openSignup} />
-          <TunedToPet onOpenSignup={openSignup} />
-          <Blog />
-          <Testimonials />
-        </main>
-        <Footer onOpenSignup={openSignup} />
-        <WhatsAppFab />
-        <SignupModal open={signupOpen} onClose={closeSignup} />
-      </div>
-    </LangProvider>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<Home />} />
+
+        <Route path="/catalogue" element={<CataloguePage />} />
+        <Route path="/catalogue/food" element={<FoodPage />} />
+        <Route path="/catalogue/hygiene" element={<HygienePage />} />
+        <Route path="/catalogue/vitamins" element={<VitaminsPage />} />
+
+        <Route path="/special-offers" element={<SpecialOffersPage />} />
+        <Route path="/special-offers/toys-accessories" element={<ToysPage />} />
+        <Route path="/special-offers/innovation-tech" element={<InnovationTechPage />} />
+        <Route path="/special-offers/services" element={<ServicesPage />} />
+
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
+        <Route path="/plans" element={<PlansPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/faq" element={<FAQPage />} />
+
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/delivery-policy" element={<DeliveryPage />} />
+        <Route path="/refund-policy" element={<RefundPage />} />
+
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   );
 }
 
