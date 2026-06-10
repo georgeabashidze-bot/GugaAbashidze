@@ -34,6 +34,15 @@ Replicate the structure of the reference site (smartpaw-draft-4.vercel.app) as a
 - EN/KA toggle scaffold.
 - Backend pytest suite passing.
 
+### Feb 2026 — Phase 3: Special Offers Engine (DONE, validated 100% by testing agent — iteration_5.json)
+- Seeded 18 additional `category='specials'` products (toys-accessories / innovation-tech / services × 6). Total products: **36**.
+- New `seed_specials.py` (products) + `seed_promos.py` (3 dated promos). Both seed idempotently on startup.
+- New `Promo` model + `GET /api/promos` (filters by `active=true` AND current time within `starts_at`/`ends_at`, sorted by `order`).
+- New `components/PromoBanner.jsx` — TanStack Query rotating carousel: glass-gradient slide using each promo's accent colour, 6s auto-advance, dots, prev/next, deep CTA link.
+- `SpecialOffersPage.jsx` now opens with the PromoBanner; "coming soon" banner removed.
+- `pages/SubPages.jsx` `ToysPage`/`InnovationTechPage`/`ServicesPage` pass `category='specials'` + sub-category to reuse the Phase 2 `CatalogueShelf` (full filter sidebar + sort + mobile sheet — no extra work).
+- Backend pytest: 16/16 passing (`/app/backend/tests/test_phase3_specials.py`). Phase 1 + Phase 2 regression green.
+
 ### Feb 2026 — Filter Module on Catalogue Sub-Pages (DONE, validated 100% by testing agent — iteration_4.json)
 - Replicated the smartpet.ge filter UX (left sidebar + top sort bar + clear button + mobile drawer) with SmartPaw-specific filter groups: **Pet type** (All / Dogs / Cats segmented), **Brand** (multi-select checkboxes, auto-derived per shelf), **Type** (multi-select tag checkboxes), **Featured-only** toggle.
 - Sort dropdown: Featured first / A→Z / Z→A. Live result count above the grid.
@@ -66,10 +75,10 @@ Replicate the structure of the reference site (smartpaw-draft-4.vercel.app) as a
 
 ## Prioritized Backlog
 
-### P0 — Phase 3: Special Offers Engine
-- Dynamic promo banner system (list of offers; date-bounded; routing to sub-pages).
-- Extend product schema with `category='specials'` + sub-categories (toys-accessories, innovation-tech, services).
-- Reuse `ProductGrid` for /special-offers/* sub pages once data is seeded.
+### P0 — Phase 4: Plans & Pricing
+- Finalise plan tiers (Starter / Routine / Multi-Pet) once client confirms pricing.
+- Comparison table component, add-ons matrix.
+- Once prices exist on Products, plug a **price-range slider** into the filter panel.
 
 ### P1 — Phase 4: Plans & Pricing
 - Finalise plan tiers (Starter / Routine / Multi-Pet) once client confirms pricing.
@@ -109,10 +118,10 @@ Replicate the structure of the reference site (smartpaw-draft-4.vercel.app) as a
 - Production deploy + domain wiring.
 
 ## Next Tasks
-1. **Kick off Phase 3 — Special Offers Engine** (seed `category='specials'` sub-categories: toys-accessories / innovation-tech / services; reuse ProductGrid).
-2. **Phase 4 — Plans & Pricing** comparison table.
-3. Collect real Georgian copy from the client and replace placeholder KA strings.
-4. Wire `/api/leads` to email notifications (SendGrid or Resend) when ops inbox is confirmed.
+1. **Phase 4 — Plans & Pricing** comparison table (need final tier copy/pricing from client) + price-range filter slider.
+2. **Phase 5 — Inside marketing pages** (How It Works, About, Contact w/ map, FAQ expansion).
+3. **Phase 7 — Lead-email automation** (Resend/SendGrid) before launch.
+4. Collect real Georgian copy from the client and replace placeholder KA strings.
 
 ## Architecture Notes for next agent
 - Routes are centralised in `/app/frontend/src/constants/routes.js`. Edit slugs there and they propagate to header/footer/breadcrumbs.
