@@ -1,7 +1,7 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import PageShell from '@/components/PageShell';
-import ProductGrid from '@/components/ProductGrid';
+import CatalogueShelf from '@/components/CatalogueShelf';
 
 // Sub-category page used for /catalogue/* and /special-offers/*.
 // When `subCategory` is supplied, renders a live product grid above the
@@ -39,11 +39,7 @@ export default function SubCategoryPage({
               </h2>
             </div>
           </div>
-          <ProductGrid
-            subCategory={subCategory}
-            category={category}
-            testIdPrefix={`${category}-${subCategory}-grid`}
-          />
+          <CatalogueShelf subCategory={subCategory} category={category} />
         </div>
       )}
 
