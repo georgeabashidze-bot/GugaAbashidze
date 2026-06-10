@@ -37,6 +37,7 @@ export default function Header({ onOpenSignup }) {
     { to: '/', label: t.nav.home, tid: TID.header.navHome, end: true },
     { to: '/catalogue', label: t.nav.catalogue, tid: TID.header.navCatalogue },
     { to: '/special-offers', label: t.nav.specials, tid: TID.header.navSpecials },
+    { to: '/plans', label: t.nav.plans, tid: 'nav-plans-link' },
     { to: '/how-it-works', label: t.nav.how, tid: TID.header.navHow },
     { to: '/blog', label: t.nav.blog, tid: TID.header.navBlog },
     { to: '/contact', label: t.nav.contact, tid: TID.header.navContact },

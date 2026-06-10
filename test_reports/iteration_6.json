@@ -1,0 +1,33 @@
+{
+  "summary": "Phase 4 Plans page frontend testing. 55/58 assertions pass. One real CSS regression: featured 'Free + Feeder' card is NOT rendering an orange border (a founder-confirmed visual requirement). Two other 'failures' were false positives from the test script (CSS uppercase transform on badge; boolean cells rendered as icons rather than text) and the underlying functionality is correct. All copy, plan IDs, prices, notes, feature bullets, signup CTAs, comparison table rows + values, shared services + links, header nav (incl. position between Specials and How), mobile drawer and footer regression all pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "PlansPage / .card-soft",
+        "issue": "Featured 'Free + Feeder' card is missing the orange border. Tailwind utility `border-[#F25C05]` is being overridden by the global `.card-soft` rule in index.css which uses the CSS shorthand `border: 1px solid var(--sp-border-subtle);`. Shorthand resets border-color so the orange utility never wins. Computed border-color resolves to rgba(10, 77, 140, 0.1) instead of #F25C05. Visual impact: the featured card looks identical to the other two cards (only the 'MOST POPULAR' badge and slight translate distinguish it).",
+        "selector": "[data-testid='plan-feeder-card']",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_6.json"],
+  "action_items": [
+    "Fix the featured card orange border. Two clean options: (a) In /app/frontend/src/index.css change `.card-soft` from the `border:` shorthand to longhand (`border-width: 1px; border-style: solid; border-color: var(--sp-border-subtle);`) so that Tailwind's `border-[#F25C05]` utility can override only `border-color`. (b) In PlansPage.jsx replace `border-2 border-[#F25C05]` with an inline style `style={{ borderColor: '#F25C05', borderWidth: '2px' }}` or add a small CSS rule with higher specificity for `.card-soft.is-featured`. Option (a) is the most reusable fix."
+  ],
+  "critical_code_review_comments": [
+    "CSS specificity trap in /app/frontend/src/index.css: `.card-soft { border: 1px solid var(--sp-border-subtle); }` silently overrides any Tailwind `border-[...]` color utility applied alongside it. This will keep biting any component that tries to recolor a card-soft border. Recommend switching to longhand border-color in the base class.",
+    "PlansPage.jsx 283 lines — within healthy limits but starts to accumulate constant data + JSX. If more plan tiers or rows are added consider extracting PLANS / FEATURE_ROWS / SHARED_SERVICES into /lib/plansData.js.",
+    "Comparison `<Cell value={true/false}>` is purely icon-based with no accessible label. Adding `aria-label='Included' / 'Not included'` on the icon span would help screen readers for the row values."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (not tested - request was frontend only)", "frontend": "95%"},
+  "test_credentials": "n/a",
+  "seed_data_creation": "none",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All Phase 4 functional requirements pass on https://smart-feed-pets.preview.emergentagent.com/plans. The only remaining issue is the CSS border-color override on `.card-soft`. After main agent fix, retest by reading computed border-color on [data-testid='plan-feeder-card'] and asserting it contains '242, 92, 5'. Note for future tests: badge inner_text returns uppercase 'MOST POPULAR' because of CSS text-transform — compare case-insensitively. Comparison table boolean cells render as icons only (no text); to assert a True value query the inner SVG / Check icon presence rather than text content.",
+  "rca of the issue": "Root cause of the missing orange border on the featured plan card: in /app/frontend/src/index.css line 137-142, `.card-soft` declares the border using the `border:` shorthand. The shorthand expands to border-width + border-style + border-color, so the explicit border-color reset always lands at the same specificity as the Tailwind utility `border-[#F25C05]`. Because index.css component layer is emitted after @tailwind utilities in the compiled stylesheet (or at equal specificity with later source order), the shorthand wins and the orange color never applies. Reproduction: open /plans at 1920x1080, inspect the middle card → computed border-color = rgba(10,77,140,0.1). Mitigation: change `.card-soft` to use border longhand (border-width / border-style / border-color) so Tailwind's `border-[#F25C05]` only competes on border-color and wins."
+}
