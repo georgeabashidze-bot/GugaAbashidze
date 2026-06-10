@@ -112,6 +112,12 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
     />
   );
 
+  const activeFilterCount =
+    filters.brands.length +
+    filters.tags.length +
+    (filters.featured ? 1 : 0) +
+    (filters.petType !== 'all' ? 1 : 0);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 xl:gap-10">
       {/* Desktop sidebar */}
@@ -132,9 +138,9 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
             >
               <SlidersHorizontal size={14} />
               Filters
-              {(filters.brands.length + filters.tags.length + (filters.featured ? 1 : 0) + (filters.petType !== 'all' ? 1 : 0)) > 0 && (
+              {activeFilterCount > 0 && (
                 <span className="ml-1 bg-[#F25C05] text-white rounded-full text-[10px] font-bold w-5 h-5 inline-flex items-center justify-center">
-                  {filters.brands.length + filters.tags.length + (filters.featured ? 1 : 0) + (filters.petType !== 'all' ? 1 : 0)}
+                  {activeFilterCount}
                 </span>
               )}
             </button>
@@ -193,11 +199,11 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
         )}
       </div>
 
-      {/* Mobile sheet */}
+      {/* Mobile sheet — only mount the panel while open so testids stay unique */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-[88%] max-w-sm overflow-y-auto p-0 border-r-0 bg-[#FDFBF7]">
           <SheetTitle className="sr-only">Filters</SheetTitle>
-          <div className="p-5">{filtersNode}</div>
+          {mobileOpen && <div className="p-5">{filtersNode}</div>}
         </SheetContent>
       </Sheet>
     </div>

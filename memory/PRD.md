@@ -34,6 +34,14 @@ Replicate the structure of the reference site (smartpaw-draft-4.vercel.app) as a
 - EN/KA toggle scaffold.
 - Backend pytest suite passing.
 
+### Feb 2026 — Filter Module on Catalogue Sub-Pages (DONE, validated 100% by testing agent — iteration_4.json)
+- Replicated the smartpet.ge filter UX (left sidebar + top sort bar + clear button + mobile drawer) with SmartPaw-specific filter groups: **Pet type** (All / Dogs / Cats segmented), **Brand** (multi-select checkboxes, auto-derived per shelf), **Type** (multi-select tag checkboxes), **Featured-only** toggle.
+- Sort dropdown: Featured first / A→Z / Z→A. Live result count above the grid.
+- Mobile (<1024px): sidebar collapses behind a `Filters` button that opens a `Sheet` drawer with the same panel; active-filter badge displayed on the trigger.
+- Empty-after-filter state with "Nothing matches those filters" CTA to reset.
+- New files: `components/ProductFilters.jsx`, `components/CatalogueShelf.jsx`. `SubCategoryPage.jsx` now renders `<CatalogueShelf>` instead of the bare grid.
+- Frontend: 21/21 functional acceptance criteria pass on desktop + mobile.
+
 ### Feb 2026 — Phase 2: Catalogue Construction (DONE, validated 100% by testing agent — iteration_3.json)
 - New `Product` model + `GET /api/products` (filters: category, sub_category, pet_type, featured) + `GET /api/products/{slug}` (404 on miss).
 - `backend/seed_products.py` — idempotent FastAPI startup seeder loading 18 curated products (Food / Hygiene / Vitamins × 6, mix of dog/cat/both, 6 featured).
