@@ -34,6 +34,13 @@ Replicate the structure of the reference site (smartpaw-draft-4.vercel.app) as a
 - EN/KA toggle scaffold.
 - Backend pytest suite passing.
 
+### Feb 2026 — Phase 2: Catalogue Construction (DONE, validated 100% by testing agent — iteration_3.json)
+- New `Product` model + `GET /api/products` (filters: category, sub_category, pet_type, featured) + `GET /api/products/{slug}` (404 on miss).
+- `backend/seed_products.py` — idempotent FastAPI startup seeder loading 18 curated products (Food / Hygiene / Vitamins × 6, mix of dog/cat/both, 6 featured).
+- Tiny `lib/api.js` fetch helper + reusable `ProductCard.jsx` (click → opens global Signup modal) + `ProductGrid.jsx` (TanStack Query, with loading / error / empty / grid states).
+- `SubCategoryPage.jsx` now renders the live grid when `subCategory` is supplied; `pages/SubPages.jsx` wires Food/Hygiene/Vitamins; `CataloguePage.jsx` "coming soon" banner removed.
+- Backend pytest: 10/10 passing (`/app/backend/tests/test_products_api.py`). Phase 1 regressions still green.
+
 ### Feb 2026 — Phase 1: Multi-Page Architecture (DONE, validated 100% by testing agent — iteration_2.json)
 - React Router DOM wired in `index.js` (BrowserRouter) + `App.js` (Routes/Route under shared `Layout`).
 - `SignupProvider` and `LangProvider` hoisted to the root so the signup modal & i18n work on every route.
@@ -51,15 +58,10 @@ Replicate the structure of the reference site (smartpaw-draft-4.vercel.app) as a
 
 ## Prioritized Backlog
 
-### P0 — Phase 2: Catalogue Construction
-- Define `products` schema (id, slug, name, brand, category, sub_category, image, description, status).
-- Backend `/api/products` (GET list, GET by slug, optional admin POST).
-- Build catalogue category pages (Food, Hygiene, Vitamins) with live products.
-- Seed sample data for ~6 brands per sub.
-
 ### P0 — Phase 3: Special Offers Engine
 - Dynamic promo banner system (list of offers; date-bounded; routing to sub-pages).
-- Build out toys/tech/services sub-pages with cards.
+- Extend product schema with `category='specials'` + sub-categories (toys-accessories, innovation-tech, services).
+- Reuse `ProductGrid` for /special-offers/* sub pages once data is seeded.
 
 ### P1 — Phase 4: Plans & Pricing
 - Finalise plan tiers (Starter / Routine / Multi-Pet) once client confirms pricing.
@@ -99,9 +101,10 @@ Replicate the structure of the reference site (smartpaw-draft-4.vercel.app) as a
 - Production deploy + domain wiring.
 
 ## Next Tasks
-1. **Kick off Phase 2 — Catalogue Construction** (schema → backend endpoint → category page wiring).
-2. Collect real Georgian copy from the client and replace placeholder KA strings.
-3. Wire `/api/leads` to email notifications (SendGrid or Resend) when ops inbox is confirmed.
+1. **Kick off Phase 3 — Special Offers Engine** (seed `category='specials'` sub-categories: toys-accessories / innovation-tech / services; reuse ProductGrid).
+2. **Phase 4 — Plans & Pricing** comparison table.
+3. Collect real Georgian copy from the client and replace placeholder KA strings.
+4. Wire `/api/leads` to email notifications (SendGrid or Resend) when ops inbox is confirmed.
 
 ## Architecture Notes for next agent
 - Routes are centralised in `/app/frontend/src/constants/routes.js`. Edit slugs there and they propagate to header/footer/breadcrumbs.
