@@ -4,60 +4,106 @@
 > Hi. I would like to build a web page for SmartPaw Food - regular delivery services for domestic cats and dogs. I can send you the link to our web page, which we would like to amend. First, you can build according to that structure and we can work after on changes. How does that sound? This is the link - https://smartpaw-draft-4.vercel.app.
 
 ## Goal
-Replicate the structure of the reference site (smartpaw-draft-4.vercel.app) as a fresh, distinctive marketing landing page for **SmartPaw Food**, a Tbilisi (Georgia)-based subscription pet-food/supplies delivery service for dogs and cats.
+Replicate the structure of the reference site (smartpaw-draft-4.vercel.app) as a fresh, distinctive marketing site for **SmartPaw Food**, a Tbilisi (Georgia)-based subscription pet-food/supplies delivery service for dogs and cats.
 
 ## User Choices (verbatim)
-- Scope: **Static marketing/landing page** (no e-commerce yet)
+- Scope: **Static marketing/landing site, evolving into a multi-page site** (no e-commerce yet)
 - Content: Placeholder + fresh tailored content
 - Design: Modern, distinctive refresh with **brand orange + blue** palette and provided **logo**
 - Languages: **English first, Georgian (KA) toggle scaffold** (translations placeholder)
 - Integrations: **Lead-capture registration form** + **floating WhatsApp button** (+995591969901)
-
-## Personas
-- **Tbilisi pet parents** (dog/cat owners) wanting a hands-off, scheduled supply of vet-approved food/supplies.
-- **Multi-pet households** (both species).
-- **Visitors evaluating the brand** before subscribing — need fast trust signals (partners, testimonials, smart-dispenser perk).
+- Roadmap: 13-phase plan; user explicitly approved Phase 1 (Site Architecture & Navigation → multi-page React Router).
 
 ## Architecture
-- **Frontend**: React 19 + Tailwind, sectioned components in `/app/frontend/src/components/`, EN/KA context (`lib/LangContext.jsx` + `lib/i18n.js`), Cabinet Grotesk + DM Sans typography, all interactive elements carry `data-testid` from `constants/testIds.js`.
+- **Frontend**: React 19 + Tailwind, **React Router DOM v7 multi-page** with shared `Layout.jsx` (Header + Footer + WhatsApp FAB + global SignupModal). EN/KA context (`lib/LangContext.jsx`), global modal context (`lib/SignupContext.jsx`), Cabinet Grotesk + DM Sans typography. All routes are sourced from `constants/routes.js`. data-testids in `constants/testIds.js`.
 - **Backend**: FastAPI with `/api/leads` (POST + GET) persisting to MongoDB (`db.leads`); existing `/api/status` endpoints retained.
 - **Brand colors**: Navy `#0A4D8C` + Orange `#F25C05` on warm off-white `#FDFBF7`.
 
-## Implemented (Jan 2026)
-- Sticky translucent header with logo, nav, EN/KA toggle, primary CTA, mobile drawer.
-- Hero with collage (smart-dispenser image + golden retriever overlay + floating info chips).
-- Partners marquee (7 logos, infinite scroll).
-- Four alternating image+text feature sections (Vet-approved brands, Door-to-door, Tuned to your pet, Dogs+cats).
-- "What we deliver" category grid (Food, Accessories, Health & Hygiene, Innovation).
-- Why SmartPaw section (navy block, orange accents, badges).
-- 4-step How-it-works grid.
-- Blog preview cards (3 posts).
-- Testimonials grid (3 quotes).
-- Footer with brand, contact (Tbilisi · +995591969901 · hello@smartpaw.ge), social links.
-- WhatsApp floating action button → `https://wa.me/995591969901`.
-- Signup/Lead-capture modal: name, email, phone, pet_type, pet_name, pet_breed, pet_age, notes → POST `/api/leads`.
-- EN/KA language toggle (full EN + placeholder KA translations).
+## Routes (Phase 1)
+- `/` Home (full marketing stack)
+- `/catalogue` + `/catalogue/{food,hygiene,vitamins}`
+- `/special-offers` + `/special-offers/{toys-accessories,innovation-tech,services}`
+- `/how-it-works`, `/plans`, `/about`, `/blog`, `/blog/:slug`, `/contact`, `/faq`
+- `/privacy`, `/terms`, `/delivery-policy`, `/refund-policy`
+- `*` → NotFoundPage
 
-## What's Verified
-- Backend pytest suite: 7/7 passing (`/app/backend/tests/test_leads_api.py`).
-- Frontend desktop + mobile flows: 100% of critical flows passing.
-- No console errors. Hot reload working.
+## Implemented
+### Jan 2026
+- Sticky translucent header, hero, partners marquee, feature sections, categories grid, Why SmartPaw, How it works, blog preview, testimonials, footer.
+- WhatsApp FAB + Signup/Lead-capture modal (`POST /api/leads`).
+- EN/KA toggle scaffold.
+- Backend pytest suite passing.
 
-## Prioritized Backlog (P0/P1/P2)
-- **P0**: Real KA translations from client (placeholder strings in `lib/i18n.js`).
-- **P0**: Custom Catalogue, How-it-works, Blog, Contact full pages/routes (currently single-page anchors).
-- **P1**: Server-side email + phone normalization, lead notification (SendGrid/Resend) to ops inbox.
-- **P1**: Admin view of submitted leads with status (new/contacted/converted).
-- **P1**: Replace placeholder partner logos with real partner brands and link out.
-- **P1**: Add real intro video (or branded hero animation) to replace static collage.
-- **P2**: Subscribe-plan checkout (cart, plans, Stripe).
-- **P2**: Customer dashboard (pet profiles, delivery schedule).
-- **P2**: Blog CMS (MDX or Sanity).
-- **P2**: SEO + Open Graph tags, sitemap, multilingual routing (`/en`, `/ka`).
-- **P2**: Rate-limiting + captcha on `/api/leads`.
+### Feb 2026 — Phase 1: Multi-Page Architecture (DONE, validated 100% by testing agent — iteration_2.json)
+- React Router DOM wired in `index.js` (BrowserRouter) + `App.js` (Routes/Route under shared `Layout`).
+- `SignupProvider` and `LangProvider` hoisted to the root so the signup modal & i18n work on every route.
+- `Layout.jsx` mounts Header/Footer/WhatsApp FAB/SignupModal once with `<Outlet />`; scroll-to-top on route change.
+- `Header.jsx` refactored to `NavLink` (active link orange) + `Link` for logo; mobile drawer auto-closes.
+- `Footer.jsx` refactored with structured Company / Explore / Legal link groups using `Link`; testids stable across languages (derived from route keys, not labels).
+- 23 routes scaffolded (Home, Catalogue + 3 subs, Specials + 3 subs, How It Works, Plans, About, Blog list + slug, Contact, FAQ, 4 legal pages, 404).
+- Breadcrumbs on every inner page (`PageShell` + `Breadcrumbs`).
+- Hero secondary CTAs route to `/catalogue` and `/special-offers` instead of in-page scroll.
+
+## What's Verified (Feb 2026)
+- Frontend Playwright run: **40/40 critical flows passing**, no console errors (iteration_2.json).
+- Verified flows: SPA navigation across all routes, active-link highlight, scroll-to-top on route change, signup modal opening from header & page-shell CTAs on inner pages, lead capture POST `/api/leads` 201 + success message, EN/KA toggle, WhatsApp FAB on every route, mobile drawer navigation.
+- Backend pytest suite: still passing (`/app/backend/tests/test_leads_api.py`).
+
+## Prioritized Backlog
+
+### P0 — Phase 2: Catalogue Construction
+- Define `products` schema (id, slug, name, brand, category, sub_category, image, description, status).
+- Backend `/api/products` (GET list, GET by slug, optional admin POST).
+- Build catalogue category pages (Food, Hygiene, Vitamins) with live products.
+- Seed sample data for ~6 brands per sub.
+
+### P0 — Phase 3: Special Offers Engine
+- Dynamic promo banner system (list of offers; date-bounded; routing to sub-pages).
+- Build out toys/tech/services sub-pages with cards.
+
+### P1 — Phase 4: Plans & Pricing
+- Finalise plan tiers (Starter / Routine / Multi-Pet) once client confirms pricing.
+- Comparison table component, add-ons matrix.
+
+### P1 — Phase 5: Inside Marketing Pages
+- Flesh out How It Works (timeline, FAQ inline), About (founder story, team, impact metrics).
+- Contact page: embedded map + inquiry form (separate from signup) + departments.
+- FAQ expansion.
+
+### P1 — Phase 6: Blog & SEO Content
+- Markdown/MDX content pipeline OR small CMS (Sanity / Strapi).
+- Blog post template fleshed out (author, share, related).
+- Open Graph + JSON-LD on every route.
+
+### P1 — Phase 7: Lead & Notification Automation
+- `/api/leads` → email to ops inbox via Resend or SendGrid.
+- Optional WhatsApp notification via Twilio.
+- Admin view of leads with status (new/contacted/converted).
+
+### P2 — Phase 8: Cart & Checkout Foundation
+- Subscribe-plan checkout (cart, plans, Stripe).
+- Customer dashboard (pet profiles, delivery schedule).
+
+### P2 — Phase 9: Authentication
+- Customer account login (Emergent Google Auth) for plan management.
+
+### P2 — Phase 10: Localisation
+- Replace placeholder KA strings with finalised Georgian copy from client.
+- KA SEO + locale-prefixed routes (`/en`, `/ka`) if needed.
+
+### P3 — Phase 11: Legal Polish
+- Legal review of Privacy / Terms / Delivery / Refund pages.
+
+### P3 — Phase 12-13: Performance, Analytics, Launch
+- Lighthouse pass, image optimisation, GA4/Plausible.
+- Production deploy + domain wiring.
 
 ## Next Tasks
-1. Collect real Georgian copy from the client and replace placeholder KA strings.
-2. Decide on hosting for client (Emergent deploy / Vercel) and configure custom domain.
-3. Wire `/api/leads` to email notifications (SendGrid or Resend integration).
-4. Build dedicated routes for Catalogue, How-it-works, Blog, Contact.
+1. **Kick off Phase 2 — Catalogue Construction** (schema → backend endpoint → category page wiring).
+2. Collect real Georgian copy from the client and replace placeholder KA strings.
+3. Wire `/api/leads` to email notifications (SendGrid or Resend) when ops inbox is confirmed.
+
+## Architecture Notes for next agent
+- Routes are centralised in `/app/frontend/src/constants/routes.js`. Edit slugs there and they propagate to header/footer/breadcrumbs.
+- The signup modal is globally controlled via `useSignup()` from `lib/SignupContext.jsx`. Use `openSignup()` anywhere — no prop drilling needed.
+- Every page should be wrapped in `PageShell` for consistent breadcrumbs + bottom CTA strip.

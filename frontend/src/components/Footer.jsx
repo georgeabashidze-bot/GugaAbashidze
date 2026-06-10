@@ -11,23 +11,23 @@ export default function Footer({ onOpenSignup }) {
   const { t } = useLang();
 
   const companyLinks = [
-    { to: ROUTES.about.path, label: t.footer.company[0] || 'About' },
-    { to: ROUTES.blog.path, label: t.footer.company[1] || 'Blog' },
-    { to: ROUTES.faq.path, label: 'FAQ' },
+    { key: 'about', to: ROUTES.about.path, label: t.footer.company[0] || 'About' },
+    { key: 'blog', to: ROUTES.blog.path, label: t.footer.company[1] || 'Blog' },
+    { key: 'faq', to: ROUTES.faq.path, label: 'FAQ' },
   ];
 
   const exploreLinks = [
-    { to: ROUTES.catalogue.path, label: t.footer.explore[0] || 'Catalogue' },
-    { to: ROUTES.how.path, label: t.footer.explore[1] || 'How it works' },
-    { to: ROUTES.plans.path, label: t.footer.explore[2] || 'Plans' },
-    { to: ROUTES.specials.path, label: 'Special Offers' },
+    { key: 'catalogue', to: ROUTES.catalogue.path, label: t.footer.explore[0] || 'Catalogue' },
+    { key: 'how', to: ROUTES.how.path, label: t.footer.explore[1] || 'How it works' },
+    { key: 'plans', to: ROUTES.plans.path, label: t.footer.explore[2] || 'Plans' },
+    { key: 'specials', to: ROUTES.specials.path, label: 'Special Offers' },
   ];
 
   const legalLinks = [
-    { to: ROUTES.privacy.path, label: 'Privacy' },
-    { to: ROUTES.terms.path, label: 'Terms' },
-    { to: ROUTES.delivery.path, label: 'Delivery' },
-    { to: ROUTES.refund.path, label: 'Refund' },
+    { key: 'privacy', to: ROUTES.privacy.path, label: 'Privacy' },
+    { key: 'terms', to: ROUTES.terms.path, label: 'Terms' },
+    { key: 'delivery', to: ROUTES.delivery.path, label: 'Delivery' },
+    { key: 'refund', to: ROUTES.refund.path, label: 'Refund' },
   ];
 
   return (
@@ -65,7 +65,7 @@ export default function Footer({ onOpenSignup }) {
                     <Link
                       to={s.to}
                       className="text-white/85 hover:text-[#F25C05] transition-colors"
-                      data-testid={`footer-company-${s.label.toLowerCase().replace(/\s+/g, '-')}-link`}
+                      data-testid={`footer-company-${s.key}-link`}
                     >
                       {s.label}
                     </Link>
@@ -81,7 +81,7 @@ export default function Footer({ onOpenSignup }) {
                     <Link
                       to={s.to}
                       className="text-white/85 hover:text-[#F25C05] transition-colors"
-                      data-testid={`footer-explore-${s.label.toLowerCase().replace(/\s+/g, '-')}-link`}
+                      data-testid={`footer-explore-${s.key}-link`}
                     >
                       {s.label}
                     </Link>
@@ -122,7 +122,7 @@ export default function Footer({ onOpenSignup }) {
                 <Link
                   to={l.to}
                   className="hover:text-[#F25C05] transition-colors"
-                  data-testid={`footer-legal-${l.label.toLowerCase()}-link`}
+                  data-testid={`footer-legal-${l.key}-link`}
                 >
                   {l.label}
                 </Link>

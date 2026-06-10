@@ -20,7 +20,7 @@ export default function Layout() {
         return;
       }
     }
-    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [pathname, hash]);
 
   return (
