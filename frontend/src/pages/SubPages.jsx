@@ -9,6 +9,7 @@ export function FoodPage() {
       intro="Dry kibble, wet food, treats and prescription diets — sized to your pet, delivered before you run out."
       image="https://images.pexels.com/photos/8434637/pexels-photo-8434637.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Dog eating dry kibble from a bowl"
+      subCategory="food"
       willInclude={[
         'Dry kibble — adult, puppy, senior, breed-specific',
         'Wet food in pouches, cans and trays',
@@ -33,6 +34,7 @@ export function HygienePage() {
       intro="The hygiene basics most owners only remember when they’ve already run out — restocked on a schedule that matches your pet’s routine."
       image="https://images.pexels.com/photos/1436139/pexels-photo-1436139.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Puppy being bathed"
+      subCategory="hygiene"
       willInclude={[
         'Shampoos and conditioners for every coat type',
         'Dental sticks, toothpaste and oral rinses',
@@ -56,6 +58,7 @@ export function VitaminsPage() {
       intro="Joint support, skin and coat, digestive health, immunity and senior formulas — the supplements vets actually recommend."
       image="https://images.pexels.com/photos/8434641/pexels-photo-8434641.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Pet supplements and vitamins"
+      subCategory="vitamins"
       willInclude={[
         'Joint care: glucosamine, chondroitin, omega-3',
         'Skin and coat: salmon oil, biotin, vitamin E',

@@ -22,11 +22,9 @@ export default function CataloguePage() {
     <PageShell
       eyebrow="Catalogue"
       title="Everything on your pet’s shelf, restocked on schedule."
-      intro="The full SmartPaw catalogue is being curated with our partner brands. While we finalize listings, here’s the structure — register now and we’ll tailor your first box around your pet."
+      intro="Our launch shelf — vet-approved food, hygiene and supplement brands curated with our partner network. Tap any aisle to browse the listings or register to tailor your first box."
       image="https://images.pexels.com/photos/8434670/pexels-photo-8434670.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Dog enjoying a meal from a stainless steel bowl"
-      comingSoon
-      comingSoonNote="full product listings rolling out soon"
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-7">
         {subs.map(([key, sub]) => (
