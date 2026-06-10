@@ -303,12 +303,13 @@ function ShareRail({ title, url }) {
   const encodedTitle = encodeURIComponent(title);
 
   const onCopy = async () => {
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch (e) {
-      // noop
+      // Clipboard API blocked (insecure context / permission denied).
+      // The icon already swapped — the URL is still visible in the browser bar.
     }
   };
 
