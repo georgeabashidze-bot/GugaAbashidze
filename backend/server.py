@@ -1,10 +1,15 @@
-from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
+from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
-from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
 import uuid
@@ -13,10 +18,8 @@ from datetime import datetime, timezone
 from seed_products import seed_products_if_empty
 from seed_promos import seed_promos_if_empty
 from seed_blog import seed_blog_posts_if_empty
-
-
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+from auth import seed_admin
+from admin_routes import admin_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -73,12 +76,14 @@ class Product(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     slug: str
     name: str
+    name_ka: Optional[str] = None
     brand: str
     category: str  # 'catalogue' | 'specials'
     sub_category: str  # 'food' | 'hygiene' | 'vitamins' | 'toys' | 'tech' | 'services'
     pet_type: str = 'both'  # 'dog' | 'cat' | 'both'
     image: str
     description: str
+    description_ka: Optional[str] = None
     size: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
     featured: bool = False
@@ -208,12 +213,14 @@ def _serialize_product(doc: dict) -> Product:
         id=doc['id'],
         slug=doc['slug'],
         name=doc['name'],
+        name_ka=doc.get('name_ka'),
         brand=doc['brand'],
         category=doc['category'],
         sub_category=doc['sub_category'],
         pet_type=doc.get('pet_type', 'both'),
         image=doc['image'],
         description=doc['description'],
+        description_ka=doc.get('description_ka'),
         size=doc.get('size'),
         tags=doc.get('tags', []),
         featured=doc.get('featured', False),
@@ -250,6 +257,46 @@ async def get_product(slug: str):
     if not doc:
         raise HTTPException(status_code=404, detail="Product not found")
     return _serialize_product(doc)
+
+
+# ---- Public Special Offers ----
+class PublicSpecialOffer(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: str
+    slug: str
+    title: str
+    title_ka: Optional[str] = None
+    description: str
+    description_ka: Optional[str] = None
+    image: str
+    badge: Optional[str] = None
+    discount_percent: Optional[int] = None
+    original_price: Optional[float] = None
+    sale_price: Optional[float] = None
+    sub_category: Optional[str] = None
+    linked_product_slug: Optional[str] = None
+    starts_at: Optional[str] = None
+    ends_at: Optional[str] = None
+    order: int = 100
+
+
+@api_router.get("/special-offers", response_model=List[PublicSpecialOffer])
+async def list_public_special_offers(sub_category: Optional[str] = None):
+    """Active, in-window special offers for the public site."""
+    now_iso = datetime.now(timezone.utc).isoformat()
+    query: dict = {
+        "status": "published",
+        "$and": [
+            {"$or": [{"starts_at": None}, {"starts_at": ""}, {"starts_at": {"$lte": now_iso}}]},
+            {"$or": [{"ends_at": None}, {"ends_at": ""}, {"ends_at": {"$gte": now_iso}}]},
+        ],
+    }
+    if sub_category:
+        query["sub_category"] = sub_category
+    docs = await db.special_offers.find(query, {"_id": 0}).sort("order", 1).to_list(200)
+    return [PublicSpecialOffer(**d) for d in docs]
+
 
 
 # ---- Promos ----
@@ -364,6 +411,12 @@ async def get_blog_post(slug: str):
 
 # Include the router in the main app
 app.include_router(api_router)
+app.include_router(admin_router)
+
+# Serve uploaded images (admin uploads land here, ingress routes /api/* to backend)
+_upload_dir = Path(os.environ.get('UPLOAD_DIR', '/app/backend/uploads'))
+_upload_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/api/uploads", StaticFiles(directory=str(_upload_dir)), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
@@ -382,6 +435,11 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_seed_products():
+    try:
+        await seed_admin(db)
+        logger.info("Admin seed check complete.")
+    except Exception as e:  # noqa: BLE001
+        logger.error("Admin seeding failed: %s", e)
     try:
         inserted = await seed_products_if_empty(db)
         if inserted:

@@ -7,6 +7,7 @@ import "@/index.css";
 import App from "@/App";
 import { LangProvider } from "@/lib/LangContext";
 import { SignupProvider } from "@/lib/SignupContext";
+import { AdminAuthProvider } from "@/lib/AdminAuthContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,7 +26,9 @@ root.render(
         <BrowserRouter>
           <LangProvider>
             <SignupProvider>
-              <App />
+              <AdminAuthProvider>
+                <App />
+              </AdminAuthProvider>
             </SignupProvider>
           </LangProvider>
         </BrowserRouter>

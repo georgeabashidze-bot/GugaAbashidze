@@ -16,9 +16,19 @@ import NotFoundPage from '@/pages/NotFoundPage';
 import { FoodPage, HygienePage, VitaminsPage, ToysPage, InnovationTechPage, ServicesPage } from '@/pages/SubPages';
 import { PrivacyPage, TermsPage, DeliveryPage, RefundPage } from '@/pages/LegalPages';
 
+import AdminLogin from '@/pages/admin/AdminLogin';
+import AdminLayout from '@/pages/admin/AdminLayout';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import AdminProducts from '@/pages/admin/AdminProducts';
+import AdminProductForm from '@/pages/admin/AdminProductForm';
+import AdminOffers from '@/pages/admin/AdminOffers';
+import AdminOfferForm from '@/pages/admin/AdminOfferForm';
+import { AdminLeads, AdminContacts } from '@/pages/admin/AdminViewers';
+
 function App() {
   return (
     <Routes>
+      {/* Public site */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
 
@@ -46,6 +56,20 @@ function App() {
         <Route path="/refund-policy" element={<RefundPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
+      </Route>
+
+      {/* Admin panel */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="products" element={<AdminProducts />} />
+        <Route path="products/new" element={<AdminProductForm />} />
+        <Route path="products/:id" element={<AdminProductForm />} />
+        <Route path="special-offers" element={<AdminOffers />} />
+        <Route path="special-offers/new" element={<AdminOfferForm />} />
+        <Route path="special-offers/:id" element={<AdminOfferForm />} />
+        <Route path="leads" element={<AdminLeads />} />
+        <Route path="contact-inquiries" element={<AdminContacts />} />
       </Route>
     </Routes>
   );

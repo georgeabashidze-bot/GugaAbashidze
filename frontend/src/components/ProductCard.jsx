@@ -1,11 +1,15 @@
 import React from 'react';
 import { useSignup } from '@/lib/SignupContext';
+import { useLang } from '@/lib/LangContext';
 import { ArrowUpRight } from 'lucide-react';
 
 // Re-usable card for a single product. Click → open Signup modal (no checkout yet).
 export default function ProductCard({ product }) {
   const { openSignup } = useSignup();
-  const { slug, name, brand, image, description, size, pet_type, featured } = product;
+  const { lang } = useLang();
+  const { slug, name, name_ka, brand, image, description, description_ka, size, pet_type, featured } = product;
+  const displayName = lang === 'ka' && name_ka ? name_ka : name;
+  const displayDesc = lang === 'ka' && description_ka ? description_ka : description;
 
   return (
     <button
@@ -17,7 +21,7 @@ export default function ProductCard({ product }) {
       <div className="relative aspect-[5/4] overflow-hidden">
         <img
           src={image}
-          alt={name}
+          alt={displayName}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           loading="lazy"
         />
@@ -33,13 +37,13 @@ export default function ProductCard({ product }) {
       <div className="p-6 md:p-7 flex flex-col gap-3 flex-1">
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-display font-bold text-[#05223D] text-xl leading-tight tracking-tight">
-            {name}
+            {displayName}
           </h3>
           <span className="mt-0.5 w-9 h-9 shrink-0 rounded-full border border-[#0A4D8C33] flex items-center justify-center text-[#0A4D8C] group-hover:bg-[#F25C05] group-hover:border-[#F25C05] group-hover:text-white transition-all">
             <ArrowUpRight size={15} />
           </span>
         </div>
-        <p className="text-sm text-[#465B70] leading-relaxed">{description}</p>
+        <p className="text-sm text-[#465B70] leading-relaxed">{displayDesc}</p>
         <div className="mt-auto pt-4 border-t border-[#0A4D8C0F] flex flex-wrap items-center gap-2">
           {size && (
             <span className="text-xs font-bold text-[#05223D] bg-[#F5F2EB] rounded-full px-3 py-1">

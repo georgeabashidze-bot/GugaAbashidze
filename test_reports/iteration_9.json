@@ -1,0 +1,67 @@
+{
+  "summary": "Tested SmartPaw Admin Panel Phase A1+A2+A3 (auth, products CRUD, special-offers CRUD, uploads, leads/contacts viewers). Backend: 18/20 tests passed; 2 real bugs surfaced (brute-force lockout never fires behind ingress; /api/admin/uploads returns an internal cluster URL instead of the public REACT_APP_BACKEND_URL). Frontend: login + protected redirect + dashboard counts + products list (36 rows) + leads/contacts + CSV export buttons + sign-out + public-site regression all PASS. Create/edit/delete flows in form pages work visually (form renders bilingual EN+KA fields, image upload+URL toggle, category/sub-category/pet-type/status selects, Create button enabled) but inputs lack data-testid which makes E2E selectors fragile.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "POST /api/admin/login",
+        "issue": "Brute-force lockout (429) never triggers behind the K8s ingress. request.client.host returns the proxy/ingress pod IP, which rotates between multiple nodes (e.g. 10.208.130.77 and 10.208.130.78). The client_identifier in auth.py is `{ip}:{email}` so failed-attempt counters get split across pod IPs and never reach MAX_FAILED_ATTEMPTS=5. Verified: 7 consecutive failed logins all returned 401; Mongo login_attempts shows count split as 4+3 across two IPs.",
+        "priority": "HIGH"
+      },
+      {
+        "endpoint": "POST /api/admin/uploads",
+        "issue": "Returned `url` uses request.base_url which is the INTERNAL cluster host (`http://smart-feed-pets.cluster-5.preview.emergentcf.cloud/api/uploads/<file>.png`) instead of the public REACT_APP_BACKEND_URL (`https://smart-feed-pets.preview.emergentagent.com/...`). The internal URL is http (mixed-content risk on the https site) and 301-redirects when accessed. Recommend honoring X-Forwarded-Proto/Host or using an env var PUBLIC_BASE_URL. The same file IS reachable at the public URL when accessed directly, so the static mount itself works.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "AdminLogin",
+        "issue": "Bad-credentials error renders the raw axios error message ('Unauthorized') instead of the backend `detail` ('Invalid email or password'). The data-testid='admin-login-error' element IS present (good), but the text should surface the API error.detail / a localized friendly message.",
+        "selector": "[data-testid='admin-login-error']",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "AdminProductForm / AdminOfferForm",
+        "issue": "Form inputs (Name EN/KA, Brand, Description EN/KA, Image URL, Discount, Title etc.) and tabs (Upload/External URL) have no data-testid attributes. Selectors must fall back to label text or placeholders, which is brittle for E2E automation. Recommend: data-testid=\"product-name-input\", \"product-name-ka-input\", \"product-brand-input\", \"product-image-url-input\", \"image-mode-upload\", \"image-mode-url\", \"product-save-button\", and equivalents on offer form.",
+        "selector": "input[name=...]",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_admin_panel.py",
+    "/app/test_reports/pytest/admin_panel.xml"
+  ],
+  "action_items": [
+    "FIX brute-force lockout: derive client IP from X-Forwarded-For (trust the ingress) OR drop ip from client_identifier and rely on email-only counter (with a separate global IP-bucket rate-limit). Without this fix the 5-attempts/15-min control is effectively disabled in production.",
+    "FIX upload URL: build the public URL from REACT_APP_BACKEND_URL/PUBLIC_BASE_URL env var instead of request.base_url, OR honour X-Forwarded-Host + X-Forwarded-Proto when present. This affects every image saved into a product/offer via the Upload tab.",
+    "Surface backend `detail` in AdminLogin error toast (replace 'Unauthorized' with response.data.detail).",
+    "Add data-testid to all AdminProductForm + AdminOfferForm inputs, image mode tabs, and submit buttons for stable E2E coverage."
+  ],
+  "critical_code_review_comments": [
+    "auth.py client_identifier uses request.client.host directly — unsafe behind any reverse proxy / k8s ingress; lockout silently disabled.",
+    "admin_routes.py admin_upload_image builds public URL from request.base_url which resolves to the internal ingress hostname; should use REACT_APP_BACKEND_URL / a configured PUBLIC_BASE_URL.",
+    "server.py — admin_router is included AFTER api_router but app.add_middleware(CORSMiddleware) is added AFTER routers; FastAPI applies middleware regardless of order so this works, but conventionally middlewares should be registered first.",
+    "ProductIn defines `image: str = Field(min_length=1)` — does not validate URL format. Accepting either an http(s) URL or a relative '/api/uploads/...' path is fine, but the field has no type discrimination.",
+    "auth.py — JWT secret read at request-time via os.environ['JWT_SECRET'] inside _jwt_secret(); good. ACCESS_TOKEN_TTL_DAYS=7 is long for an admin token — consider 24h with refresh.",
+    "admin_routes.py — list endpoints have no pagination (to_list(1000)/(500)); will scale poorly. Acceptable for MVP A1+A2+A3."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_admin_panel.py (new)"
+  ],
+  "success_rate": {
+    "backend": "90% (18/20 pytest cases; 2 real bugs found)",
+    "frontend": "85% (login, protected redirect, dashboard, list views, viewers, csv buttons, sign-out, public regression all pass; product/offer CREATE flow not E2E-verified due to missing data-testid on form inputs and image-mode tab — backend CRUD verified separately via pytest)"
+  },
+  "test_credentials": "admin@smartpawfood.com / ChangeMe123! — confirmed working from /app/memory/test_credentials.md",
+  "seed_data_creation": "All TEST_ prefixed products/offers created during tests were deleted in the same test (Create→Update→Delete pattern). No residual test data in DB.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend pytest lives at /app/backend/tests/test_admin_panel.py — reusable. JUnit XML at /app/test_reports/pytest/admin_panel.xml. Two backend bugs require a fix + retest: (1) brute-force lockout behind ingress, (2) upload URL host. Frontend create/edit/delete forms WORK (verified visually) but lack data-testid on inputs/tabs/buttons — once those are added, the create→edit→delete E2E in this iteration's test script will pass without label-based fallbacks.",
+  "rca of the issue": "BUG1 (brute force): K8s ingress fronting FastAPI uses multiple proxy pods. Starlette's request.client populates from the immediate TCP peer, which is the ingress pod IP. With multiple proxy pods round-robining, the per-IP counter splits and never reaches the MAX_FAILED_ATTEMPTS threshold. Fix: read first IP from request.headers.get('x-forwarded-for') and trust the ingress, or use email-only buckets (with a separate global IP throttle middleware). Reproduce: POST /api/admin/login with bad password 7x with the same fake email; observe all 7 responses are 401 and `db.login_attempts` shows two records with counts split (e.g. 4+3). BUG2 (upload URL): request.base_url returns scheme+host as seen by Starlette, which behind ingress is the internal cluster hostname. Fix: prefer X-Forwarded-Host+X-Forwarded-Proto when present, or build URL from os.environ['PUBLIC_BASE_URL'] (or REACT_APP_BACKEND_URL). Reproduce: curl POST /api/admin/uploads with a valid PNG and the public BACKEND_URL — response.url starts with `http://smart-feed-pets.cluster-5.preview.emergentcf.cloud/`."
+}
