@@ -85,6 +85,8 @@ class Product(BaseModel):
     description: str
     description_ka: Optional[str] = None
     size: Optional[str] = None
+    price: Optional[float] = None
+    currency: str = 'GEL'
     tags: List[str] = Field(default_factory=list)
     featured: bool = False
     status: str = 'published'  # 'draft' | 'published'
@@ -222,6 +224,8 @@ def _serialize_product(doc: dict) -> Product:
         description=doc['description'],
         description_ka=doc.get('description_ka'),
         size=doc.get('size'),
+        price=doc.get('price'),
+        currency=doc.get('currency', 'GEL'),
         tags=doc.get('tags', []),
         featured=doc.get('featured', False),
         status=doc.get('status', 'published'),

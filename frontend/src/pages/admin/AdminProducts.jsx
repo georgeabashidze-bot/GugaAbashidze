@@ -127,6 +127,7 @@ export default function AdminProducts() {
                   <th className="text-left px-4 py-3 font-bold">Product</th>
                   <th className="text-left px-4 py-3 font-bold">Category</th>
                   <th className="text-left px-4 py-3 font-bold">Pet</th>
+                  <th className="text-right px-4 py-3 font-bold">Price</th>
                   <th className="text-left px-4 py-3 font-bold">Status</th>
                   <th className="text-right px-4 py-3 font-bold">Actions</th>
                 </tr>
@@ -164,6 +165,11 @@ export default function AdminProducts() {
                       <div className="text-xs text-[#465B70] mt-1">{SUB_LABELS[p.sub_category] || p.sub_category}</div>
                     </td>
                     <td className="px-4 py-3 capitalize text-[#465B70]">{p.pet_type}</td>
+                    <td className="px-4 py-3 text-right font-bold text-[#05223D]">
+                      {p.price != null
+                        ? `${p.currency === 'USD' ? '$' : p.currency === 'EUR' ? '€' : '₾'}${Number(p.price).toFixed(2)}`
+                        : <span className="text-[#465B70]">—</span>}
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className={`text-xs font-bold px-2 py-0.5 rounded-full ${

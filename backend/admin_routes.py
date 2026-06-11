@@ -120,6 +120,8 @@ class ProductIn(BaseModel):
     description: str = Field(min_length=1, max_length=4000)
     description_ka: Optional[str] = Field(default=None, max_length=4000)
     size: Optional[str] = Field(default=None, max_length=120)
+    price: Optional[float] = Field(default=None, ge=0)
+    currency: str = Field(default='GEL', max_length=8)
     tags: List[str] = Field(default_factory=list)
     featured: bool = False
     status: str = Field(default="published", pattern=r"^(draft|published)$")
@@ -145,6 +147,8 @@ def _product_doc_to_out(doc: dict) -> ProductOut:
         description=doc["description"],
         description_ka=doc.get("description_ka"),
         size=doc.get("size"),
+        price=doc.get("price"),
+        currency=doc.get("currency", "GEL"),
         tags=doc.get("tags", []),
         featured=doc.get("featured", False),
         status=doc.get("status", "published"),
@@ -204,6 +208,8 @@ async def admin_create_product(payload: ProductIn, _=Depends(get_current_admin))
         "description": payload.description,
         "description_ka": payload.description_ka,
         "size": payload.size,
+        "price": payload.price,
+        "currency": payload.currency,
         "tags": payload.tags,
         "featured": payload.featured,
         "status": payload.status,
@@ -243,6 +249,8 @@ async def admin_update_product(
         "description": payload.description,
         "description_ka": payload.description_ka,
         "size": payload.size,
+        "price": payload.price,
+        "currency": payload.currency,
         "tags": payload.tags,
         "featured": payload.featured,
         "status": payload.status,

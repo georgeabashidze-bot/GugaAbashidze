@@ -7,9 +7,11 @@ import { ArrowUpRight } from 'lucide-react';
 export default function ProductCard({ product }) {
   const { openSignup } = useSignup();
   const { lang } = useLang();
-  const { slug, name, name_ka, brand, image, description, description_ka, size, pet_type, featured } = product;
+  const { slug, name, name_ka, brand, image, description, description_ka, size, price, currency, pet_type, featured } = product;
   const displayName = lang === 'ka' && name_ka ? name_ka : name;
   const displayDesc = lang === 'ka' && description_ka ? description_ka : description;
+  const currencySymbol = currency === 'USD' ? '$' : currency === 'EUR' ? '€' : '₾';
+  const formattedPrice = price != null && price !== '' ? `${currencySymbol}${Number(price).toFixed(2)}` : null;
 
   return (
     <button
@@ -45,6 +47,11 @@ export default function ProductCard({ product }) {
         </div>
         <p className="text-sm text-[#465B70] leading-relaxed">{displayDesc}</p>
         <div className="mt-auto pt-4 border-t border-[#0A4D8C0F] flex flex-wrap items-center gap-2">
+          {formattedPrice && (
+            <span className="text-base font-display font-extrabold text-[#F25C05] mr-auto" data-testid={`product-price-${slug}`}>
+              {formattedPrice}
+            </span>
+          )}
           {size && (
             <span className="text-xs font-bold text-[#05223D] bg-[#F5F2EB] rounded-full px-3 py-1">
               {size}

@@ -19,6 +19,8 @@ const EMPTY = {
   description: '',
   description_ka: '',
   size: '',
+  price: '',
+  currency: 'GEL',
   tags: [],
   featured: false,
   status: 'published',
@@ -55,6 +57,8 @@ export default function AdminProductForm() {
             description: found.description || '',
             description_ka: found.description_ka || '',
             size: found.size || '',
+            price: found.price ?? '',
+            currency: found.currency || 'GEL',
             tags: found.tags || [],
             featured: !!found.featured,
             status: found.status || 'published',
@@ -107,6 +111,8 @@ export default function AdminProductForm() {
         name_ka: form.name_ka.trim() || null,
         description_ka: form.description_ka.trim() || null,
         size: form.size.trim() || null,
+        price: form.price === '' ? null : Number(form.price),
+        currency: form.currency || 'GEL',
       };
       if (isNew) {
         await adminApi.createProduct(payload);
