@@ -86,14 +86,31 @@ class TestAdminAuth:
         assert r.status_code == 401
 
     def test_brute_force_lockout_429(self, api):
-        # Use a fresh email so we don't lock out the real admin
+        # Use a fresh email and a fixed X-Forwarded-For so the per-client lockout
+        # bucket accumulates correctly behind k8s ingress.
         unique = f"bf-{uuid.uuid4().hex[:6]}@example.com"
+        xff_ip = f"198.51.100.{20 + (uuid.uuid4().int % 200)}"  # unique-per-run IP
         statuses = []
         for _ in range(6):
-            r = api.post(f"{BASE_URL}/api/admin/login", json={"email": unique, "password": "wrong"})
+            r = api.post(
+                f"{BASE_URL}/api/admin/login",
+                json={"email": unique, "password": "wrong"},
+                headers={"X-Forwarded-For": xff_ip, "Content-Type": "application/json"},
+            )
             statuses.append(r.status_code)
-        # Expect first 5 to be 401 and at least one 429 after threshold
-        assert 429 in statuses, f"Expected 429 lockout after 5 failed attempts, got {statuses}"
+        assert statuses[:5] == [401, 401, 401, 401, 401], f"First 5 should be 401, got {statuses}"
+        assert statuses[5] == 429, f"6th attempt should be 429 lockout, got {statuses}"
+
+    def test_login_wrong_password_detail_message(self, api):
+        # Frontend relies on backend `detail` text "Invalid email or password".
+        unique = f"detail-{uuid.uuid4().hex[:6]}@example.com"
+        r = api.post(
+            f"{BASE_URL}/api/admin/login",
+            json={"email": unique, "password": "wrong"},
+            headers={"X-Forwarded-For": f"203.0.113.{uuid.uuid4().int % 250}"},
+        )
+        assert r.status_code == 401, r.text
+        assert "Invalid email or password" in (r.json().get("detail") or "")
 
 
 # ---------- PRODUCTS CRUD ----------
@@ -259,6 +276,11 @@ class TestAdminUploads:
         data = r.json()
         assert data["url"].endswith(".png")
         assert "/api/uploads/" in data["url"]
+        # CRITICAL: returned URL must be the public host, not the internal cluster host
+        public_base = "https://smart-feed-pets.preview.emergentagent.com"
+        assert data["url"].startswith(public_base + "/api/uploads/"), (
+            f"Upload URL must use PUBLIC_BASE_URL ({public_base}), got: {data['url']}"
+        )
         # Verify the URL is actually serveable
         head = requests.get(data["url"])
         assert head.status_code == 200, f"Uploaded image not served at {data['url']}"

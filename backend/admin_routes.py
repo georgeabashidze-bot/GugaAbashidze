@@ -439,9 +439,19 @@ async def admin_upload_image(
                 raise HTTPException(status_code=413, detail="File too large (max 6 MB)")
             out.write(chunk)
 
-    # Build absolute URL using the request's base — ingress routes /api/* to backend.
-    base = str(request.base_url).rstrip("/")
-    public_url = f"{base}/api/uploads/{safe_name}"
+    # Build absolute URL. Prefer PUBLIC_BASE_URL (set to the user-facing origin),
+    # then X-Forwarded-Proto+Host (set by the ingress), then request.base_url as a
+    # last resort. Behind k8s ingress request.base_url resolves to the internal
+    # cluster hostname which mixes http with the public https site.
+    public_base = os.environ.get("PUBLIC_BASE_URL", "").rstrip("/")
+    if not public_base:
+        fwd_proto = request.headers.get("x-forwarded-proto")
+        fwd_host = request.headers.get("x-forwarded-host")
+        if fwd_proto and fwd_host:
+            public_base = f"{fwd_proto}://{fwd_host}"
+    if not public_base:
+        public_base = str(request.base_url).rstrip("/")
+    public_url = f"{public_base}/api/uploads/{safe_name}"
     return UploadResponse(url=public_url, filename=safe_name, size=size)
 
 

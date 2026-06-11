@@ -169,5 +169,12 @@ async def seed_admin(db) -> None:
 
 
 def client_identifier(request: Request, email: str) -> str:
-    ip = request.client.host if request.client else "unknown"
+    # Behind k8s ingress, request.client.host is the proxy pod IP and rotates.
+    # Trust X-Forwarded-For (first hop) when present so failed-attempt counters
+    # accumulate correctly per real client.
+    xff = request.headers.get("x-forwarded-for", "").strip()
+    if xff:
+        ip = xff.split(",")[0].strip() or "unknown"
+    else:
+        ip = request.client.host if request.client else "unknown"
     return f"{ip}:{email.lower().strip()}"

@@ -1,0 +1,37 @@
+{
+  "summary": "Re-test of iteration_9 bugs (3 fixes) for SmartPaw Admin Panel A1+A2+A3. All 3 previously-flagged bugs are VERIFIED FIXED. Backend: 21/21 pytest cases pass (added test_login_wrong_password_detail_message + tightened brute-force test to use X-Forwarded-For + asserted upload URL prefix is PUBLIC_BASE_URL). Frontend: login-error shows backend detail 'Invalid email or password', upload preview URL points to https://smart-feed-pets.preview.emergentagent.com/api/uploads/<uuid>.png, product create + delete CRUD works end-to-end, special-offer create + delete works, sign-out clears SP_ADMIN_TOKEN and redirects, protected /admin redirects to /admin/login when no token, public /catalogue/food and /special-offers regress-load successfully.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_admin_panel.py",
+    "/app/test_reports/pytest/admin_panel.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "admin_routes.py upload_image — PUBLIC_BASE_URL env-var fallback chain (env -> X-Forwarded-Proto+Host -> request.base_url) is clean and correct. Verified preview URL is the public HTTPS host.",
+    "auth.py client_identifier — now reads first hop of X-Forwarded-For; lockout fires on 6th attempt as designed (verified via pytest with controlled XFF header).",
+    "adminApi.js — XHR-based request() helper correctly surfaces backend `detail` for 401s (Cloudflare-vs-fetch issue fixed); also handles 204/empty/JSON responses cleanly.",
+    "Brute-force counter still stores per-IP buckets in Mongo. Consider periodic cleanup of stale lockout rows (no TTL index) — non-blocking.",
+    "PUBLIC_BASE_URL is hard-coded in backend/.env — if the public host ever changes, this must be updated in lock-step with REACT_APP_BACKEND_URL. Consider deriving from REACT_APP_BACKEND_URL in a single place."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_admin_panel.py (tightened brute-force test with X-Forwarded-For, asserted upload URL uses public host, added explicit login-error-detail test)"
+  ],
+  "success_rate": {
+    "backend": "100% (21/21 pytest passing including 3 targeted regression tests for the iteration_9 fixes)",
+    "frontend": "100% on the re-tested flows (login error, login success, dashboard, product CRUD create+delete with upload, special-offer CRUD create+delete, sign-out, protected redirect, public regressions)"
+  },
+  "test_credentials": "admin@smartpawfood.com / ChangeMe123! — confirmed working",
+  "seed_data_creation": "All TEST_ / QA_ prefixed products & offers created during tests were deleted in the same test run. No residual test data left in DB. login_attempts collection was wiped at start of run.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression suite at /app/backend/tests/test_admin_panel.py covers auth, brute-force (with XFF), products CRUD, special-offers CRUD (incl. expired-window filter), public bilingual exposure, uploads (auth/size/type/public-URL), leads + contacts viewers — 21 cases, all green. Frontend admin form pages have full data-testid coverage now (field-name, field-name-ka, field-brand, field-description, field-description-ka, field-image, field-image-url, field-category, field-sub-category, field-pet-type, field-status, field-featured, save-product-button on product form; field-title, field-title-ka, field-description, field-description-ka, field-discount, field-original-price, field-sale-price, field-starts-at, field-ends-at, field-order, field-image, field-image-url, field-badge, field-sub-category, field-linked-slug, field-status, save-offer-button on offer form). delete-product-{slug} per-row testids exist on the products list.",
+  "rca of the issue": "Iteration_9 bugs all fixed. (1) Login error: AdminLogin previously surfaced axios.statusText ('Unauthorized') because Cloudflare pre-consumed fetch response bodies on non-2xx — switching adminApi.js to XMLHttpRequest exposes responseText reliably and the JSON `detail` ('Invalid email or password') now reaches the UI. Verified by typing wrong password in UI -> data-testid='admin-login-error' shows exactly 'Invalid email or password'. (2) Upload URL: admin_routes.upload_image now prefers PUBLIC_BASE_URL env var (set to https://smart-feed-pets.preview.emergentagent.com in backend/.env), then X-Forwarded-Proto+Host, then request.base_url. Verified curl + Playwright: returned url starts with public HTTPS host and HEAD-fetches 200. (3) Brute-force lockout: client_identifier now reads first hop of X-Forwarded-For before falling back to request.client.host, so failed-attempt counter accumulates per real client behind k8s ingress. Verified: 5 wrong-password POSTs with X-Forwarded-For: 198.51.100.X all return 401; 6th returns 429."
+}

@@ -24,44 +24,87 @@ export function setToken(token) {
   }
 }
 
-function authHeaders(extra = {}) {
-  const t = getToken();
-  return t ? { ...extra, Authorization: `Bearer ${t}` } : extra;
-}
+/**
+ * Note: we use XMLHttpRequest instead of fetch because the preview ingress
+ * (Cloudflare) pre-reads response bodies for non-2xx responses, leaving the
+ * `Response.body` stream in a consumed state by the time it reaches the JS
+ * fetch promise. XHR exposes the body via `responseText` and works correctly.
+ */
+function request(path, options = {}) {
+  return new Promise((resolve, reject) => {
+    const method = (options.method || 'GET').toUpperCase();
+    const isForm = options.body instanceof FormData;
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, `${BASE}${path}`);
 
-async function request(path, options = {}) {
-  const isForm = options.body instanceof FormData;
-  const res = await fetch(`${BASE}${path}`, {
-    ...options,
-    headers: {
-      ...(isForm ? {} : { 'Content-Type': 'application/json' }),
-      ...authHeaders(options.headers || {}),
-    },
-  });
-  if (res.status === 401) {
-    setToken(null);
-    const err = new Error('Unauthorized');
-    err.unauthorized = true;
-    throw err;
-  }
-  if (!res.ok) {
-    let detail = res.statusText;
-    try {
-      const j = await res.json();
-      detail = typeof j.detail === 'string'
-        ? j.detail
-        : Array.isArray(j.detail)
-        ? j.detail.map((d) => d.msg || JSON.stringify(d)).join(', ')
-        : JSON.stringify(j.detail || j);
-    } catch {
-      /* ignore */
+    const token = getToken();
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    if (!isForm && options.body != null) xhr.setRequestHeader('Content-Type', 'application/json');
+    if (options.headers) {
+      for (const [k, v] of Object.entries(options.headers)) xhr.setRequestHeader(k, v);
     }
-    const err = new Error(`${res.status}: ${detail}`);
-    err.status = res.status;
-    throw err;
-  }
-  if (res.status === 204) return null;
-  return res.json();
+
+    xhr.onload = () => {
+      const status = xhr.status;
+      const text = xhr.responseText || '';
+
+      if (status === 401) {
+        setToken(null);
+        let detail = 'Unauthorized';
+        try {
+          if (text) {
+            const j = JSON.parse(text);
+            if (typeof j.detail === 'string') detail = j.detail;
+          }
+        } catch {
+          /* ignore */
+        }
+        const err = new Error(detail);
+        err.unauthorized = true;
+        err.status = 401;
+        reject(err);
+        return;
+      }
+
+      if (status >= 200 && status < 300) {
+        if (status === 204 || !text) {
+          resolve(null);
+          return;
+        }
+        try {
+          resolve(JSON.parse(text));
+        } catch (e) {
+          reject(e);
+        }
+        return;
+      }
+
+      // Other errors
+      let detail = xhr.statusText || 'Request failed';
+      try {
+        if (text) {
+          const j = JSON.parse(text);
+          detail =
+            typeof j.detail === 'string'
+              ? j.detail
+              : Array.isArray(j.detail)
+              ? j.detail.map((d) => d.msg || JSON.stringify(d)).join(', ')
+              : JSON.stringify(j.detail || j);
+        }
+      } catch {
+        /* ignore */
+      }
+      const err = new Error(`${status}: ${detail}`);
+      err.status = status;
+      reject(err);
+    };
+
+    xhr.onerror = () => {
+      reject(new Error('Network error'));
+    };
+
+    xhr.send(isForm ? options.body : options.body || null);
+  });
 }
 
 export const adminApi = {
