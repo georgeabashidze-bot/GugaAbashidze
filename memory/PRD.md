@@ -100,12 +100,40 @@ smartpet.ge-style filter sidebar + sort bar + mobile drawer.
 - Lighthouse pass, image optimisation, GA4/Plausible.
 - Production deploy + domain wiring.
 
-## Next Tasks
-1. **Phase 7 — Lead & Notification Automation** (Resend/SendGrid + admin leads view).
-2. **Phase 10 — finalised Georgian translations** from the client.
-3. **Phase 11 — Legal pages** content review.
+### Feb 2026 — Phase A: Admin Control Panel (A1+A2+A3 DONE — iteration_10.json, 21/21 backend + 100% frontend)
+- **Auth (A1)**: JWT-based email+password (single admin), bcrypt hashing, `POST /api/admin/login`, `GET /api/admin/me`, X-Forwarded-For aware brute-force lockout (5 attempts / 15 min), seeded from `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`). Bearer token stored in `localStorage.SP_ADMIN_TOKEN`.
+- **Products CRUD (A2)**: Bilingual fields `name`/`name_ka`, `description`/`description_ka`. `GET|POST|PUT|DELETE /api/admin/products` with auth dep. Image upload at `POST /api/admin/uploads` (multipart, ≤6 MB, jpg/png/webp/gif/avif) → returns public HTTPS URL via `PUBLIC_BASE_URL`. Existing 36 seeded products gained `name_ka`/`description_ka` as null (frontend falls back to EN).
+- **Special Offers CRUD (A3)**: New `db.special_offers` collection with bilingual fields, discount %, original/sale price, start/end dates, badge, sub-category, linked product slug, status, ordering. Public `GET /api/special-offers` filters by status + active window.
+- **Admin UI**: `/admin/login`, `/admin` dashboard (live counts), `/admin/products` (search, filter, edit, delete), `/admin/products/new` + `/admin/products/:id` (full form), `/admin/special-offers` (cards grid), `/admin/special-offers/new` + `/admin/special-offers/:id`, `/admin/leads` & `/admin/contact-inquiries` (read-only tables + CSV export). Sidebar layout with brand styling.
+- **Auth client (`adminApi.js`)**: Uses **XMLHttpRequest** instead of fetch — Cloudflare ingress was pre-consuming fetch response bodies on non-2xx, leaving the JS `Response.body` stream in a consumed state.
 
-## Architecture Notes
+## P0 — Backlog (Admin Panel continuation)
+
+### Phase A4: Plans CRUD
+- Move `/plans` content into editable DB records with bilingual fields.
+
+### Phase A5: Blog CRUD
+- Move Markdown blog posts to DB-backed with bilingual title/excerpt and Markdown editor.
+
+### Phase A6 (partial done): Leads + Contacts Viewer
+- ✅ Read-only tables + CSV export already shipped.
+- Future: mark-as-contacted, internal notes.
+
+### Phase A7: Bulk Importer
+- CSV / Excel upload with column mapping wizard.
+- Optional URL scraper for user-owned supplier feeds.
+
+
+
+## Next Tasks
+1. **Phase A4 — Plans CRUD** (admin-editable plans, bilingual).
+2. **Phase A5 — Blog CRUD** (move from Markdown files to DB, bilingual title/excerpt).
+3. **Phase A7 — Bulk Importer** (CSV/Excel + URL scraper when supplier feed is shared).
+4. **Phase 10 — finalised Georgian translations** + locale-prefixed routes.
+5. **Phase 7 — Lead & Notification Automation** (Resend/SendGrid + Twilio WhatsApp).
+6. **Phase 11 — Legal pages** content review.
+
+
 - Routes centralised in `/app/frontend/src/constants/routes.js`.
 - Signup modal globally controlled via `useSignup()` from `lib/SignupContext.jsx`.
 - Every page wrapped in `PageShell` for consistent breadcrumbs + bottom CTA strip.
