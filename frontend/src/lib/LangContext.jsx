@@ -18,8 +18,24 @@ export function LangProvider({ children }) {
   }, [lang]);
 
   const t = translations[lang] || translations.en;
+
+  /**
+   * Pick the active locale's value from a {field, field_ka} pair.
+   *   pick(product, 'name')  → product.name_ka when lang=ka & present, else product.name
+   *   pick(product, 'description')
+   *   pick(plan, 'tagline')
+   */
+  const pick = (obj, base) => {
+    if (!obj) return '';
+    if (lang === 'ka') {
+      const ka = obj[`${base}_ka`];
+      if (ka != null && ka !== '') return ka;
+    }
+    return obj[base] ?? '';
+  };
+
   return (
-    <LangContext.Provider value={{ lang, setLang, t }}>
+    <LangContext.Provider value={{ lang, setLang, t, pick }}>
       {children}
     </LangContext.Provider>
   );

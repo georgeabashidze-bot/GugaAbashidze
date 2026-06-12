@@ -22,6 +22,10 @@ import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminProducts from '@/pages/admin/AdminProducts';
 import AdminProductsImport from '@/pages/admin/AdminProductsImport';
 import AdminProductForm from '@/pages/admin/AdminProductForm';
+import AdminPlans from '@/pages/admin/AdminPlans';
+import AdminPlanForm from '@/pages/admin/AdminPlanForm';
+import AdminBlog from '@/pages/admin/AdminBlog';
+import AdminBlogForm from '@/pages/admin/AdminBlogForm';
 import AdminOffers from '@/pages/admin/AdminOffers';
 import AdminOfferForm from '@/pages/admin/AdminOfferForm';
 import { AdminLeads, AdminContacts } from '@/pages/admin/AdminViewers';
@@ -67,6 +71,12 @@ function App() {
         <Route path="products/import" element={<AdminProductsImport />} />
         <Route path="products/new" element={<AdminProductForm />} />
         <Route path="products/:id" element={<AdminProductForm />} />
+        <Route path="plans" element={<AdminPlans />} />
+        <Route path="plans/new" element={<AdminPlanForm />} />
+        <Route path="plans/:id" element={<AdminPlanForm />} />
+        <Route path="blog-posts" element={<AdminBlog />} />
+        <Route path="blog-posts/new" element={<AdminBlogForm />} />
+        <Route path="blog-posts/:id" element={<AdminBlogForm />} />
         <Route path="special-offers" element={<AdminOffers />} />
         <Route path="special-offers/new" element={<AdminOfferForm />} />
         <Route path="special-offers/:id" element={<AdminOfferForm />} />

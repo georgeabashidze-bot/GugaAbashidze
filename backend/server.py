@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from seed_products import seed_products_if_empty
 from seed_promos import seed_promos_if_empty
 from seed_blog import seed_blog_posts_if_empty
+from seed_plans import seed_plans_if_empty
 from auth import seed_admin
 from admin_routes import admin_router
 from products_import import import_router
@@ -338,13 +339,53 @@ async def list_promos():
     return [Promo(**it) for it in items]
 
 
+# ---- Plans (subscription tiers) ----
+class PlanFeatureOut(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    en: str
+    ka: Optional[str] = None
+
+
+class PlanOut(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    slug: str
+    name: str
+    name_ka: Optional[str] = None
+    tagline: str
+    tagline_ka: Optional[str] = None
+    price: str
+    price_suffix: str = "GEL / month"
+    price_suffix_ka: Optional[str] = None
+    price_note: Optional[str] = None
+    price_note_ka: Optional[str] = None
+    features: List[PlanFeatureOut] = Field(default_factory=list)
+    cta_label: str = "Get started"
+    cta_label_ka: Optional[str] = None
+    badge: Optional[str] = None
+    badge_ka: Optional[str] = None
+    featured: bool = False
+    order: int = 0
+
+
+@api_router.get("/plans", response_model=List[PlanOut])
+async def list_plans():
+    docs = (
+        await db.plans.find({"status": "published"}, {"_id": 0})
+        .sort([("order", 1), ("created_at", 1)])
+        .to_list(50)
+    )
+    return [PlanOut(**d) for d in docs]
+
+
 # ---- Blog ----
 class BlogPostSummary(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     slug: str
     title: str
+    title_ka: Optional[str] = None
     excerpt: str
+    excerpt_ka: Optional[str] = None
     tag: Optional[str] = None
     category: Optional[str] = None
     cover_image: str
@@ -359,6 +400,7 @@ class BlogPostSummary(BaseModel):
 
 class BlogPost(BlogPostSummary):
     content: str
+    content_ka: Optional[str] = None
     seo_title: Optional[str] = None
     seo_description: Optional[str] = None
 
@@ -374,7 +416,9 @@ async def list_blog_posts(tag: Optional[str] = None, limit: int = 24):
         result.append(BlogPostSummary(
             slug=it["slug"],
             title=it["title"],
+            title_ka=it.get("title_ka"),
             excerpt=it.get("excerpt", ""),
+            excerpt_ka=it.get("excerpt_ka"),
             tag=it.get("tag"),
             category=it.get("category"),
             cover_image=it.get("cover_image", ""),
@@ -397,7 +441,9 @@ async def get_blog_post(slug: str):
     return BlogPost(
         slug=doc["slug"],
         title=doc["title"],
+        title_ka=doc.get("title_ka"),
         excerpt=doc.get("excerpt", ""),
+        excerpt_ka=doc.get("excerpt_ka"),
         tag=doc.get("tag"),
         category=doc.get("category"),
         cover_image=doc.get("cover_image", ""),
@@ -409,6 +455,7 @@ async def get_blog_post(slug: str):
         published_at=doc["published_at"],
         tags=doc.get("tags", []),
         content=doc.get("content", ""),
+        content_ka=doc.get("content_ka"),
         seo_title=doc.get("seo_title"),
         seo_description=doc.get("seo_description"),
     )
@@ -464,6 +511,12 @@ async def startup_seed_products():
             logger.info("Seeded %d blog posts.", inserted)
     except Exception as e:  # noqa: BLE001
         logger.error("Blog seeding failed: %s", e)
+    try:
+        inserted = await seed_plans_if_empty(db)
+        if inserted:
+            logger.info("Seeded %d plans.", inserted)
+    except Exception as e:  # noqa: BLE001
+        logger.error("Plans seeding failed: %s", e)
 
 
 @app.on_event("shutdown")

@@ -9,6 +9,8 @@ import {
   LogOut,
   Loader2,
   ExternalLink,
+  Layers,
+  Newspaper,
 } from 'lucide-react';
 import { useAdminAuth } from '@/lib/AdminAuthContext';
 
@@ -16,6 +18,8 @@ const NAV = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, tid: 'admin-nav-dashboard' },
   { to: '/admin/products', label: 'Products', icon: Package, tid: 'admin-nav-products' },
   { to: '/admin/special-offers', label: 'Special Offers', icon: Tag, tid: 'admin-nav-offers' },
+  { to: '/admin/plans', label: 'Plans', icon: Layers, tid: 'admin-nav-plans' },
+  { to: '/admin/blog-posts', label: 'Blog', icon: Newspaper, tid: 'admin-nav-blog' },
   { to: '/admin/leads', label: 'Leads', icon: Users, tid: 'admin-nav-leads' },
   { to: '/admin/contact-inquiries', label: 'Contacts', icon: Mail, tid: 'admin-nav-contacts' },
 ];

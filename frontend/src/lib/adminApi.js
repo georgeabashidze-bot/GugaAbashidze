@@ -188,4 +188,27 @@ export const adminApi = {
   // leads / contacts
   listLeads: () => request('/api/admin/leads'),
   listContacts: () => request('/api/admin/contact-inquiries'),
+
+  // plans
+  listPlans: () => request('/api/admin/plans'),
+  getPlan: (id) => request(`/api/admin/plans/${id}`),
+  createPlan: (payload) =>
+    request('/api/admin/plans', { method: 'POST', body: JSON.stringify(payload) }),
+  updatePlan: (id, payload) =>
+    request(`/api/admin/plans/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deletePlan: (id) => request(`/api/admin/plans/${id}`, { method: 'DELETE' }),
+
+  // blog posts
+  listBlogPosts: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+    ).toString();
+    return request(`/api/admin/blog-posts${qs ? `?${qs}` : ''}`);
+  },
+  getBlogPost: (id) => request(`/api/admin/blog-posts/${id}`),
+  createBlogPost: (payload) =>
+    request('/api/admin/blog-posts', { method: 'POST', body: JSON.stringify(payload) }),
+  updateBlogPost: (id, payload) =>
+    request(`/api/admin/blog-posts/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteBlogPost: (id) => request(`/api/admin/blog-posts/${id}`, { method: 'DELETE' }),
 };

@@ -464,6 +464,265 @@ async def admin_upload_image(
 
 
 # ============================================================================
+# PLANS (subscription tiers) — CRUD
+# ============================================================================
+class PlanFeature(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    en: str = Field(min_length=1, max_length=200)
+    ka: Optional[str] = Field(default=None, max_length=200)
+
+
+class PlanInput(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    slug: str = Field(min_length=1, max_length=80, pattern=r"^[a-z0-9-]+$")
+    name: str = Field(min_length=1, max_length=80)
+    name_ka: Optional[str] = Field(default=None, max_length=80)
+    tagline: str = Field(min_length=1, max_length=400)
+    tagline_ka: Optional[str] = Field(default=None, max_length=400)
+    price: str = Field(min_length=1, max_length=40)  # "0", "15", "From 79"
+    price_suffix: str = Field(default="GEL / month", max_length=80)
+    price_suffix_ka: Optional[str] = Field(default=None, max_length=80)
+    price_note: Optional[str] = Field(default=None, max_length=200)
+    price_note_ka: Optional[str] = Field(default=None, max_length=200)
+    features: List[PlanFeature] = Field(default_factory=list, max_length=20)
+    cta_label: str = Field(default="Get started", max_length=60)
+    cta_label_ka: Optional[str] = Field(default=None, max_length=60)
+    badge: Optional[str] = Field(default=None, max_length=40)
+    badge_ka: Optional[str] = Field(default=None, max_length=40)
+    featured: bool = False
+    order: int = 0
+    status: str = Field(default="published", pattern=r"^(draft|published)$")
+
+
+class PlanOut(PlanInput):
+    id: str
+    created_at: str
+    updated_at: str
+
+
+def _plan_doc_to_out(doc: dict) -> dict:
+    return {
+        "id": doc.get("id"),
+        "slug": doc.get("slug", ""),
+        "name": doc.get("name", ""),
+        "name_ka": doc.get("name_ka"),
+        "tagline": doc.get("tagline", ""),
+        "tagline_ka": doc.get("tagline_ka"),
+        "price": doc.get("price", "0"),
+        "price_suffix": doc.get("price_suffix", "GEL / month"),
+        "price_suffix_ka": doc.get("price_suffix_ka"),
+        "price_note": doc.get("price_note"),
+        "price_note_ka": doc.get("price_note_ka"),
+        "features": doc.get("features", []),
+        "cta_label": doc.get("cta_label", "Get started"),
+        "cta_label_ka": doc.get("cta_label_ka"),
+        "badge": doc.get("badge"),
+        "badge_ka": doc.get("badge_ka"),
+        "featured": bool(doc.get("featured", False)),
+        "order": int(doc.get("order", 0)),
+        "status": doc.get("status", "published"),
+        "created_at": doc.get("created_at", ""),
+        "updated_at": doc.get("updated_at", ""),
+    }
+
+
+@admin_router.get("/plans")
+async def admin_list_plans(_=Depends(get_current_admin)):
+    from server import db
+    docs = await db.plans.find({}, {"_id": 0}).sort([("order", 1), ("created_at", 1)]).to_list(100)
+    return [_plan_doc_to_out(d) for d in docs]
+
+
+@admin_router.get("/plans/{plan_id}")
+async def admin_get_plan(plan_id: str, _=Depends(get_current_admin)):
+    from server import db
+    doc = await db.plans.find_one({"id": plan_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return _plan_doc_to_out(doc)
+
+
+@admin_router.post("/plans", status_code=201)
+async def admin_create_plan(payload: PlanInput, _=Depends(get_current_admin)):
+    from server import db
+    existing = await db.plans.find_one({"slug": payload.slug})
+    if existing:
+        raise HTTPException(status_code=409, detail="A plan with this slug already exists")
+    now_iso = datetime.now(timezone.utc).isoformat()
+    doc = {
+        "id": str(uuid.uuid4()),
+        **payload.model_dump(),
+        "features": [f.model_dump() for f in payload.features],
+        "created_at": now_iso,
+        "updated_at": now_iso,
+    }
+    await db.plans.insert_one(doc)
+    return _plan_doc_to_out(doc)
+
+
+@admin_router.put("/plans/{plan_id}")
+async def admin_update_plan(plan_id: str, payload: PlanInput, _=Depends(get_current_admin)):
+    from server import db
+    existing = await db.plans.find_one({"id": plan_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    # slug uniqueness when changed
+    if payload.slug != existing.get("slug"):
+        clash = await db.plans.find_one({"slug": payload.slug, "id": {"$ne": plan_id}})
+        if clash:
+            raise HTTPException(status_code=409, detail="Slug already used by another plan")
+    update_doc = {
+        **payload.model_dump(),
+        "features": [f.model_dump() for f in payload.features],
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.plans.update_one({"id": plan_id}, {"$set": update_doc})
+    merged = {**existing, **update_doc, "id": plan_id}
+    return _plan_doc_to_out(merged)
+
+
+@admin_router.delete("/plans/{plan_id}", status_code=204)
+async def admin_delete_plan(plan_id: str, _=Depends(get_current_admin)):
+    from server import db
+    res = await db.plans.delete_one({"id": plan_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return None
+
+
+# ============================================================================
+# BLOG POSTS — CRUD
+# ============================================================================
+class BlogPostInput(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    slug: str = Field(min_length=1, max_length=120, pattern=r"^[a-z0-9-]+$")
+    title: str = Field(min_length=1, max_length=200)
+    title_ka: Optional[str] = Field(default=None, max_length=200)
+    excerpt: str = Field(min_length=1, max_length=600)
+    excerpt_ka: Optional[str] = Field(default=None, max_length=600)
+    content: str = Field(min_length=1)  # markdown
+    content_ka: Optional[str] = None
+    cover_image: str = Field(default="", max_length=600)
+    cover_alt: Optional[str] = Field(default=None, max_length=200)
+    tag: Optional[str] = Field(default=None, max_length=60)
+    category: Optional[str] = Field(default=None, max_length=60)
+    author_name: str = Field(default="SmartPaw Team", max_length=80)
+    author_role: Optional[str] = Field(default=None, max_length=80)
+    author_avatar: Optional[str] = Field(default=None, max_length=600)
+    read_minutes: int = Field(default=4, ge=1, le=60)
+    tags: List[str] = Field(default_factory=list, max_length=20)
+    seo_title: Optional[str] = Field(default=None, max_length=200)
+    seo_description: Optional[str] = Field(default=None, max_length=400)
+    published_at: Optional[str] = None  # ISO; auto-set if missing
+    status: str = Field(default="published", pattern=r"^(draft|published)$")
+
+
+def _blog_doc_to_out(doc: dict) -> dict:
+    return {
+        "id": doc.get("id"),
+        "slug": doc.get("slug", ""),
+        "title": doc.get("title", ""),
+        "title_ka": doc.get("title_ka"),
+        "excerpt": doc.get("excerpt", ""),
+        "excerpt_ka": doc.get("excerpt_ka"),
+        "content": doc.get("content", ""),
+        "content_ka": doc.get("content_ka"),
+        "cover_image": doc.get("cover_image", ""),
+        "cover_alt": doc.get("cover_alt"),
+        "tag": doc.get("tag"),
+        "category": doc.get("category"),
+        "author_name": doc.get("author_name", "SmartPaw Team"),
+        "author_role": doc.get("author_role"),
+        "author_avatar": doc.get("author_avatar"),
+        "read_minutes": int(doc.get("read_minutes", 4)),
+        "tags": doc.get("tags", []),
+        "seo_title": doc.get("seo_title"),
+        "seo_description": doc.get("seo_description"),
+        "published_at": doc.get("published_at", ""),
+        "status": doc.get("status", "published"),
+        "created_at": doc.get("created_at", ""),
+        "updated_at": doc.get("updated_at", ""),
+    }
+
+
+@admin_router.get("/blog-posts")
+async def admin_list_blog(q: Optional[str] = None, _=Depends(get_current_admin)):
+    from server import db
+    query: dict = {}
+    if q:
+        rx = {"$regex": re.escape(q), "$options": "i"}
+        query["$or"] = [{"title": rx}, {"slug": rx}, {"tag": rx}]
+    docs = (
+        await db.blog_posts.find(query, {"_id": 0})
+        .sort("published_at", -1)
+        .to_list(500)
+    )
+    return [_blog_doc_to_out(d) for d in docs]
+
+
+@admin_router.get("/blog-posts/{post_id}")
+async def admin_get_blog(post_id: str, _=Depends(get_current_admin)):
+    from server import db
+    # try id first, then slug for legacy markdown-seeded posts
+    doc = await db.blog_posts.find_one({"$or": [{"id": post_id}, {"slug": post_id}]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Blog post not found")
+    return _blog_doc_to_out(doc)
+
+
+@admin_router.post("/blog-posts", status_code=201)
+async def admin_create_blog(payload: BlogPostInput, _=Depends(get_current_admin)):
+    from server import db
+    existing = await db.blog_posts.find_one({"slug": payload.slug})
+    if existing:
+        raise HTTPException(status_code=409, detail="A post with this slug already exists")
+    now_iso = datetime.now(timezone.utc).isoformat()
+    doc = {
+        "id": str(uuid.uuid4()),
+        **payload.model_dump(),
+        "published_at": payload.published_at or now_iso,
+        "created_at": now_iso,
+        "updated_at": now_iso,
+    }
+    await db.blog_posts.insert_one(doc)
+    return _blog_doc_to_out(doc)
+
+
+@admin_router.put("/blog-posts/{post_id}")
+async def admin_update_blog(post_id: str, payload: BlogPostInput, _=Depends(get_current_admin)):
+    from server import db
+    existing = await db.blog_posts.find_one({"$or": [{"id": post_id}, {"slug": post_id}]})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Blog post not found")
+    if payload.slug != existing.get("slug"):
+        clash = await db.blog_posts.find_one(
+            {"slug": payload.slug, "id": {"$ne": existing.get("id", post_id)}}
+        )
+        if clash:
+            raise HTTPException(status_code=409, detail="Slug already used by another post")
+    update_doc = {
+        **payload.model_dump(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if not update_doc.get("published_at"):
+        update_doc["published_at"] = existing.get("published_at") or update_doc["updated_at"]
+    await db.blog_posts.update_one({"id": existing.get("id", post_id)}, {"$set": update_doc})
+    merged = {**existing, **update_doc}
+    return _blog_doc_to_out(merged)
+
+
+@admin_router.delete("/blog-posts/{post_id}", status_code=204)
+async def admin_delete_blog(post_id: str, _=Depends(get_current_admin)):
+    from server import db
+    res = await db.blog_posts.delete_one({"$or": [{"id": post_id}, {"slug": post_id}]})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Blog post not found")
+    return None
+
+
+# ============================================================================
 # LEADS / CONTACTS (read-only — full editor in A6)
 # ============================================================================
 @admin_router.get("/leads")
