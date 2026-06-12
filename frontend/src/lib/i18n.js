@@ -62,9 +62,9 @@ export const translations = {
       },
       f3: {
         kicker: 'Tuned to your pet',
-        title: 'Built around your dog or cat — not a generic plan.',
-        body: 'Tell us your pet’s breed, age and eating habits once. We tune bag size, swap rate and hygiene cadence so the next box arrives ready, not approximate.',
-        cta: 'Read the blog',
+        title: 'Built around your pet',
+        body: 'At SmartPaw we know your pet — their behavior, health and other aspects. Our experts are always ready to assist you in correct and effective care.',
+        cta: 'Read more',
       },
       f4: {
         kicker: 'Dogs + cats both',
@@ -85,10 +85,10 @@ export const translations = {
       title: 'Sign up, sit back.',
       body: 'A subscription that keeps your pet’s shelf stocked. Pick the brands once, set your cadence — we deliver on schedule. Pause or cancel any time.',
       steps: [
-        { n: '01', t: 'Sign up', d: 'Tell us about you and your pet in 60 seconds.' },
-        { n: '02', t: 'Pick products', d: 'Choose from a vet-approved catalogue of trusted brands.' },
-        { n: '03', t: 'Set frequency', d: 'Weekly, bi-weekly or monthly — change it any time.' },
-        { n: '04', t: 'We deliver', d: 'Door-to-door across Tbilisi, on a schedule that fits you.' },
+        { n: '01', t: 'Sign Up', d: 'Takes less than 60 seconds.' },
+        { n: '02', t: 'Pick products', d: 'Browse through our catalogue and special offers.' },
+        { n: '03', t: 'Set frequency', d: 'Weekly, bi-weekly or monthly — customized to your schedule.' },
+        { n: '04', t: 'We take care of the rest', d: 'No shortages, reminders, door delivery, SmartPaw Feeder — no extra costs.' },
       ],
     },
     categories: {
@@ -199,7 +199,7 @@ export const translations = {
     features: {
       f1: { kicker: 'ვეტერინარის რჩევით', title: 'თარო, რომელიც ცხოველებს ნამდვილად იცნობს.', body: 'პრემიუმ საკვები ძაღლებსა და კატებს, წვრთნისთვის და დანამატები. დატოვე რაც გიყვარს, შეცვალე ის, რაც არ მუშაობს — ჩვენ ვამარაგებთ ავტომატურად.', cta: 'კატალოგი' },
       f2: { kicker: 'კარდაკარ', title: 'ჩვენ ვგეგმავთ მიწოდებას. შენ — ისვენებ.', body: 'კარდაკარ მიწოდება თბილისის ნებისმიერ რაიონში — დამატებითი გადასახადის გარეშე. იმავე დღეს, თუ შეუკვეთ შუადღემდე.', cta: 'დაგვიკავშირდი' },
-      f3: { kicker: 'შენი ცხოველის რიტმით', title: 'შენი ძაღლის ან კატის ირგვლივ აწყობილი გეგმა.', body: 'ერთხელ მოგვიყევი ჯიშის, ასაკისა და ჩვევების შესახებ. დანარჩენი ჩვენი საქმეა.', cta: 'წაიკითხე ბლოგი' },
+      f3: { kicker: 'შენი ცხოველის რიტმით', title: 'შენი ცხოველის გარშემო აგებული', body: 'SmartPaw-ში ჩვენ ვიცნობთ შენს ცხოველს — მის ქცევას, ჯანმრთელობას და სხვა ასპექტებს. ჩვენი ექსპერტები ყოველთვის მზად არიან დაგეხმარონ სწორი და ეფექტიანი მოვლის უზრუნველყოფაში.', cta: 'გაიგე მეტი' },
       f4: { kicker: 'ძაღლები + კატები', title: 'ნებისმიერი ასაკი, ნებისმიერი დიეტა.', body: 'ხანდაზმული, ლეკვი, მგრძნობიარე კუჭი, ჰიპოალერგიული — ყველაფერი ერთად. გეგმა იზრდება შენი ცხოველთან ერთად.', cta: 'მაღაზია' },
     },
     why: {
@@ -214,10 +214,10 @@ export const translations = {
       title: 'დარეგისტრირდი და დაისვენე.',
       body: 'სააბონენტო, რომელიც ცხოველის თაროს ავსებს. აირჩიე ბრენდები ერთხელ, დააყენე სიხშირე — ჩვენ მოვიტანთ გრაფიკით.',
       steps: [
-        { n: '01', t: 'რეგისტრაცია', d: 'მოგვიყევი შენსა და შენი ცხოველის შესახებ 60 წამში.' },
-        { n: '02', t: 'აირჩიე პროდუქტები', d: 'სანდო ბრენდების კატალოგიდან.' },
-        { n: '03', t: 'სიხშირე', d: 'ყოველკვირეული, ორ-კვირეული ან თვიური.' },
-        { n: '04', t: 'მიწოდება', d: 'კარდაკარ თბილისში, შენი გრაფიკით.' },
+        { n: '01', t: 'რეგისტრაცია', d: 'სულ 60 წამზე ნაკლები სჭირდება.' },
+        { n: '02', t: 'აირჩიე პროდუქტები', d: 'დაათვალიერე ჩვენი კატალოგი და სპეციალური შეთავაზებები.' },
+        { n: '03', t: 'სიხშირე', d: 'ყოველკვირეული, ორ-კვირეული ან თვიური — შენი გრაფიკით.' },
+        { n: '04', t: 'დანარჩენი ჩვენი საქმეა', d: 'არანაირი ამოწურვა, შეხსენებები, კარდაკარ მიწოდება, SmartPaw ფიდერი — დამატებითი ხარჯების გარეშე.' },
       ],
     },
     categories: {

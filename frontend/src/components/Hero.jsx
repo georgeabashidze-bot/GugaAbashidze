@@ -93,13 +93,12 @@ export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
           <div className="hidden md:block absolute -bottom-8 -left-8 w-44 h-44 rounded-3xl overflow-hidden border-4 border-[#FDFBF7] shadow-xl rotate-[-6deg]">
             <img src={HERO_IMG_2} alt="Curious cat" className="w-full h-full object-cover" />
           </div>
-          <div className="hidden md:flex absolute -top-6 -right-4 bg-white rounded-2xl px-4 py-3 shadow-xl border border-[#0A4D8C1A] items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#F25C05]/15 flex items-center justify-center">
+          <div className="hidden md:flex absolute -top-6 -right-4 bg-white rounded-2xl px-4 py-3 shadow-xl border border-[#0A4D8C1A] items-center gap-2 max-w-[260px]">
+            <div className="w-8 h-8 shrink-0 rounded-full bg-[#F25C05]/15 flex items-center justify-center">
               <Sparkles size={14} className="text-[#F25C05]" />
             </div>
             <div>
-              <p className="text-[10px] tracking-[0.18em] uppercase text-[#465B70] font-bold">Smart-dispenser</p>
-              <p className="text-xs font-bold text-[#05223D]">Free with every plan</p>
+              <p className="text-xs font-bold text-[#05223D] leading-tight">Free SmartPaw Feeder for 150GEL+ packages</p>
             </div>
           </div>
         </div>

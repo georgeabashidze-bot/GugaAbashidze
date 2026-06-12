@@ -27,11 +27,11 @@ export default function Home() {
       />
       <Hero onOpenSignup={openSignup} onBrowse={goCatalogue} onSpecials={goSpecials} />
       <PartnersMarquee />
-      <WhySmartPaw onOpenSignup={openSignup} />
       <HowItWorks onOpenSignup={openSignup} />
       <RegularProducts onOpenSignup={openSignup} />
       <SpecialOffers onOpenSignup={openSignup} />
       <TunedToPet onOpenSignup={openSignup} />
+      <WhySmartPaw onOpenSignup={openSignup} />
       <Blog />
       <Testimonials />
     </>

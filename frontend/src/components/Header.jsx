@@ -8,11 +8,11 @@ import { TID } from '@/constants/testIds';
 const LOGO = 'https://customer-assets.emergentagent.com/job_smart-feed-pets/artifacts/ygio5kkm_1Smartpaw%20Post%20-%2035%20copy.PNG';
 
 const SOCIALS = [
-  { name: 'Instagram', href: 'https://instagram.com/smartpaw', icon: Instagram },
-  { name: 'Facebook', href: 'https://facebook.com/smartpaw', icon: Facebook },
+  { name: 'Instagram', href: 'https://www.instagram.com/smartpaw__/', icon: Instagram },
+  { name: 'Facebook', href: 'https://www.facebook.com/yoursmartpaw', icon: Facebook },
   {
     name: 'TikTok',
-    href: 'https://tiktok.com/@smartpaw',
+    href: 'https://www.tiktok.com/@smartpaw__?is_from_webapp=1&sender_device=pc',
     icon: (props) => (
       <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
         <path d="M16.5 3a5.5 5.5 0 0 0 4.5 4.5v3a8.5 8.5 0 0 1-4.5-1.3v6.6a6.2 6.2 0 1 1-6.2-6.2c.35 0 .69.03 1.02.09v3.1a3.2 3.2 0 1 0 2.18 3.02V3h3z" />
