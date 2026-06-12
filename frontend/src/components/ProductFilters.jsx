@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Check, ChevronDown, X } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Check, ChevronDown, X, Search } from 'lucide-react';
+import PriceRangeSlider from '@/components/PriceRangeSlider';
+import { LIFE_STAGE_LABELS } from '@/lib/productFacets';
 
-/**
- * Left-sidebar filter panel modelled after smartpet.ge.
- * Pure presentation — receives values + setters from parent.
- */
-function FilterGroup({ title, children, defaultOpen = true, testId }) {
+const BRAND_VISIBLE_LIMIT = 8;
+const SIZE_VISIBLE_LIMIT = 8;
+
+function FilterGroup({ title, count, children, defaultOpen = true, testId }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="py-5 border-b border-[#0A4D8C14] last:border-0" data-testid={testId}>
@@ -14,7 +15,12 @@ function FilterGroup({ title, children, defaultOpen = true, testId }) {
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between gap-3 text-left"
       >
-        <span className="text-[11px] tracking-[0.22em] uppercase font-bold text-[#05223D]">{title}</span>
+        <span className="text-[11px] tracking-[0.22em] uppercase font-bold text-[#05223D]">
+          {title}
+          {count > 0 && (
+            <span className="ml-2 text-[#F25C05]">· {count}</span>
+          )}
+        </span>
         <ChevronDown
           size={15}
           className={`text-[#0A4D8C] transition-transform ${open ? 'rotate-180' : ''}`}
@@ -38,37 +44,84 @@ function CheckRow({ label, checked, onToggle, testId }) {
       >
         {checked && <Check size={12} strokeWidth={3} />}
       </span>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onToggle}
-        className="sr-only"
-      />
+      <input type="checkbox" checked={checked} onChange={onToggle} className="sr-only" />
       <span className="flex-1 leading-tight">{label}</span>
     </label>
   );
 }
 
+/**
+ * Left-sidebar filter panel modelled after smartpet.ge.
+ *
+ * Filter state shape (controlled by parent):
+ *   {
+ *     petType: 'all' | 'dog' | 'cat',
+ *     lifeStages: string[],
+ *     brands: string[],
+ *     sizes: string[],
+ *     priceRange: [number, number],   // current [low, high]
+ *     featured: boolean,
+ *   }
+ */
 export default function ProductFilters({
   filters,
   setFilters,
   brands,
-  tags,
+  sizes,
+  lifeStages,
+  priceBounds, // [absMin, absMax]
   totalCount,
   filteredCount,
-  onClose, // optional, mobile sheet close handler
+  onClose,
 }) {
+  const [brandSearch, setBrandSearch] = useState('');
+  const [showAllBrands, setShowAllBrands] = useState(false);
+  const [showAllSizes, setShowAllSizes] = useState(false);
+
   const togglePetType = (value) => setFilters((f) => ({ ...f, petType: value }));
   const toggleArr = (key, value) =>
     setFilters((f) => {
       const arr = f[key];
-      return { ...f, [key]: arr.includes(value) ? arr.filter((x) => x !== value) : [...arr, value] };
+      return {
+        ...f,
+        [key]: arr.includes(value) ? arr.filter((x) => x !== value) : [...arr, value],
+      };
     });
+  const setPriceRange = (range) => setFilters((f) => ({ ...f, priceRange: range }));
   const clear = () =>
-    setFilters({ petType: 'all', brands: [], tags: [], featured: false });
+    setFilters({
+      petType: 'all',
+      lifeStages: [],
+      brands: [],
+      sizes: [],
+      priceRange: priceBounds.slice(),
+      featured: false,
+    });
+
+  const [pMin, pMax] = priceBounds;
+  const [curMin, curMax] = filters.priceRange;
+  const priceDirty = curMin > pMin || curMax < pMax;
 
   const isDirty =
-    filters.petType !== 'all' || filters.brands.length > 0 || filters.tags.length > 0 || filters.featured;
+    filters.petType !== 'all' ||
+    filters.lifeStages.length > 0 ||
+    filters.brands.length > 0 ||
+    filters.sizes.length > 0 ||
+    filters.featured ||
+    priceDirty;
+
+  // Brand list with search + show-all collapse
+  const filteredBrands = useMemo(() => {
+    const q = brandSearch.trim().toLowerCase();
+    if (!q) return brands;
+    return brands.filter((b) => b.toLowerCase().includes(q));
+  }, [brandSearch, brands]);
+  const visibleBrands = showAllBrands ? filteredBrands : filteredBrands.slice(0, BRAND_VISIBLE_LIMIT);
+  const hiddenBrandCount = filteredBrands.length - visibleBrands.length;
+
+  // Sizes with show-all collapse
+  const visibleSizes = showAllSizes ? sizes : sizes.slice(0, SIZE_VISIBLE_LIMIT);
+  const hiddenSizeCount = sizes.length - visibleSizes.length;
 
   return (
     <aside
@@ -78,10 +131,7 @@ export default function ProductFilters({
       <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#0A4D8C14]">
         <div>
           <p className="font-display font-bold text-[#05223D] text-lg leading-tight">Filters</p>
-          <p
-            data-testid="filters-result-count"
-            className="text-xs text-[#465B70] mt-0.5"
-          >
+          <p data-testid="filters-result-count" className="text-xs text-[#465B70] mt-0.5">
             Showing <span className="font-bold text-[#0A4D8C]">{filteredCount}</span> of {totalCount}
           </p>
         </div>
@@ -98,7 +148,44 @@ export default function ProductFilters({
         )}
       </div>
 
-      <FilterGroup title="Pet type" testId="filter-group-pet-type">
+      {/* Clear button at top, smartpet-style */}
+      <button
+        type="button"
+        onClick={clear}
+        disabled={!isDirty}
+        data-testid="filter-clear-button"
+        className={`mt-4 w-full text-xs font-bold py-2 rounded-full border transition-all ${
+          isDirty
+            ? 'border-[#F25C05] text-[#F25C05] hover:bg-[#F25C05] hover:text-white'
+            : 'border-[#0A4D8C1A] text-[#465B70]/60 cursor-not-allowed'
+        }`}
+      >
+        ↺ Clear all filters
+      </button>
+
+      {/* Price */}
+      {pMax > pMin && (
+        <FilterGroup
+          title="Price"
+          count={priceDirty ? 1 : 0}
+          testId="filter-group-price"
+        >
+          <PriceRangeSlider
+            min={pMin}
+            max={pMax}
+            value={filters.priceRange}
+            onChange={setPriceRange}
+            suffix="₾"
+          />
+        </FilterGroup>
+      )}
+
+      {/* Pet type */}
+      <FilterGroup
+        title="Pet type"
+        count={filters.petType !== 'all' ? 1 : 0}
+        testId="filter-group-pet-type"
+      >
         <div className="flex bg-[#F5F2EB] rounded-full p-1" role="radiogroup" aria-label="Pet type">
           {[
             { v: 'all', l: 'All' },
@@ -124,10 +211,49 @@ export default function ProductFilters({
         </div>
       </FilterGroup>
 
-      {brands.length > 0 && (
-        <FilterGroup title={`Brand${filters.brands.length ? ` · ${filters.brands.length}` : ''}`} testId="filter-group-brand">
+      {/* Life stage */}
+      {lifeStages.length > 0 && (
+        <FilterGroup
+          title="Life stage"
+          count={filters.lifeStages.length}
+          testId="filter-group-life-stage"
+        >
           <div className="space-y-0.5">
-            {brands.map((b) => (
+            {lifeStages.map((stage) => (
+              <CheckRow
+                key={stage}
+                label={LIFE_STAGE_LABELS[stage] || stage}
+                checked={filters.lifeStages.includes(stage)}
+                onToggle={() => toggleArr('lifeStages', stage)}
+                testId={`filter-life-stage-${stage}`}
+              />
+            ))}
+          </div>
+        </FilterGroup>
+      )}
+
+      {/* Brand with search + show all */}
+      {brands.length > 0 && (
+        <FilterGroup
+          title="Brand"
+          count={filters.brands.length}
+          testId="filter-group-brand"
+        >
+          {brands.length > 6 && (
+            <div className="relative mb-3">
+              <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#465B70]" />
+              <input
+                type="text"
+                value={brandSearch}
+                onChange={(e) => setBrandSearch(e.target.value)}
+                placeholder="Search brand"
+                data-testid="filter-brand-search"
+                className="w-full pl-8 pr-3 py-1.5 text-sm border border-[#0A4D8C26] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#F25C05]/30"
+              />
+            </div>
+          )}
+          <div className="space-y-0.5">
+            {visibleBrands.map((b) => (
               <CheckRow
                 key={b}
                 label={b}
@@ -136,26 +262,73 @@ export default function ProductFilters({
                 testId={`filter-brand-${b.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
               />
             ))}
+            {filteredBrands.length === 0 && (
+              <p className="text-xs text-[#465B70] py-2">No brand matches “{brandSearch}”</p>
+            )}
           </div>
+          {hiddenBrandCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowAllBrands(true)}
+              data-testid="filter-brand-show-all"
+              className="mt-2 text-xs font-bold text-[#0A4D8C] hover:text-[#F25C05] transition"
+            >
+              Show all ({filteredBrands.length}) ↓
+            </button>
+          )}
+          {showAllBrands && filteredBrands.length > BRAND_VISIBLE_LIMIT && (
+            <button
+              type="button"
+              onClick={() => setShowAllBrands(false)}
+              className="mt-2 text-xs font-bold text-[#0A4D8C] hover:text-[#F25C05] transition"
+            >
+              Collapse ↑
+            </button>
+          )}
         </FilterGroup>
       )}
 
-      {tags.length > 0 && (
-        <FilterGroup title={`Type${filters.tags.length ? ` · ${filters.tags.length}` : ''}`} testId="filter-group-tag">
+      {/* Weight / Size */}
+      {sizes.length > 0 && (
+        <FilterGroup
+          title="Weight"
+          count={filters.sizes.length}
+          testId="filter-group-size"
+        >
           <div className="space-y-0.5">
-            {tags.map((tag) => (
+            {visibleSizes.map((s) => (
               <CheckRow
-                key={tag}
-                label={tag.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                checked={filters.tags.includes(tag)}
-                onToggle={() => toggleArr('tags', tag)}
-                testId={`filter-tag-${tag}`}
+                key={s}
+                label={s}
+                checked={filters.sizes.includes(s)}
+                onToggle={() => toggleArr('sizes', s)}
+                testId={`filter-size-${s.replace(/[^a-z0-9]+/gi, '-')}`}
               />
             ))}
           </div>
+          {hiddenSizeCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowAllSizes(true)}
+              data-testid="filter-size-show-all"
+              className="mt-2 text-xs font-bold text-[#0A4D8C] hover:text-[#F25C05] transition"
+            >
+              Show all ({sizes.length}) ↓
+            </button>
+          )}
+          {showAllSizes && sizes.length > SIZE_VISIBLE_LIMIT && (
+            <button
+              type="button"
+              onClick={() => setShowAllSizes(false)}
+              className="mt-2 text-xs font-bold text-[#0A4D8C] hover:text-[#F25C05] transition"
+            >
+              Collapse ↑
+            </button>
+          )}
         </FilterGroup>
       )}
 
+      {/* Featured */}
       <FilterGroup title="Status" defaultOpen={false} testId="filter-group-featured">
         <CheckRow
           label="Featured only"
@@ -164,20 +337,6 @@ export default function ProductFilters({
           testId="filter-featured-toggle"
         />
       </FilterGroup>
-
-      <button
-        type="button"
-        onClick={clear}
-        disabled={!isDirty}
-        data-testid="filter-clear-button"
-        className={`mt-5 w-full text-sm font-bold py-3 rounded-full border-2 transition-all ${
-          isDirty
-            ? 'border-[#F25C05] text-[#F25C05] hover:bg-[#F25C05] hover:text-white'
-            : 'border-[#0A4D8C1A] text-[#465B70] cursor-not-allowed'
-        }`}
-      >
-        Clear filters
-      </button>
     </aside>
   );
 }

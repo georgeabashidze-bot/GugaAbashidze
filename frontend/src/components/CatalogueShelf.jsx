@@ -1,35 +1,57 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2, PawPrint, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
 import { api } from '@/lib/api';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
+import {
+  deriveLifeStage,
+  deriveSizeBucket,
+  compareSizes,
+  LIFE_STAGE_LABELS,
+} from '@/lib/productFacets';
 
 const SORT_OPTIONS = [
   { value: 'featured', label: 'Featured first' },
+  { value: 'price-asc', label: 'Price: low → high' },
+  { value: 'price-desc', label: 'Price: high → low' },
   { value: 'alpha-asc', label: 'A → Z' },
   { value: 'alpha-desc', label: 'Z → A' },
 ];
 
-function applyFilters(products, filters, sort) {
-  let list = products;
+function applyFilters(productsWithFacets, filters, sort) {
+  let list = productsWithFacets;
+
   if (filters.petType !== 'all') {
     list = list.filter((p) => p.pet_type === filters.petType || p.pet_type === 'both');
+  }
+  if (filters.lifeStages.length) {
+    list = list.filter((p) => p._lifeStage && filters.lifeStages.includes(p._lifeStage));
   }
   if (filters.brands.length) {
     list = list.filter((p) => filters.brands.includes(p.brand));
   }
-  if (filters.tags.length) {
-    list = list.filter((p) => (p.tags || []).some((t) => filters.tags.includes(t)));
+  if (filters.sizes.length) {
+    list = list.filter((p) => p._sizeBucket && filters.sizes.includes(p._sizeBucket));
   }
   if (filters.featured) {
     list = list.filter((p) => p.featured);
   }
+  // Price filter — only when product has a numeric price; otherwise include.
+  const [lo, hi] = filters.priceRange;
+  list = list.filter((p) => {
+    if (p.price == null) return true;
+    return p.price >= lo && p.price <= hi;
+  });
 
   const sorted = [...list];
   if (sort === 'alpha-asc') sorted.sort((a, b) => a.name.localeCompare(b.name));
   else if (sort === 'alpha-desc') sorted.sort((a, b) => b.name.localeCompare(a.name));
+  else if (sort === 'price-asc')
+    sorted.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
+  else if (sort === 'price-desc')
+    sorted.sort((a, b) => (b.price ?? -Infinity) - (a.price ?? -Infinity));
   else if (sort === 'featured')
     sorted.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
   return sorted;
@@ -37,7 +59,7 @@ function applyFilters(products, filters, sort) {
 
 /**
  * Catalogue shelf: left filter sidebar + sort bar + responsive product grid.
- * Modelled on smartpet.ge's filter UX, with SmartPaw-relevant groups.
+ * Filter UX is modelled on smartpet.ge.
  */
 export default function CatalogueShelf({ subCategory, category = 'catalogue' }) {
   const { data, isLoading, isError } = useQuery({
@@ -46,22 +68,80 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
     enabled: Boolean(subCategory),
   });
 
-  const [filters, setFilters] = useState({ petType: 'all', brands: [], tags: [], featured: false });
+  const products = useMemo(() => data || [], [data]);
+
+  // Augment each product once with derived facets (life-stage, size bucket).
+  const productsWithFacets = useMemo(
+    () =>
+      products.map((p) => ({
+        ...p,
+        _lifeStage: deriveLifeStage(p),
+        _sizeBucket: deriveSizeBucket(p),
+      })),
+    [products],
+  );
+
+  const brands = useMemo(
+    () =>
+      Array.from(new Set(productsWithFacets.map((p) => p.brand))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [productsWithFacets],
+  );
+  const sizes = useMemo(
+    () =>
+      Array.from(new Set(productsWithFacets.map((p) => p._sizeBucket).filter(Boolean))).sort(
+        compareSizes,
+      ),
+    [productsWithFacets],
+  );
+  const lifeStages = useMemo(() => {
+    const seen = new Set(
+      productsWithFacets.map((p) => p._lifeStage).filter(Boolean),
+    );
+    // keep the canonical display order
+    return Object.keys(LIFE_STAGE_LABELS).filter((k) => seen.has(k));
+  }, [productsWithFacets]);
+
+  const priceBounds = useMemo(() => {
+    const prices = productsWithFacets.map((p) => p.price).filter((v) => typeof v === 'number');
+    if (!prices.length) return [0, 0];
+    return [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))];
+  }, [productsWithFacets]);
+
+  const [filters, setFilters] = useState({
+    petType: 'all',
+    lifeStages: [],
+    brands: [],
+    sizes: [],
+    priceRange: priceBounds.slice(),
+    featured: false,
+  });
+
+  // Re-anchor priceRange whenever the bounds shift (sub-category change)
+  useEffect(() => {
+    setFilters((f) => ({
+      ...f,
+      priceRange: priceBounds.slice(),
+    }));
+    // Also clear narrower filters that may not exist for this new shelf
+    setFilters((f) => ({
+      ...f,
+      brands: [],
+      sizes: [],
+      lifeStages: [],
+      featured: false,
+      petType: 'all',
+    }));
+  }, [priceBounds[0], priceBounds[1], subCategory]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [sort, setSort] = useState('featured');
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const products = data || [];
-
-  const brands = useMemo(
-    () => Array.from(new Set(products.map((p) => p.brand))).sort((a, b) => a.localeCompare(b)),
-    [products],
+  const filtered = useMemo(
+    () => applyFilters(productsWithFacets, filters, sort),
+    [productsWithFacets, filters, sort],
   );
-  const tags = useMemo(
-    () => Array.from(new Set(products.flatMap((p) => p.tags || []))).sort((a, b) => a.localeCompare(b)),
-    [products],
-  );
-
-  const filtered = useMemo(() => applyFilters(products, filters, sort), [products, filters, sort]);
 
   const testIdGrid = `${category}-${subCategory}-grid`;
 
@@ -105,7 +185,9 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
       filters={filters}
       setFilters={setFilters}
       brands={brands}
-      tags={tags}
+      sizes={sizes}
+      lifeStages={lifeStages}
+      priceBounds={priceBounds}
       totalCount={products.length}
       filteredCount={filtered.length}
       onClose={mobileOpen ? () => setMobileOpen(false) : undefined}
@@ -114,20 +196,19 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
 
   const activeFilterCount =
     filters.brands.length +
-    filters.tags.length +
+    filters.sizes.length +
+    filters.lifeStages.length +
     (filters.featured ? 1 : 0) +
-    (filters.petType !== 'all' ? 1 : 0);
+    (filters.petType !== 'all' ? 1 : 0) +
+    (filters.priceRange[0] > priceBounds[0] || filters.priceRange[1] < priceBounds[1] ? 1 : 0);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 xl:gap-10">
-      {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <div className="sticky top-28">{filtersNode}</div>
       </div>
 
-      {/* Main column */}
       <div>
-        {/* Sort bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
             <button
@@ -144,10 +225,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
                 </span>
               )}
             </button>
-            <p
-              data-testid="shelf-result-count"
-              className="text-sm text-[#465B70]"
-            >
+            <p data-testid="shelf-result-count" className="text-sm text-[#465B70]">
               <span className="font-bold text-[#05223D]">{filtered.length}</span>
               {' '}/ {products.length} products
             </p>
@@ -173,7 +251,6 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
           </label>
         </div>
 
-        {/* Grid or empty-after-filter */}
         {filtered.length === 0 ? (
           <div
             data-testid={`${testIdGrid}-no-results`}
@@ -199,7 +276,6 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
         )}
       </div>
 
-      {/* Mobile sheet — only mount the panel while open so testids stay unique */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-[88%] max-w-sm overflow-y-auto p-0 border-r-0 bg-[#FDFBF7]">
           <SheetTitle className="sr-only">Filters</SheetTitle>
