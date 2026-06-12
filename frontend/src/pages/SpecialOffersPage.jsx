@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import PageShell from '@/components/PageShell';
-import PromoBanner from '@/components/PromoBanner';
 import { ROUTES } from '@/constants/routes';
 
 const SUB_IMAGES = {
@@ -21,11 +20,7 @@ export default function SpecialOffersPage() {
   const subs = Object.entries(ROUTES.specials.children);
   return (
     <PageShell>
-      <div className="mb-14 md:mb-20 mt-4">
-        <PromoBanner />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-7">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-7 mt-4">
         {subs.map(([key, sub]) => (
           <Link
             key={key}
