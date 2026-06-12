@@ -20,6 +20,7 @@ from seed_promos import seed_promos_if_empty
 from seed_blog import seed_blog_posts_if_empty
 from auth import seed_admin
 from admin_routes import admin_router
+from products_import import import_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -416,6 +417,7 @@ async def get_blog_post(slug: str):
 # Include the router in the main app
 app.include_router(api_router)
 app.include_router(admin_router)
+app.include_router(import_router)
 
 # Serve uploaded images (admin uploads land here, ingress routes /api/* to backend)
 _upload_dir = Path(os.environ.get('UPLOAD_DIR', '/app/backend/uploads'))

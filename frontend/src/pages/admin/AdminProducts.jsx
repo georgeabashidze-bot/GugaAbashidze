@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Loader2, Edit2, Trash2, Star } from 'lucide-react';
+import { Plus, Search, Loader2, Edit2, Trash2, Star, Upload } from 'lucide-react';
 import { adminApi } from '@/lib/adminApi';
 
 const SUB_LABELS = {
@@ -70,13 +70,22 @@ export default function AdminProducts() {
           </h1>
           <p className="text-[#465B70] mt-1">{items ? `${filtered.length} / ${items.length}` : 'Loading…'} products</p>
         </div>
-        <Link
-          to="/admin/products/new"
-          data-testid="new-product-button"
-          className="inline-flex items-center gap-2 rounded-full bg-[#F25C05] hover:bg-[#d44a00] text-white text-sm font-bold px-5 py-2.5 transition"
-        >
-          <Plus size={16} /> New product
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            to="/admin/products/import"
+            data-testid="import-products-button"
+            className="inline-flex items-center gap-2 rounded-full border border-[#0A4D8C26] bg-white hover:bg-[#0A4D8C] hover:text-white text-[#0A4D8C] text-sm font-bold px-5 py-2.5 transition"
+          >
+            <Upload size={16} /> Bulk import
+          </Link>
+          <Link
+            to="/admin/products/new"
+            data-testid="new-product-button"
+            className="inline-flex items-center gap-2 rounded-full bg-[#F25C05] hover:bg-[#d44a00] text-white text-sm font-bold px-5 py-2.5 transition"
+          >
+            <Plus size={16} /> New product
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

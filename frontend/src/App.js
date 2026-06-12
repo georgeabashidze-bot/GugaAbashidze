@@ -20,6 +20,7 @@ import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminLayout from '@/pages/admin/AdminLayout';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminProducts from '@/pages/admin/AdminProducts';
+import AdminProductsImport from '@/pages/admin/AdminProductsImport';
 import AdminProductForm from '@/pages/admin/AdminProductForm';
 import AdminOffers from '@/pages/admin/AdminOffers';
 import AdminOfferForm from '@/pages/admin/AdminOfferForm';
@@ -63,6 +64,7 @@ function App() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="products/import" element={<AdminProductsImport />} />
         <Route path="products/new" element={<AdminProductForm />} />
         <Route path="products/:id" element={<AdminProductForm />} />
         <Route path="special-offers" element={<AdminOffers />} />

@@ -144,6 +144,47 @@ export const adminApi = {
     return request('/api/admin/uploads', { method: 'POST', body: fd });
   },
 
+  // bulk import (Excel)
+  downloadImportTemplate: () => {
+    // Browser navigation can't pass the Bearer token, so fetch the binary
+    // with XHR and trigger a download client-side.
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', `${BASE}/api/admin/products/import/template`);
+      const token = getToken();
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.responseType = 'blob';
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const blob = xhr.response;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'smartpaw-products-template.xlsx';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 0);
+          resolve(true);
+        } else {
+          if (xhr.status === 401) setToken(null);
+          reject(new Error(`${xhr.status}: template download failed`));
+        }
+      };
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.send();
+    });
+  },
+  importProducts: (file, { dryRun = false, downloadImages = true } = {}) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    const qs = new URLSearchParams({
+      dry_run: dryRun ? 'true' : 'false',
+      download_images: downloadImages ? 'true' : 'false',
+    }).toString();
+    return request(`/api/admin/products/import?${qs}`, { method: 'POST', body: fd });
+  },
+
   // leads / contacts
   listLeads: () => request('/api/admin/leads'),
   listContacts: () => request('/api/admin/contact-inquiries'),
