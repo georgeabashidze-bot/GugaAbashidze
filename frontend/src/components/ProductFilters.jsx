@@ -6,6 +6,26 @@ import { LIFE_STAGE_LABELS } from '@/lib/productFacets';
 const BRAND_VISIBLE_LIMIT = 8;
 const SIZE_VISIBLE_LIMIT = 8;
 
+// Display labels for product_type values, scoped by sub_category.
+const PRODUCT_TYPE_LABELS = {
+  // Food
+  'dry-food': 'Dry food',
+  'wet-food': 'Wet food',
+  'snacks': 'Snacks',
+  // Hygiene
+  'teeth-care': 'Teeth care',
+  'grooming': 'Grooming',
+  'pads': 'Pads',
+  // Shared
+  'other': 'Other',
+};
+
+// Canonical display order per sub_category.
+const PRODUCT_TYPE_ORDER = {
+  food: ['dry-food', 'wet-food', 'snacks', 'other'],
+  hygiene: ['teeth-care', 'grooming', 'pads', 'other'],
+};
+
 function FilterGroup({ title, count, children, defaultOpen = true, testId }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -69,6 +89,8 @@ export default function ProductFilters({
   brands,
   sizes,
   lifeStages,
+  productTypes = [],
+  subCategory,
   priceBounds, // [absMin, absMax]
   totalCount,
   filteredCount,
@@ -94,6 +116,7 @@ export default function ProductFilters({
       lifeStages: [],
       brands: [],
       sizes: [],
+      productTypes: [],
       priceRange: priceBounds.slice(),
       featured: false,
     });
@@ -107,6 +130,7 @@ export default function ProductFilters({
     filters.lifeStages.length > 0 ||
     filters.brands.length > 0 ||
     filters.sizes.length > 0 ||
+    (filters.productTypes && filters.productTypes.length > 0) ||
     filters.featured ||
     priceDirty;
 
@@ -122,6 +146,13 @@ export default function ProductFilters({
   // Sizes with show-all collapse
   const visibleSizes = showAllSizes ? sizes : sizes.slice(0, SIZE_VISIBLE_LIMIT);
   const hiddenSizeCount = sizes.length - visibleSizes.length;
+
+  // Product type — only relevant for food / hygiene sub-categories. Order by canonical list.
+  const showTypeFilter =
+    (subCategory === 'food' || subCategory === 'hygiene') && productTypes.length > 0;
+  const orderedProductTypes = showTypeFilter
+    ? (PRODUCT_TYPE_ORDER[subCategory] || []).filter((t) => productTypes.includes(t))
+    : [];
 
   return (
     <aside
@@ -210,6 +241,27 @@ export default function ProductFilters({
           ))}
         </div>
       </FilterGroup>
+
+      {/* Type (food / hygiene only) */}
+      {showTypeFilter && (
+        <FilterGroup
+          title="Type"
+          count={filters.productTypes ? filters.productTypes.length : 0}
+          testId="filter-group-product-type"
+        >
+          <div className="space-y-0.5">
+            {orderedProductTypes.map((t) => (
+              <CheckRow
+                key={t}
+                label={PRODUCT_TYPE_LABELS[t] || t}
+                checked={(filters.productTypes || []).includes(t)}
+                onToggle={() => toggleArr('productTypes', t)}
+                testId={`filter-product-type-${t}`}
+              />
+            ))}
+          </div>
+        </FilterGroup>
+      )}
 
       {/* Life stage */}
       {lifeStages.length > 0 && (

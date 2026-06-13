@@ -7,6 +7,21 @@ import ImageInput from './ImageInput';
 const CATALOGUE_SUBS = ['food', 'hygiene', 'vitamins'];
 const SPECIALS_SUBS = ['toys-accessories', 'innovation-tech', 'services'];
 
+const PRODUCT_TYPE_OPTIONS = {
+  food: [
+    { v: 'dry-food', l: 'Dry food' },
+    { v: 'wet-food', l: 'Wet food' },
+    { v: 'snacks', l: 'Snacks' },
+    { v: 'other', l: 'Other' },
+  ],
+  hygiene: [
+    { v: 'teeth-care', l: 'Teeth care' },
+    { v: 'grooming', l: 'Grooming' },
+    { v: 'pads', l: 'Pads' },
+    { v: 'other', l: 'Other' },
+  ],
+};
+
 const EMPTY = {
   slug: '',
   name: '',
@@ -14,6 +29,7 @@ const EMPTY = {
   brand: '',
   category: 'catalogue',
   sub_category: 'food',
+  product_type: '',
   pet_type: 'both',
   image: '',
   description: '',
@@ -52,6 +68,7 @@ export default function AdminProductForm() {
             brand: found.brand || '',
             category: found.category || 'catalogue',
             sub_category: found.sub_category || 'food',
+            product_type: found.product_type || '',
             pet_type: found.pet_type || 'both',
             image: found.image || '',
             description: found.description || '',
@@ -80,7 +97,23 @@ export default function AdminProductForm() {
   // When category switches, snap sub_category to a valid value
   const handleCategoryChange = (cat) => {
     const subs = cat === 'catalogue' ? CATALOGUE_SUBS : SPECIALS_SUBS;
-    update({ category: cat, sub_category: subs.includes(form.sub_category) ? form.sub_category : subs[0] });
+    const nextSub = subs.includes(form.sub_category) ? form.sub_category : subs[0];
+    update({
+      category: cat,
+      sub_category: nextSub,
+      // Clear product_type if the new sub-category does not support it
+      product_type: PRODUCT_TYPE_OPTIONS[nextSub] ? form.product_type : '',
+    });
+  };
+
+  // When sub_category changes directly, reset product_type if it does not fit
+  const handleSubCategoryChange = (next) => {
+    const allowed = PRODUCT_TYPE_OPTIONS[next];
+    const stillValid = allowed && allowed.some((o) => o.v === form.product_type);
+    update({
+      sub_category: next,
+      product_type: stillValid ? form.product_type : '',
+    });
   };
 
   const addTag = () => {
@@ -113,6 +146,7 @@ export default function AdminProductForm() {
         size: form.size.trim() || null,
         price: form.price === '' ? null : Number(form.price),
         currency: form.currency || 'GEL',
+        product_type: form.product_type || null,
       };
       if (isNew) {
         await adminApi.createProduct(payload);
@@ -299,7 +333,7 @@ export default function AdminProductForm() {
               <select
                 data-testid="field-sub-category"
                 value={form.sub_category}
-                onChange={(e) => update({ sub_category: e.target.value })}
+                onChange={(e) => handleSubCategoryChange(e.target.value)}
                 className={inputCls}
               >
                 {subs.map((s) => (
@@ -309,6 +343,23 @@ export default function AdminProductForm() {
                 ))}
               </select>
             </Field>
+            {PRODUCT_TYPE_OPTIONS[form.sub_category] && (
+              <Field label="Type" hint="Refines the sub-category for catalogue filters">
+                <select
+                  data-testid="field-product-type"
+                  value={form.product_type || ''}
+                  onChange={(e) => update({ product_type: e.target.value })}
+                  className={inputCls}
+                >
+                  <option value="">— Not set —</option>
+                  {PRODUCT_TYPE_OPTIONS[form.sub_category].map((o) => (
+                    <option key={o.v} value={o.v}>
+                      {o.l}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
             <Field label="Pet type">
               <select
                 data-testid="field-pet-type"

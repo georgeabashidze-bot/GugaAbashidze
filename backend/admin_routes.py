@@ -106,6 +106,26 @@ def slugify(text: str) -> str:
     return base or f"product-{uuid.uuid4().hex[:8]}"
 
 
+# Allowed product_type values per sub_category
+FOOD_TYPE_VALUES = ("dry-food", "wet-food", "snacks", "other")
+HYGIENE_TYPE_VALUES = ("teeth-care", "grooming", "pads", "other")
+
+
+def _normalize_product_type(sub_category: str, raw: Optional[str]) -> Optional[str]:
+    """Return a valid product_type or None. Silently drops invalid values
+    or values not applicable to the chosen sub_category."""
+    if not raw:
+        return None
+    value = str(raw).strip().lower()
+    if not value:
+        return None
+    if sub_category == "food" and value in FOOD_TYPE_VALUES:
+        return value
+    if sub_category == "hygiene" and value in HYGIENE_TYPE_VALUES:
+        return value
+    return None
+
+
 class ProductIn(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -115,6 +135,7 @@ class ProductIn(BaseModel):
     brand: str = Field(min_length=1, max_length=120)
     category: str = Field(pattern=r"^(catalogue|specials)$")
     sub_category: str = Field(min_length=1, max_length=60)
+    product_type: Optional[str] = Field(default=None, max_length=40)
     pet_type: str = Field(default="both", pattern=r"^(dog|cat|both)$")
     image: str = Field(min_length=1)
     description: str = Field(min_length=1, max_length=4000)
@@ -142,6 +163,7 @@ def _product_doc_to_out(doc: dict) -> ProductOut:
         brand=doc["brand"],
         category=doc["category"],
         sub_category=doc["sub_category"],
+        product_type=doc.get("product_type") or None,
         pet_type=doc.get("pet_type", "both"),
         image=doc["image"],
         description=doc["description"],
@@ -203,6 +225,7 @@ async def admin_create_product(payload: ProductIn, _=Depends(get_current_admin))
         "brand": payload.brand,
         "category": payload.category,
         "sub_category": payload.sub_category,
+        "product_type": _normalize_product_type(payload.sub_category, payload.product_type),
         "pet_type": payload.pet_type,
         "image": payload.image,
         "description": payload.description,
@@ -244,6 +267,7 @@ async def admin_update_product(
         "brand": payload.brand,
         "category": payload.category,
         "sub_category": payload.sub_category,
+        "product_type": _normalize_product_type(payload.sub_category, payload.product_type),
         "pet_type": payload.pet_type,
         "image": payload.image,
         "description": payload.description,

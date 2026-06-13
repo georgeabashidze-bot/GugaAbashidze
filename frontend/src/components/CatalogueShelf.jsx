@@ -35,6 +35,9 @@ function applyFilters(productsWithFacets, filters, sort) {
   if (filters.sizes.length) {
     list = list.filter((p) => p._sizeBucket && filters.sizes.includes(p._sizeBucket));
   }
+  if (filters.productTypes && filters.productTypes.length) {
+    list = list.filter((p) => p.product_type && filters.productTypes.includes(p.product_type));
+  }
   if (filters.featured) {
     list = list.filter((p) => p.featured);
   }
@@ -103,6 +106,16 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
     return Object.keys(LIFE_STAGE_LABELS).filter((k) => seen.has(k));
   }, [productsWithFacets]);
 
+  // Distinct product_type values present in the current shelf (only relevant
+  // for food / hygiene sub-categories). Other sub-categories will yield [].
+  const productTypes = useMemo(() => {
+    if (subCategory !== 'food' && subCategory !== 'hygiene') return [];
+    const seen = new Set(
+      productsWithFacets.map((p) => p.product_type).filter(Boolean),
+    );
+    return Array.from(seen);
+  }, [productsWithFacets, subCategory]);
+
   const priceBounds = useMemo(() => {
     const prices = productsWithFacets.map((p) => p.price).filter((v) => typeof v === 'number');
     if (!prices.length) return [0, 0];
@@ -114,6 +127,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
     lifeStages: [],
     brands: [],
     sizes: [],
+    productTypes: [],
     priceRange: priceBounds.slice(),
     featured: false,
   });
@@ -130,6 +144,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
       brands: [],
       sizes: [],
       lifeStages: [],
+      productTypes: [],
       featured: false,
       petType: 'all',
     }));
@@ -187,6 +202,8 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
       brands={brands}
       sizes={sizes}
       lifeStages={lifeStages}
+      productTypes={productTypes}
+      subCategory={subCategory}
       priceBounds={priceBounds}
       totalCount={products.length}
       filteredCount={filtered.length}
@@ -198,6 +215,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
     filters.brands.length +
     filters.sizes.length +
     filters.lifeStages.length +
+    (filters.productTypes ? filters.productTypes.length : 0) +
     (filters.featured ? 1 : 0) +
     (filters.petType !== 'all' ? 1 : 0) +
     (filters.priceRange[0] > priceBounds[0] || filters.priceRange[1] < priceBounds[1] ? 1 : 0);

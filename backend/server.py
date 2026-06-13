@@ -82,6 +82,7 @@ class Product(BaseModel):
     brand: str
     category: str  # 'catalogue' | 'specials'
     sub_category: str  # 'food' | 'hygiene' | 'vitamins' | 'toys' | 'tech' | 'services'
+    product_type: Optional[str] = None  # food: 'dry-food' | 'wet-food' | 'snacks' | 'other'; hygiene: 'teeth-care' | 'grooming' | 'pads' | 'other'
     pet_type: str = 'both'  # 'dog' | 'cat' | 'both'
     image: str
     description: str
@@ -221,6 +222,7 @@ def _serialize_product(doc: dict) -> Product:
         brand=doc['brand'],
         category=doc['category'],
         sub_category=doc['sub_category'],
+        product_type=doc.get('product_type') or None,
         pet_type=doc.get('pet_type', 'both'),
         image=doc['image'],
         description=doc['description'],
@@ -239,6 +241,7 @@ def _serialize_product(doc: dict) -> Product:
 async def list_products(
     category: Optional[str] = None,
     sub_category: Optional[str] = None,
+    product_type: Optional[str] = None,
     pet_type: Optional[str] = None,
     featured: Optional[bool] = None,
 ):
@@ -247,6 +250,8 @@ async def list_products(
         query["category"] = category
     if sub_category:
         query["sub_category"] = sub_category
+    if product_type:
+        query["product_type"] = product_type
     if pet_type:
         # 'both' matches everything; otherwise match exact or 'both'
         query["pet_type"] = {"$in": [pet_type, "both"]}

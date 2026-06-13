@@ -48,6 +48,7 @@ TEMPLATE_COLUMNS: List[Tuple[str, int, str]] = [
     ("brand", 22, "REQUIRED · Brand or supplier name"),
     ("category", 14, "REQUIRED · catalogue | specials"),
     ("sub_category", 22, "REQUIRED · food | hygiene | vitamins | toys-accessories | innovation-tech | services"),
+    ("product_type", 18, "Only for food / hygiene. Food: dry-food | wet-food | snacks | other. Hygiene: teeth-care | grooming | pads | other"),
     ("pet_type", 12, "dog | cat | both  (default: both)"),
     ("size", 18, "e.g. 2 kg, 12 kg, 250 ml — optional"),
     ("price", 12, "Numeric price (e.g. 79.90)"),
@@ -70,6 +71,9 @@ SUB_CATEGORY_VALUES = (
     "innovation-tech",
     "services",
 )
+FOOD_TYPE_VALUES = ("dry-food", "wet-food", "snacks", "other")
+HYGIENE_TYPE_VALUES = ("teeth-care", "grooming", "pads", "other")
+PRODUCT_TYPE_VALUES = tuple(dict.fromkeys(FOOD_TYPE_VALUES + HYGIENE_TYPE_VALUES))
 PET_TYPE_VALUES = ("dog", "cat", "both")
 STATUS_VALUES = ("draft", "published")
 
@@ -121,6 +125,7 @@ def _build_template_workbook() -> Workbook:
         "brand": "Royal Canin",
         "category": "catalogue",
         "sub_category": "food",
+        "product_type": "dry-food",
         "pet_type": "dog",
         "size": "15 kg",
         "price": 219.00,
@@ -152,6 +157,7 @@ def _build_template_workbook() -> Workbook:
     headers = [c[0] for c in TEMPLATE_COLUMNS]
     add_dv(CATEGORY_VALUES, get_column_letter(headers.index("category") + 1))
     add_dv(SUB_CATEGORY_VALUES, get_column_letter(headers.index("sub_category") + 1))
+    add_dv(PRODUCT_TYPE_VALUES, get_column_letter(headers.index("product_type") + 1))
     add_dv(PET_TYPE_VALUES, get_column_letter(headers.index("pet_type") + 1))
     add_dv(STATUS_VALUES, get_column_letter(headers.index("status") + 1))
     add_dv(("TRUE", "FALSE"), get_column_letter(headers.index("featured") + 1))
@@ -245,6 +251,25 @@ def _normalise_row(raw: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
     elif sub_category not in SUB_CATEGORY_VALUES:
         errors.append(f"sub_category '{sub_category}' must be one of {SUB_CATEGORY_VALUES}")
 
+    product_type_raw = _cell_str(raw.get("product_type")).lower() or None
+    product_type: Optional[str] = None
+    if product_type_raw:
+        if sub_category == "food":
+            if product_type_raw in FOOD_TYPE_VALUES:
+                product_type = product_type_raw
+            else:
+                errors.append(
+                    f"product_type '{product_type_raw}' for food must be one of {FOOD_TYPE_VALUES}"
+                )
+        elif sub_category == "hygiene":
+            if product_type_raw in HYGIENE_TYPE_VALUES:
+                product_type = product_type_raw
+            else:
+                errors.append(
+                    f"product_type '{product_type_raw}' for hygiene must be one of {HYGIENE_TYPE_VALUES}"
+                )
+        # Silently ignore product_type for other sub_categories (no error, just dropped)
+
     pet_type = _cell_str(raw.get("pet_type")).lower() or "both"
     if pet_type not in PET_TYPE_VALUES:
         errors.append(f"pet_type '{pet_type}' must be one of {PET_TYPE_VALUES}")
@@ -267,6 +292,7 @@ def _normalise_row(raw: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
         "brand": brand,
         "category": category,
         "sub_category": sub_category,
+        "product_type": product_type,
         "pet_type": pet_type,
         "size": _cell_str(raw.get("size")) or None,
         "price": _cell_float(raw.get("price")),
@@ -421,7 +447,6 @@ async def import_products(
         raise HTTPException(status_code=400, detail="Sheet is empty.")
 
     headers_raw = [_cell_str(c).lower() for c in header_row]
-    template_headers = [c[0] for c in TEMPLATE_COLUMNS]
     missing = [h for h in ("name", "brand", "category", "sub_category", "description") if h not in headers_raw]
     if missing:
         raise HTTPException(
