@@ -7,12 +7,30 @@ import { ArrowLeft, Calendar, Clock, Twitter, Facebook, Linkedin, Link2, Check, 
 import Breadcrumbs from '@/components/Breadcrumbs';
 import SeoMeta, { articleJsonLd, breadcrumbJsonLd } from '@/components/SeoMeta';
 import { useSignup } from '@/lib/SignupContext';
+import { useLang } from '@/lib/LangContext';
 import { api } from '@/lib/api';
 
-function formatDate(iso) {
+const COPY = {
+  loadError: { en: 'Couldn’t load this article.', ka: 'სტატიის ჩატვირთვა ვერ მოხერხდა.' },
+  tryAgain: { en: 'Please try again.', ka: 'სცადეთ თავიდან.' },
+  backToBlog: { en: 'Back to blog', ka: 'ბლოგზე დაბრუნება' },
+  minRead: { en: 'min read', ka: 'წთ კითხვა' },
+  share: { en: 'Share', ka: 'გაუზიარე' },
+  tags: { en: 'Tags', ka: 'თეგები' },
+  keepReading: { en: 'Keep reading.', ka: 'გააგრძელე კითხვა.' },
+  ctaTitle: {
+    en: 'Ready to skip the next pet-shop run?',
+    ka: 'მზად ხარ თავი დაანებო შემდეგ პეტ-შოპის სიარულს?',
+  },
+  ctaStart: { en: 'Start your plan', ka: 'დაიწყე გეგმა' },
+  ctaWhatsapp: { en: 'Chat on WhatsApp', ka: 'მოგვწერე WhatsApp-ზე' },
+  blogCrumb: { en: 'Blog', ka: 'ბლოგი' },
+};
+
+function formatDate(iso, lang) {
   if (!iso) return '';
   try {
-    return new Date(iso).toLocaleDateString('en-GB', {
+    return new Date(iso).toLocaleDateString(lang === 'ka' ? 'ka-GE' : 'en-GB', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -25,6 +43,8 @@ function formatDate(iso) {
 export default function BlogPostPage() {
   const { slug } = useParams();
   const { openSignup } = useSignup();
+  const { lang, pick } = useLang();
+  const L = (obj) => obj?.[lang] ?? obj?.en ?? '';
 
   const { data: post, isLoading, isError, error } = useQuery({
     queryKey: ['blog-post', slug],
@@ -49,20 +69,24 @@ export default function BlogPostPage() {
     return <Navigate to="/blog" replace />;
   }
 
+  const title = post ? pick(post, 'title') : '';
+  const excerpt = post ? pick(post, 'excerpt') : '';
+  const content = post ? pick(post, 'content') : '';
+
   return (
     <>
       <SeoMeta
-        title={post?.seo_title || post?.title || 'Loading…'}
+        title={post?.seo_title || title || 'Loading…'}
         absoluteTitle={!!post?.seo_title}
-        description={post?.seo_description || post?.excerpt}
+        description={post?.seo_description || excerpt}
         image={post?.cover_image}
         type="article"
         jsonLd={
           post
             ? [
                 articleJsonLd({
-                  title: post.title,
-                  description: post.seo_description || post.excerpt,
+                  title,
+                  description: post.seo_description || excerpt,
                   image: post.cover_image,
                   url: pageUrl,
                   authorName: post.author_name,
@@ -70,8 +94,8 @@ export default function BlogPostPage() {
                 }),
                 breadcrumbJsonLd([
                   { name: 'Home', path: '/' },
-                  { name: 'Blog', path: '/blog' },
-                  { name: post.title, path: `/blog/${post.slug}` },
+                  { name: L(COPY.blogCrumb), path: '/blog' },
+                  { name: title, path: `/blog/${post.slug}` },
                 ]),
               ]
             : null
@@ -100,11 +124,11 @@ export default function BlogPostPage() {
               className="card-soft p-8 mt-8 text-[#9b1c1c]"
               data-testid="blog-post-error"
             >
-              <p className="font-bold">Couldn’t load this article.</p>
-              <p className="text-sm mt-2 text-[#465B70]">{error?.message || 'Please try again.'}</p>
+              <p className="font-bold">{L(COPY.loadError)}</p>
+              <p className="text-sm mt-2 text-[#465B70]">{error?.message || L(COPY.tryAgain)}</p>
               <Link to="/blog" className="btn-secondary mt-5 inline-flex">
                 <ArrowLeft size={16} />
-                Back to blog
+                {L(COPY.backToBlog)}
               </Link>
             </div>
           )}
@@ -120,10 +144,10 @@ export default function BlogPostPage() {
                 className="font-display font-extrabold text-[#05223D] text-[34px] sm:text-5xl lg:text-[58px] tracking-[-0.025em] leading-[1.05] mt-3"
                 data-testid="blog-post-title"
               >
-                {post.title}
+                {title}
               </h1>
               <p className="mt-5 text-[#465B70] text-lg leading-relaxed max-w-2xl">
-                {post.excerpt}
+                {excerpt}
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-5 text-sm text-[#465B70]" data-testid="blog-post-meta">
@@ -144,11 +168,11 @@ export default function BlogPostPage() {
                 </div>
                 <span className="inline-flex items-center gap-1.5">
                   <Calendar size={14} />
-                  {formatDate(post.published_at)}
+                  {formatDate(post.published_at, lang)}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Clock size={14} />
-                  {post.read_minutes} min read
+                  {post.read_minutes} {L(COPY.minRead)}
                 </span>
               </div>
             </div>
@@ -164,7 +188,7 @@ export default function BlogPostPage() {
               <div className="aspect-[16/9] rounded-[2rem] overflow-hidden card-soft">
                 <img
                   src={post.cover_image}
-                  alt={post.cover_alt || post.title}
+                  alt={post.cover_alt || title}
                   className="w-full h-full object-cover"
                   loading="eager"
                   data-testid="blog-post-cover"
@@ -178,8 +202,8 @@ export default function BlogPostPage() {
             <div className="max-w-4xl mx-auto px-5 md:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
               <aside className="lg:col-span-2 order-2 lg:order-1">
                 <div className="lg:sticky lg:top-28">
-                  <p className="text-xs tracking-[0.22em] uppercase font-bold text-[#465B70]">Share</p>
-                  <ShareRail title={post.title} url={pageUrl} />
+                  <p className="text-xs tracking-[0.22em] uppercase font-bold text-[#465B70]">{L(COPY.share)}</p>
+                  <ShareRail title={title} url={pageUrl} />
                 </div>
               </aside>
 
@@ -188,7 +212,7 @@ export default function BlogPostPage() {
                 data-testid="blog-post-body"
               >
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {post.content}
+                  {content}
                 </ReactMarkdown>
 
                 {post.tags?.length > 0 && (
@@ -197,7 +221,7 @@ export default function BlogPostPage() {
                     data-testid="blog-post-tags"
                   >
                     <span className="text-xs tracking-[0.22em] uppercase font-bold text-[#465B70] mr-1">
-                      Tags
+                      {L(COPY.tags)}
                     </span>
                     {post.tags.map((t) => (
                       <span
@@ -218,10 +242,12 @@ export default function BlogPostPage() {
             <section className="pb-20 md:pb-24" data-testid="blog-post-related">
               <div className="max-w-5xl mx-auto px-5 md:px-10">
                 <h2 className="font-display font-bold text-[#05223D] text-3xl md:text-4xl tracking-tight">
-                  Keep reading.
+                  {L(COPY.keepReading)}
                 </h2>
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                  {related.map((p) => (
+                  {related.map((p) => {
+                    const rTitle = pick(p, 'title');
+                    return (
                     <Link
                       key={p.slug}
                       to={`/blog/${p.slug}`}
@@ -231,7 +257,7 @@ export default function BlogPostPage() {
                       <div className="w-2/5 relative">
                         <img
                           src={p.cover_image}
-                          alt={p.cover_alt || p.title}
+                          alt={p.cover_alt || rTitle}
                           className="absolute inset-0 w-full h-full object-cover"
                           loading="lazy"
                         />
@@ -243,15 +269,16 @@ export default function BlogPostPage() {
                           </p>
                         )}
                         <h3 className="font-display font-bold text-[#05223D] text-lg leading-snug mt-2 group-hover:text-[#0A4D8C] transition-colors">
-                          {p.title}
+                          {rTitle}
                         </h3>
                         <p className="text-xs text-[#465B70] mt-2 flex items-center gap-1.5">
                           <Clock size={12} />
-                          {p.read_minutes} min read
+                          {p.read_minutes} {L(COPY.minRead)}
                         </p>
                       </div>
                     </Link>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </section>
@@ -265,7 +292,7 @@ export default function BlogPostPage() {
                 <div className="relative">
                   <p className="text-xs tracking-[0.22em] uppercase font-bold text-[#F25C05]">SmartPaw Food</p>
                   <h2 className="font-display font-bold text-white text-3xl md:text-4xl tracking-[-0.02em] leading-tight mt-2 max-w-lg">
-                    Ready to skip the next pet-shop run?
+                    {L(COPY.ctaTitle)}
                   </h2>
                 </div>
                 <div className="relative flex flex-wrap items-center gap-3">
@@ -274,7 +301,7 @@ export default function BlogPostPage() {
                     className="btn-primary"
                     data-testid="blog-post-cta-button"
                   >
-                    Start your plan
+                    {L(COPY.ctaStart)}
                     <ArrowRight size={18} />
                   </button>
                   <a
@@ -285,7 +312,7 @@ export default function BlogPostPage() {
                     data-testid="blog-post-whatsapp-link"
                   >
                     <MessageCircle size={16} />
-                    Chat on WhatsApp
+                    {L(COPY.ctaWhatsapp)}
                   </a>
                 </div>
               </div>

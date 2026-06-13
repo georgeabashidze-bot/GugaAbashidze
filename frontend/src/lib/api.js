@@ -26,6 +26,7 @@ export const api = {
   },
   getProduct: (slug) => request(`/api/products/${slug}`),
   listPromos: () => request('/api/promos'),
+  listPlans: () => request('/api/plans'),
   listBlogPosts: (params = {}) => {
     const qs = new URLSearchParams(
       Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== ''),
