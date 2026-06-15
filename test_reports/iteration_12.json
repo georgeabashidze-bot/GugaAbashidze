@@ -1,0 +1,47 @@
+{
+  "summary": "Frontend-only verification of regenerated /app/frontend/src/lib/i18n.js (498 revised Georgian translations from translation_review_revised.xlsx). 8/9 tested pages render KA correctly with no runtime errors. Home/Catalogue/Special-Offers/Plans/How-it-works/Blog/FAQ/About all render Georgian copy from the new dictionary (Home alone has 3560 Georgian chars, footer fully localized incl. address '0102 წერეთლის გამზ. 118, თბილისი, საქართველო'). EN↔KA switcher works, persists via localStorage 'sp-lang', and switching back to EN fully restores English (0 KA chars on /catalogue after switching back). HOWEVER one CRITICAL regression: /contact page now CRASHES in BOTH EN and KA with PAGEERROR 'Cannot read properties of undefined (reading address)' because the regenerated i18n.js exposes a FLAT contact.* schema (contact.address, contact.addressValue, contact.phone, contact.departments[0..3], contact.form.namePh, …) while ContactPage.jsx still consumes the previous NESTED schema (c.labels.address, c.values.address, c.buttons.whatsapp, c.departments.general, c.form.namePlaceholder, c.form.missing, c.toConfirm, c.mapTitle, c.seoTitle, …). The mismatch wipes the entire ContactPage body (body shrinks to header+footer only). KA top-level dictionary parity vs EN is perfect (23/23 groups, 0 missing keys). Breadcrumbs (LEGACY) render Georgian labels on /catalogue etc. Footer fully localized in KA. Hero stat badge 'Free SmartPaw Feeder for 150GEL+ packages' is still hardcoded English in KA — flagged LOW per request context (hardcoded English fallback acceptable).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "ContactPage",
+        "issue": "Hard crash in EN and KA: PAGEERROR 'Cannot read properties of undefined (reading address)'. New i18n.js exposes flat contact.* keys (address, addressValue, phone, email, hours, hoursValue, hoursToConfirm, sendEyebrow, sendTitle, sendBody, departments[ARRAY], form.namePh, form.errorRequired, form.errorGeneric, form.success, form.routedTo). ContactPage.jsx still reads c.labels.{address,phone,email,hours}, c.values.{address,phone,email,hours}, c.buttons.{whatsapp,startPlan}, c.departments.{general,orders,partners,press}, c.form.{namePlaceholder,emailPlaceholder,subjectPlaceholder,messagePlaceholder,missing,error,sending,eyebrow,title,body}, c.toConfirm, c.mapTitle, c.seoTitle, c.seoDescription — none of which exist anymore.",
+        "selector": "/contact route, ContactPage.jsx:19 const c = t.contact; line 71 first crash on c.labels.address",
+        "priority": "CRITICAL"
+      },
+      {
+        "component": "Home hero stat badge",
+        "issue": "'Free SmartPaw Feeder for 150GEL+ packages' is hardcoded English even when lang=ka.",
+        "selector": "Home hero badge",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Excel→i18n.js regeneration",
+        "issue": "apply_translations.py rebuilds the dictionary purely from the Excel rows and DROPS the previously-shipped nested ContactPage schema (labels/values/buttons/form.namePlaceholder/departments-as-object). Any future page-specific consumer that was localized BEFORE the Excel sheet was created will break the same way unless the script either (a) merges the Excel keys on top of the legacy nested skeleton, or (b) the consumer pages are migrated to the new flat schema in the same PR.",
+        "affected_selectors": ["/contact"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "URGENT: Restore /contact. Either (a) update ContactPage.jsx to consume the new flat contact.* schema from the regenerated i18n.js (rename c.labels.address→c.address, c.values.address→c.addressValue, c.form.namePlaceholder→c.form.namePh, c.form.missing→c.form.errorRequired, c.form.error→c.form.errorGeneric, c.departments.general→c.departments[0], add fallbacks for c.toConfirm/c.mapTitle/c.seoTitle/c.seoDescription which no longer exist), OR (b) re-run apply_translations.py with a merge mode that preserves the prior nested ContactPage skeleton and only overrides leaf string values from the Excel.",
+    "Decide on a single canonical contact.* schema and keep apply_translations.py + ContactPage.jsx + Footer.jsx in sync going forward.",
+    "(LOW) Localize the hero stat badge 'Free SmartPaw Feeder for 150GEL+ packages' via t.hero.* in KA."
+  ],
+  "critical_code_review_comments": [
+    "i18n.js is now 1724 lines auto-generated — but apply_translations.py does NOT preserve any structural contract with downstream pages. Recommend the script accept a hand-curated skeleton (en.template.json) and only fill leaf strings from the Excel, so renames/restructures in Excel can't silently delete schemas downstream code depends on.",
+    "ContactPage.jsx line 19 'const c = t.contact;' has no defensive fallback — a single undefined intermediate key brings the whole page down. Add optional chaining (c?.labels?.address) and graceful empty-string defaults to prevent full-page crashes on future i18n drift.",
+    "No automated i18n contract test exists. Add a Jest/Vitest test that asserts every page-required path (contact.labels.address, plans.tiers[0].title, etc.) exists in BOTH en and ka — catches regressions like this iteration's at CI time."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only scope)", "frontend": "92% (12/13 review-request items pass; ContactPage KA+EN both crash)"},
+  "test_credentials": "Not used — public pages only.",
+  "seed_data_creation": "None.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "After main agent fixes ContactPage schema mismatch, retest: (1) /contact in EN renders address '0102 Tsereteli Ave. 118, Tbilisi, Georgia' + phone +995 591 96 99 01 + email guga@smartpaw.ge + WhatsApp & Start-your-plan buttons + map iframe + 4 department chips + working form submission. (2) /contact in KA renders Georgian labels (მისამართი/ტელეფონი/ელფოსტა/საათები) and Georgian form placeholders. (3) No PAGEERROR in console on /contact. (4) Re-verify all other KA pages still render (Home/Catalogue/Special-Offers/Plans/How-it-works/Blog/FAQ/About). Test URL: https://smart-feed-pets.preview.emergentagent.com. Force KA via localStorage.setItem('sp-lang','ka') then reload.",
+  "rca of the issue": "ROOT CAUSE: /app/backend/scripts/apply_translations.py regenerates i18n.js purely from the Excel sheet which only contains the new FLAT contact.* keys (contact.address, contact.addressValue, contact.phone, contact.departments.0..3, contact.form.namePh, …). The previous i18n.js shipped a richer NESTED schema (contact.labels.{address,phone,email,hours}, contact.values.{address,phone,email,hours}, contact.buttons.{whatsapp,startPlan}, contact.departments.{general,orders,partners,press}, contact.form.{namePlaceholder,emailPlaceholder,subjectPlaceholder,messagePlaceholder,missing,error,sending,eyebrow,title,body}, contact.toConfirm, contact.mapTitle, contact.seoTitle, contact.seoDescription) that ContactPage.jsx still consumes. Regeneration wiped those nested keys, so the very first read 'c.labels.address' at ContactPage.jsx:71 throws and React unmounts the entire page subtree. The error reproduces 100% of the time on both /contact?lang=en and /contact?lang=ka. REPRO: open https://smart-feed-pets.preview.emergentagent.com/contact in any language → page body shrinks to header+footer only and console shows 'Cannot read properties of undefined (reading address)'. MITIGATION: (short-term) update ContactPage.jsx to use the new flat keys with optional chaining; (long-term) refactor apply_translations.py to merge Excel leaf strings onto a hand-maintained schema skeleton, plus add a contract test enumerating every i18n path each page consumes."
+}
