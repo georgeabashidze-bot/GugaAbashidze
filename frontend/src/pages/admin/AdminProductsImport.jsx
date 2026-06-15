@@ -61,6 +61,20 @@ export default function AdminProductsImport() {
     }
   };
 
+  const handleBewital = async (dryRun) => {
+    setBewitalBusy(true);
+    setBewitalError('');
+    setBewitalResult(null);
+    try {
+      const r = await adminApi.importBewital({ dryRun });
+      setBewitalResult(r);
+    } catch (e) {
+      setBewitalError(e.message || 'Bewital import failed');
+    } finally {
+      setBewitalBusy(false);
+    }
+  };
+
   return (
     <div data-testid="admin-products-import-page">
       <Link
@@ -226,6 +240,89 @@ export default function AdminProductsImport() {
 
       {/* Results */}
       {result && <ImportResult result={result} />}
+
+      {/* Step 3 — Bewital one-click partner import (AI-enriched) */}
+      <section className="card-soft p-7 md:p-9 mt-8" data-testid="bewital-import-section">
+        <div className="flex items-start gap-4">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#F25C05] to-[#0A4D8C] text-white flex items-center justify-center shrink-0">
+            <Sparkles size={20} />
+          </div>
+          <div className="flex-1">
+            <p className="text-[11px] tracking-[0.22em] uppercase font-bold text-[#F25C05]">
+              Partner catalogue · One-click
+            </p>
+            <h2 className="font-display font-bold text-[#05223D] text-xl mt-1">
+              Bewital AI-enriched import
+            </h2>
+            <p className="text-sm text-[#465B70] mt-1 max-w-2xl">
+              Parses the bundled <code className="bg-[#F5F2EB] px-1.5 py-0.5 rounded text-[12px]">bewital_pricelist.xlsx</code>,
+              auto-generates EN + KA names, descriptions and tags via the Emergent LLM,
+              and inserts each row as a <strong>draft</strong> product in GEL (existing slugs are skipped).
+            </p>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => handleBewital(true)}
+                disabled={bewitalBusy}
+                data-testid="bewital-dry-run-button"
+                className="inline-flex items-center gap-2 rounded-full border border-[#0A4D8C40] text-[#0A4D8C] hover:bg-[#0A4D8C] hover:text-white text-sm font-bold px-5 py-2.5 transition disabled:opacity-50"
+              >
+                {bewitalBusy ? <Loader2 size={15} className="animate-spin" /> : null}
+                Preview (dry run)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBewital(false)}
+                disabled={bewitalBusy}
+                data-testid="bewital-import-button"
+                className="inline-flex items-center gap-2 rounded-full bg-[#F25C05] hover:bg-[#d44a00] text-white text-sm font-bold px-5 py-2.5 transition disabled:opacity-50"
+              >
+                {bewitalBusy ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+                Run Bewital import
+              </button>
+            </div>
+
+            {bewitalError && (
+              <div
+                data-testid="bewital-error"
+                className="mt-5 rounded-xl bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm flex items-start gap-2"
+              >
+                <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                <span>{bewitalError}</span>
+              </div>
+            )}
+
+            {bewitalResult && (
+              <div className="mt-6" data-testid="bewital-result">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                    <CheckCircle2 size={18} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] tracking-[0.22em] uppercase font-bold text-[#F25C05]">
+                      {bewitalResult.dry_run ? 'Dry-run preview' : 'Import complete'}
+                    </p>
+                    <h3 className="font-display font-bold text-[#05223D] text-lg mt-1">
+                      {bewitalResult.inserted} inserted · {bewitalResult.skipped || 0} skipped
+                    </h3>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Stat label="Total parsed" value={bewitalResult.total_parsed} />
+                  <Stat label="Inserted" value={bewitalResult.inserted} accent="text-emerald-700" />
+                  <Stat label="Skipped (existing)" value={bewitalResult.skipped || 0} />
+                  <Stat
+                    label="LLM failures"
+                    value={bewitalResult.llm_failure_count || 0}
+                    accent={(bewitalResult.llm_failure_count || 0) > 0 ? 'text-amber-700' : ''}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
