@@ -35,6 +35,7 @@ export function RegularProducts() {
       eyebrow={p.eyebrow}
       title={p.title}
       body={p.body}
+      notice={p.notice}
       items={p.items}
       images={REGULAR_IMGS}
       routes={REGULAR_ROUTES}
@@ -52,6 +53,7 @@ export function SpecialOffers() {
       eyebrow={p.eyebrow}
       title={p.title}
       body={p.body}
+      notice={p.notice}
       items={p.items}
       images={SPECIAL_IMGS}
       routes={SPECIAL_ROUTES}

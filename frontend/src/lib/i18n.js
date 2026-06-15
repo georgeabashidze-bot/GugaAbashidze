@@ -52,6 +52,7 @@ export const translations = {
       "eyebrow": "Regular Products",
       "title": "Everyday essentials, on a schedule.",
       "body": "The shelf your pet needs week after week — curated, vet-approved and restocked automatically.",
+      "notice": "We are in process of uploading our partner products. Please contact our team, if you cannot find your products here.",
       "items": [
         {
           "key": "food",
@@ -74,6 +75,7 @@ export const translations = {
       "eyebrow": "Special Offers",
       "title": "Extras worth tail-wagging for.",
       "body": "Rotating bundles, smart gadgets and add-on services to level up your pet’s routine.",
+      "notice": "We are in process of uploading our partner products. Please contact our team, if you cannot find your products here.",
       "items": [
         {
           "key": "toys",
@@ -910,6 +912,7 @@ export const translations = {
       "eyebrow": "რეგულარული პროდუქტები",
       "title": "რეგულარული პროდუქტები, უფასო მოწოდებით, თქვენზე მორგებული გრაფიკით",
       "body": "თარო, რომელიც შინაური ცხოველის რეგულარული პროდუქტებით ავტომატურად ივსება. ",
+      "notice": "ჩვენი გუნდი აქტიურად ამრავლებს ჩვენი კატალოგის ასორტიმენტს. თუ ვერ ნახეთ თქვენი პროდუქტი კატალოგში, დაგვიკავშირდით.",
       "items": [
         {
           "key": "food",
@@ -932,6 +935,7 @@ export const translations = {
       "eyebrow": "შეთავაზებები",
       "title": "დამატებითი - რაც თქვენს ოთხფეხას გააბედნიერებს",
       "body": "ცვალებადი ნაკრებები, ჭკვიანი მოწყობილობები და დამატებითი სერვისები შენი ცხოველის რუტინისთვის.",
+      "notice": "ჩვენი გუნდი აქტიურად ამრავლებს ჩვენი კატალოგის ასორტიმენტს. თუ ვერ ნახეთ თქვენი პროდუქტი კატალოგში, დაგვიკავშირდით.",
       "items": [
         {
           "key": "toys",

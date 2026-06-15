@@ -9,6 +9,7 @@ export default function ProductSection({
   eyebrow,
   title,
   body,
+  notice,
   items,
   images,
   routes,
@@ -32,6 +33,15 @@ export default function ProductSection({
           </h2>
           {body && (
             <p className="text-[#465B70] text-lg leading-relaxed mt-5 max-w-2xl">{body}</p>
+          )}
+          {notice && (
+            <div
+              data-testid={`${testIdPrefix}-notice`}
+              className="mt-6 inline-flex items-start gap-3 max-w-2xl rounded-2xl border border-[#F25C05]/25 bg-[#FFF4EC] px-4 py-3 text-sm leading-relaxed text-[#7A3A0A]"
+            >
+              <span aria-hidden className="mt-0.5 inline-block w-2 h-2 shrink-0 rounded-full bg-[#F25C05]" />
+              <span>{notice}</span>
+            </div>
           )}
         </div>
 
