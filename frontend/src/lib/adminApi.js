@@ -193,6 +193,30 @@ export const adminApi = {
     return request(`/api/admin/products/import/bewital?${qs}`, { method: 'POST' });
   },
 
+  // Product list helpers + bulk actions
+  productsSummary: () => request('/api/admin/products/summary'),
+  bulkPublish: (ids) =>
+    request('/api/admin/products/bulk-publish', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    }),
+  bulkUnpublish: (ids) =>
+    request('/api/admin/products/bulk-unpublish', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    }),
+  bulkDelete: (ids) =>
+    request('/api/admin/products/bulk-delete', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    }),
+  enrichBulk: (ids, { overwrite = false } = {}) =>
+    request('/api/admin/products/enrich-bulk', {
+      method: 'POST',
+      body: JSON.stringify({ ids, overwrite }),
+    }),
+  getJob: (id) => request(`/api/admin/jobs/${id}`),
+
   // leads / contacts
   listLeads: () => request('/api/admin/leads'),
   listContacts: () => request('/api/admin/contact-inquiries'),

@@ -22,7 +22,7 @@ from fastapi import (
     HTTPException,
     Request,
     UploadFile,
-    status,
+    status as http_status,
 )
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
 
@@ -187,6 +187,11 @@ async def admin_list_products(
     category: Optional[str] = None,
     sub_category: Optional[str] = None,
     q: Optional[str] = None,
+    status: Optional[str] = None,  # "draft" | "published"
+    brand: Optional[str] = None,
+    source: Optional[str] = None,  # e.g. "bewital_pricelist"
+    needs_enrichment: Optional[bool] = None,
+    limit: int = 1000,
     _=Depends(get_current_admin),
 ):
     from server import db
@@ -196,15 +201,103 @@ async def admin_list_products(
         query["category"] = category
     if sub_category:
         query["sub_category"] = sub_category
+    if status:
+        query["status"] = status
+    if brand:
+        query["brand"] = brand
+    if source:
+        query["source"] = source
     if q:
         query["$or"] = [
             {"name": {"$regex": q, "$options": "i"}},
             {"brand": {"$regex": q, "$options": "i"}},
             {"slug": {"$regex": q, "$options": "i"}},
         ]
+    if needs_enrichment is True:
+        # Missing KA name OR KA description OR a very short EN description
+        # (heuristic mirroring services.llm_enrichment.needs_enrichment).
+        and_clause = [
+            {
+                "$or": [
+                    {"name_ka": {"$in": [None, ""]}},
+                    {"description_ka": {"$in": [None, ""]}},
+                    {"$expr": {"$lt": [{"$strLenCP": {"$ifNull": ["$description", ""]}}, 30]}},
+                ]
+            }
+        ]
+        if "$or" in query:
+            # Preserve the search $or by wrapping both in $and
+            query["$and"] = [{"$or": query.pop("$or")}, *and_clause]
+        else:
+            query.update(and_clause[0])
 
-    docs = await db.products.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    docs = (
+        await db.products.find(query, {"_id": 0})
+        .sort("created_at", -1)
+        .to_list(max(1, min(int(limit), 5000)))
+    )
     return [_product_doc_to_out(d) for d in docs]
+
+
+@admin_router.get("/products/summary")
+async def admin_products_summary(_=Depends(get_current_admin)):
+    """Aggregate counts so the admin UI can render status / brand badges
+    without pulling the full product list."""
+    from server import db
+
+    pipeline_status = [
+        {"$group": {"_id": "$status", "n": {"$sum": 1}}},
+    ]
+    pipeline_brand = [
+        {"$group": {"_id": {"brand": "$brand", "status": "$status"}, "n": {"$sum": 1}}},
+    ]
+    pipeline_source = [
+        {"$group": {"_id": "$source", "n": {"$sum": 1}}},
+    ]
+
+    status_counts: dict = {"draft": 0, "published": 0, "total": 0}
+    async for row in db.products.aggregate(pipeline_status):
+        key = row["_id"] or "published"
+        status_counts[key] = row["n"]
+        status_counts["total"] += row["n"]
+
+    by_brand: list = []
+    async for row in db.products.aggregate(pipeline_brand):
+        by_brand.append(
+            {
+                "brand": (row["_id"] or {}).get("brand") or "Unknown",
+                "status": (row["_id"] or {}).get("status") or "published",
+                "count": row["n"],
+            }
+        )
+
+    by_source: dict = {}
+    async for row in db.products.aggregate(pipeline_source):
+        by_source[row["_id"] or "manual"] = row["n"]
+
+    needs_enrichment_count = await db.products.count_documents(
+        {
+            "$or": [
+                {"name_ka": {"$in": [None, ""]}},
+                {"description_ka": {"$in": [None, ""]}},
+                {
+                    "$expr": {
+                        "$lt": [
+                            {"$strLenCP": {"$ifNull": ["$description", ""]}},
+                            30,
+                        ]
+                    }
+                },
+            ]
+        }
+    )
+
+    return {
+        "status_counts": status_counts,
+        "by_brand": sorted(by_brand, key=lambda r: (r["brand"], r["status"])),
+        "by_source": by_source,
+        "needs_enrichment": needs_enrichment_count,
+    }
 
 
 @admin_router.post("/products", response_model=ProductOut, status_code=201)
@@ -337,6 +430,223 @@ async def admin_import_bewital(
     except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=f"Bewital import failed: {e}")
     return BewitalImportResponse(**summary)
+
+
+# ============================================================================
+# BULK PRODUCT ACTIONS (publish / delete / enrich)
+# ============================================================================
+class BulkIdsPayload(BaseModel):
+    ids: List[str] = Field(min_length=1, max_length=1000)
+
+
+class BulkEnrichPayload(BulkIdsPayload):
+    overwrite: bool = False
+
+
+class BulkPublishResponse(BaseModel):
+    matched: int
+    modified: int
+    status: str
+
+
+class BulkDeleteResponse(BaseModel):
+    deleted: int
+
+
+class EnrichJobAccepted(BaseModel):
+    job_id: str
+    total: int
+    skipped_already_enriched: int
+
+
+@admin_router.post("/products/bulk-publish", response_model=BulkPublishResponse)
+async def admin_bulk_publish(payload: BulkIdsPayload, _=Depends(get_current_admin)):
+    from server import db
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    res = await db.products.update_many(
+        {"id": {"$in": payload.ids}},
+        {"$set": {"status": "published", "updated_at": now_iso}},
+    )
+    return BulkPublishResponse(
+        matched=res.matched_count, modified=res.modified_count, status="published"
+    )
+
+
+@admin_router.post("/products/bulk-unpublish", response_model=BulkPublishResponse)
+async def admin_bulk_unpublish(payload: BulkIdsPayload, _=Depends(get_current_admin)):
+    from server import db
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    res = await db.products.update_many(
+        {"id": {"$in": payload.ids}},
+        {"$set": {"status": "draft", "updated_at": now_iso}},
+    )
+    return BulkPublishResponse(
+        matched=res.matched_count, modified=res.modified_count, status="draft"
+    )
+
+
+@admin_router.post("/products/bulk-delete", response_model=BulkDeleteResponse)
+async def admin_bulk_delete(payload: BulkIdsPayload, _=Depends(get_current_admin)):
+    from server import db
+
+    res = await db.products.delete_many({"id": {"$in": payload.ids}})
+    return BulkDeleteResponse(deleted=res.deleted_count)
+
+
+# ----- AI BULK ENRICHMENT (background job) ----------------------------------
+async def _run_enrich_job(job_id: str, ids: List[str], overwrite: bool) -> None:
+    """Background coroutine — iterates ids, calls Emergent LLM per product,
+    persists updates and per-item progress to ``admin_jobs``.
+
+    Concurrency is kept low (3) to stay friendly to the LLM-key budget and to
+    Mongo. Each item is processed inside its own try/except so one failure
+    cannot crash the whole job.
+    """
+    import asyncio  # local import: avoid module-level cycle
+
+    from server import db
+    from services.job_store import (
+        append_failure,
+        bump_progress,
+        complete_job,
+        fail_job,
+        set_running,
+    )
+    from services.llm_enrichment import enrich_product_doc, needs_enrichment
+
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if not api_key:
+        await fail_job(db, job_id, error="EMERGENT_LLM_KEY missing from backend/.env")
+        return
+
+    await set_running(db, job_id)
+    sem = asyncio.Semaphore(3)
+
+    async def _one(pid: str) -> None:
+        async with sem:
+            product = await db.products.find_one({"id": pid}, {"_id": 0})
+            if not product:
+                await append_failure(db, job_id, item_id=pid, error="not_found")
+                await bump_progress(db, job_id, failed=1, last_message=f"missing {pid}")
+                return
+            if not overwrite and not needs_enrichment(product):
+                await bump_progress(
+                    db, job_id, skipped=1, last_message=f"skip {product.get('name')[:40]}"
+                )
+                return
+
+            update = await enrich_product_doc(api_key, product)
+            if not update.get("llm_ok"):
+                await append_failure(
+                    db, job_id, item_id=pid, error=update.get("llm_error") or "llm_failed"
+                )
+                await bump_progress(
+                    db, job_id, failed=1, last_message=f"err {product.get('name')[:40]}"
+                )
+                return
+
+            # Strip helper flags before persisting
+            persist = {k: v for k, v in update.items() if k not in ("llm_ok", "llm_error")}
+            persist["updated_at"] = datetime.now(timezone.utc).isoformat()
+            await db.products.update_one({"id": pid}, {"$set": persist})
+            await bump_progress(
+                db, job_id, succeeded=1, last_message=f"ok {product.get('name')[:40]}"
+            )
+
+    try:
+        await asyncio.gather(*[_one(pid) for pid in ids])
+        await complete_job(db, job_id)
+    except Exception as exc:  # noqa: BLE001
+        await fail_job(db, job_id, error=f"job crashed: {exc}")
+
+
+@admin_router.post(
+    "/products/enrich-bulk",
+    response_model=EnrichJobAccepted,
+    status_code=202,
+)
+async def admin_bulk_enrich(
+    payload: BulkEnrichPayload, _=Depends(get_current_admin)
+):
+    """Kick off AI enrichment for the given product IDs as a background job.
+
+    Returns a job_id immediately; poll ``GET /api/admin/jobs/{job_id}`` for
+    progress. Idempotent: products that already have EN+KA descriptions are
+    skipped unless ``overwrite=true``.
+    """
+    import asyncio
+
+    from server import db
+    from services.job_store import create_job
+    from services.llm_enrichment import needs_enrichment
+
+    # Pre-scan: figure out how many would actually be enriched so the UI can
+    # warn the operator before starting.
+    cursor = db.products.find(
+        {"id": {"$in": payload.ids}}, {"_id": 0}
+    )
+    selected = await cursor.to_list(len(payload.ids))
+    found_ids = {p["id"] for p in selected}
+    if not found_ids:
+        raise HTTPException(status_code=404, detail="No matching products")
+
+    if payload.overwrite:
+        skipped = 0
+    else:
+        skipped = sum(1 for p in selected if not needs_enrichment(p))
+
+    total = len(found_ids)
+    job_id = await create_job(
+        db,
+        kind="enrich-products",
+        total=total,
+        meta={
+            "overwrite": payload.overwrite,
+            "requested": len(payload.ids),
+            "found": total,
+            "pre_skipped": skipped,
+        },
+    )
+
+    asyncio.create_task(_run_enrich_job(job_id, list(found_ids), payload.overwrite))
+    return EnrichJobAccepted(
+        job_id=job_id, total=total, skipped_already_enriched=skipped
+    )
+
+
+# ============================================================================
+# JOBS (poll long-running admin operations)
+# ============================================================================
+@admin_router.get("/jobs/{job_id}")
+async def admin_get_job(job_id: str, _=Depends(get_current_admin)):
+    from server import db
+    from services.job_store import get_job
+
+    job = await get_job(db, job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
+
+
+@admin_router.get("/jobs")
+async def admin_list_jobs(
+    kind: Optional[str] = None,
+    limit: int = 25,
+    _=Depends(get_current_admin),
+):
+    from server import db
+
+    query: dict = {}
+    if kind:
+        query["kind"] = kind
+    docs = (
+        await db.admin_jobs.find(query, {"_id": 0})
+        .sort("created_at", -1)
+        .to_list(max(1, min(int(limit), 100)))
+    )
+    return docs
 
 
 # ============================================================================
