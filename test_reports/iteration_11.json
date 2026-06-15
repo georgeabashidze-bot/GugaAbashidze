@@ -1,0 +1,26 @@
+{
+  "summary": "Pre-launch E2E frontend smoke test for SmartPaw Food (www.smartpaw.ge). All 12 critical pre-launch checks PASSED. Contact info (+995 591 96 99 01, guga@smartpaw.ge, 0102 Tsereteli Ave. 118) is consistent across Home, Contact, Privacy, Terms, Plans. WhatsApp deep-link uses wa.me/995591969901 (no '+'). Privacy & Terms render and contain 'Cleanpaw International LLC' + tax code '404 757 287'. SmartPaw Food brand still visible on Privacy. Catalogue, Plans, Blog list and Blog post (/blog/indoor-cat-checklist) all render. EN↔KA language switcher works, KA persists across navigation, EN switch-back works. Translation export GET /api/uploads/public/translation_review.xlsx returns 200 with correct openxmlformats-spreadsheet content-type. No stale '+99500000000' or info@/hello@/contact@smartpaw addresses found on any tested page. Contact form POSTs successfully and shows success banner.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "i18n: legacy /app/frontend/src/lib/i18n.js still ships an older inline dictionary alongside the newer /app/frontend/src/lib/i18n/{en,ka}.js split. Confirm only one source-of-truth is consumed (LangContext) and delete the unused one to prevent drift.",
+    "LegalPages.jsx hard-codes contact constants (phone, email, address, entity, tax). Consider importing from a single CONTACT_INFO module shared with Footer.jsx and ContactPage.jsx so a future phone/email change updates everywhere in one edit.",
+    "Footer & Contact use literal strings for phone/email; only Footer 'address' line is translated via t.footer.address. Make sure KA users on /contact see the Georgian address copy (currently the ContactPage hard-codes the English address '0102 Tsereteli Ave. 118, Tbilisi, Georgia' regardless of lang).",
+    "Header lacks a data-testid on the main <nav> element; individual links do have testids — fine for current coverage.",
+    "Hero stat badge 'Free SmartPaw Feeder for 150GEL+ packages' overlaps slightly with hero image on 1920px — minor visual polish, not blocking."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only scope)", "frontend": "100% (12/12 launch-critical checks pass)"},
+  "test_credentials": "Not used — public pages only as per request scope.",
+  "seed_data_creation": "Submitted one TEST contact inquiry via /contact (name='TEST QA', email='qa@test.com', subject='Smoke test'). Backend accepted (success banner shown). Main agent may want to purge TEST_ contact inquiries from /api/admin/contacts after launch.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration_11 was a launch-day smoke. Verified contact constants, legal entity copy, i18n EN↔KA persistence, public translation_review.xlsx download, and routing for Home/Catalogue/Plans/Blog/BlogPost/Contact/Privacy/Terms. Whatsapp href = https://wa.me/995591969901. ContactPage hard-codes English address — flagged in code-review. The previous iteration_10 admin-panel pytest suite at /app/backend/tests/test_admin_panel.py is still the canonical backend regression suite (21/21 green).",
+  "rca of the issue": "No issues — pre-launch verification confirms all changes from the previous session (global contact update, Legal Pages with Cleanpaw International LLC + tax 404 757 287, i18n export Excel) are live and correctly wired. Safe to go LIVE on www.smartpaw.ge."
+}

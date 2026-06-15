@@ -107,6 +107,15 @@ smartpet.ge-style filter sidebar + sort bar + mobile drawer.
 - **Admin UI**: `/admin/login`, `/admin` dashboard (live counts), `/admin/products` (search, filter, edit, delete), `/admin/products/new` + `/admin/products/:id` (full form), `/admin/special-offers` (cards grid), `/admin/special-offers/new` + `/admin/special-offers/:id`, `/admin/leads` & `/admin/contact-inquiries` (read-only tables + CSV export). Sidebar layout with brand styling.
 - **Auth client (`adminApi.js`)**: Uses **XMLHttpRequest** instead of fetch — Cloudflare ingress was pre-consuming fetch response bodies on non-2xx, leaving the JS `Response.body` stream in a consumed state.
 
+### Feb 2026 — Go-Live Prep (DONE — manual smoke verified)
+- **Contact info refresh (P0)**: Updated every public surface (i18n EN/KA dictionaries, legacy `lib/i18n.js`, ContactPage, Footer, SeoMeta JSON-LD, Google Maps embed) with:
+  - Address: `0102 Tsereteli Ave. 118, Tbilisi, Georgia` (KA: `0102 წერეთლის გამზ. 118, თბილისი, საქართველო`)
+  - Email: `guga@smartpaw.ge` (collapsed `hello/partners/press/careers@smartpaw.ge` to a single inbox)
+  - Phone / WhatsApp: `+995 591 96 99 01`
+- **Legal pages drafted (P0)**: `/app/frontend/src/pages/LegalPages.jsx` now contains full Privacy, Terms, Delivery and Refund policies referencing `Cleanpaw International LLC`, Tax Code `404 757 287`, registered address and contact email/phone. A reusable `<LegalEntity>` block is appended on every legal page.
+- **Footer fine print**: Public brand stays `SmartPaw Food`; fine print line "Operated by Cleanpaw International LLC · Tax Code 404 757 287" sits under the copyright row.
+- **Translation export (P0)**: New `/app/backend/export_translations.py` flattens `en.js` + `ka.js` into a `Key | English | Georgian | Notes` Excel sheet (498 rows, frozen header). Generated file lives at `/app/backend/uploads/public/translation_review.xlsx` and is served via `GET /api/uploads/public/translation_review.xlsx`.
+
 ## P0 — Backlog (Admin Panel continuation)
 
 ### Phase A4: Plans CRUD

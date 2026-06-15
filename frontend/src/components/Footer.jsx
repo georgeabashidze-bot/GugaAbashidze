@@ -99,7 +99,7 @@ export default function Footer({ onOpenSignup }) {
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail size={15} />
-                  <a href="mailto:hello@smartpaw.ge" className="hover:text-[#F25C05] transition-colors">hello@smartpaw.ge</a>
+                  <a href="mailto:guga@smartpaw.ge" className="hover:text-[#F25C05] transition-colors">guga@smartpaw.ge</a>
                 </li>
               </ul>
               <div className="flex items-center gap-3 mt-5">
@@ -115,7 +115,10 @@ export default function Footer({ onOpenSignup }) {
         </div>
 
         <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-white/60">
-          <p>© {new Date().getFullYear()} SmartPaw Food. {t.footer.rights}</p>
+          <div>
+            <p>© {new Date().getFullYear()} SmartPaw Food. {t.footer.rights}</p>
+            <p className="text-white/40 text-xs mt-1">Operated by Cleanpaw International LLC · Tax Code 404 757 287</p>
+          </div>
           <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
             {legalLinks.map((l) => (
               <li key={l.to}>

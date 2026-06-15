@@ -11,28 +11,28 @@ const DEPARTMENTS = [
     icon: HeartHandshake,
     title: 'Customer support',
     body: 'Plan questions, deliveries, brand swaps, refunds.',
-    email: 'hello@smartpaw.ge',
+    email: 'guga@smartpaw.ge',
   },
   {
     key: 'partnerships',
     icon: Building2,
     title: 'Brand partnerships',
     body: 'Get your brand on the SmartPaw shelf or run a co-promo.',
-    email: 'partners@smartpaw.ge',
+    email: 'guga@smartpaw.ge',
   },
   {
     key: 'press',
     icon: Newspaper,
     title: 'Press & media',
     body: 'Interviews, founder quotes, product imagery.',
-    email: 'press@smartpaw.ge',
+    email: 'guga@smartpaw.ge',
   },
   {
     key: 'careers',
     icon: Briefcase,
     title: 'Careers',
     body: 'Open roles in delivery, customer care and ops.',
-    email: 'careers@smartpaw.ge',
+    email: 'guga@smartpaw.ge',
   },
 ];
 
@@ -75,7 +75,7 @@ export default function ContactPage() {
     <>
       <SeoMeta
         title="Contact — talk to a real human"
-        description="Get in touch with SmartPaw Food in Tbilisi. WhatsApp +995 591 96 99 01, hello@smartpaw.ge, or pick a department and send a message."
+        description="Get in touch with SmartPaw Food in Tbilisi. WhatsApp +995 591 96 99 01, guga@smartpaw.ge, or pick a department and send a message."
         jsonLd={breadcrumbJsonLd([
           { name: 'Home', path: '/' },
           { name: 'Contact', path: '/contact' },
@@ -89,9 +89,9 @@ export default function ContactPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-7" data-testid="contact-top-grid">
         {/* Contact details */}
         <div className="lg:col-span-5 card-soft p-7 md:p-9 space-y-6" data-testid="contact-details-card">
-          <ContactRow icon={<MapPin size={18} />} label="Address" value="Tbilisi, Georgia" />
+          <ContactRow icon={<MapPin size={18} />} label="Address" value="0102 Tsereteli Ave. 118, Tbilisi, Georgia" />
           <ContactRow icon={<Phone size={18} />} label="Phone / WhatsApp" value="+995 591 96 99 01" />
-          <ContactRow icon={<Mail size={18} />} label="Email" value="hello@smartpaw.ge" />
+          <ContactRow icon={<Mail size={18} />} label="Email" value="guga@smartpaw.ge" />
           <ContactRow icon={<Clock size={18} />} label="Hours" value="Mon–Sat · 09:00–19:00" comingSoon />
 
           <div className="pt-4 border-t border-[#0A4D8C]/10 flex flex-wrap gap-3">
@@ -120,7 +120,7 @@ export default function ContactPage() {
           <div className="aspect-[5/4] sm:aspect-[16/10] w-full">
             <iframe
               title="SmartPaw Food, Tbilisi"
-              src="https://www.google.com/maps?q=Tbilisi%2C%20Georgia&output=embed"
+              src="https://www.google.com/maps?q=0102%20Tsereteli%20Ave%20118%2C%20Tbilisi%2C%20Georgia&output=embed"
               width="100%"
               height="100%"
               style={{ border: 0 }}

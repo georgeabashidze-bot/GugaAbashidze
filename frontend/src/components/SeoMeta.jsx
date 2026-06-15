@@ -92,7 +92,7 @@ export function organizationJsonLd() {
         '@type': 'ContactPoint',
         contactType: 'customer support',
         telephone: '+995-591-96-99-01',
-        email: 'hello@smartpaw.ge',
+        email: 'guga@smartpaw.ge',
         areaServed: 'GE',
         availableLanguage: ['en', 'ka'],
       },

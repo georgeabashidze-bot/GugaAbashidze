@@ -312,7 +312,7 @@ const en = {
     intro:
       'WhatsApp is the fastest way to reach us. For partnership, wholesale or press, drop us an email — or send the form below.',
     address: 'Address',
-    addressValue: 'Tbilisi, Georgia',
+    addressValue: '0102 Tsereteli Ave. 118, Tbilisi, Georgia',
     phone: 'Phone / WhatsApp',
     email: 'Email',
     hours: 'Hours',
@@ -486,7 +486,7 @@ const en = {
     },
     company: ['About', 'Blog', 'Careers'],
     explore: ['Catalogue', 'How it works', 'Plans'],
-    address: 'Tbilisi, Georgia',
+    address: '0102 Tsereteli Ave. 118, Tbilisi, Georgia',
     rights: 'All rights reserved.',
   },
 
@@ -515,7 +515,7 @@ const en = {
     contact: {
       title: 'Contact — talk to a real human',
       description:
-        'Get in touch with SmartPaw Food in Tbilisi. WhatsApp +995 591 96 99 01, hello@smartpaw.ge, or pick a department and send a message.',
+        'Get in touch with SmartPaw Food in Tbilisi. WhatsApp +995 591 96 99 01, guga@smartpaw.ge, or pick a department and send a message.',
     },
     faq: {
       title: 'FAQ — answers in plain language',
