@@ -142,6 +142,20 @@ smartpet.ge-style filter sidebar + sort bar + mobile drawer.
 5. **Phase 7 — Lead & Notification Automation** (Resend/SendGrid + Twilio WhatsApp).
 6. **Phase 11 — Legal pages** content review.
 
+---
+
+## Go-Live (Feb 2026) — COMPLETED
+- ✅ Global contact rollout: Phone/WhatsApp `+995591969901`, email `guga@smartpaw.ge`, address `0102 Tsereteli Ave. 118, Tbilisi, Georgia` propagated across `en.js`, `ka.js`, `Footer.jsx`, `ContactPage.jsx`, `SeoMeta.jsx`, `LegalPages.jsx`.
+- ✅ Legal pages (`/privacy`, `/terms`) reference corporate entity **Cleanpaw International LLC**, Tax Code **404 757 287**, public brand SmartPaw Food preserved in headings.
+- ✅ Bilingual translation export shipped: `GET /api/uploads/public/translation_review.xlsx` (EN ↔ KA side-by-side for client review).
+- ✅ Pre-launch E2E (iteration_11): 12/12 launch-critical checks PASS — Home, Contact, Privacy, Terms, Catalogue, Plans, Blog list + post, EN↔KA switcher persistence, contact form submission, WhatsApp deep-link `wa.me/995591969901`, translation export download.
+- ✅ Database hygiene: purged 5 TEST_/QA seed `contact_inquiries` rows post-test. Collection clean.
+
+### Known minor polish (non-blocking)
+- `ContactPage.jsx` is hard-coded English (address/labels not yet using `useLang`). All other public pages are bilingual.
+- Two i18n source files exist (`/app/frontend/src/lib/i18n.js` legacy + `/app/frontend/src/lib/i18n/{en,ka}.js`). Confirm only the split version is consumed; delete legacy to prevent drift.
+- Consolidate contact constants into a single `CONTACT_INFO` module shared by Footer/ContactPage/LegalPages.
+
 
 - Routes centralised in `/app/frontend/src/constants/routes.js`.
 - Signup modal globally controlled via `useSignup()` from `lib/SignupContext.jsx`.
