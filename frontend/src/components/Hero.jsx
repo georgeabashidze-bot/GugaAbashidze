@@ -98,7 +98,7 @@ export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
               <Sparkles size={14} className="text-[#F25C05]" />
             </div>
             <div>
-              <p className="text-xs font-bold text-[#05223D] leading-tight">Free SmartPaw Feeder for 150GEL+ packages</p>
+              <p className="text-xs font-bold text-[#05223D] leading-tight">{t.hero.feederBadge}</p>
             </div>
           </div>
         </div>

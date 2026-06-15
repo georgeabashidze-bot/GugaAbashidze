@@ -50,6 +50,7 @@ const en = {
     stat1: 'Free SmartPaw Feeder',
     stat2: 'Free Scheduled Delivery',
     stat3: 'No product shortages',
+    feederBadge: 'Get a free SmartPaw Feeder with 150 GEL+ monthly spend',
   },
 
   // ---- Home product sections ----

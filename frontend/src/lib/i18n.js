@@ -44,7 +44,8 @@ export const translations = {
     "ctaSpecials": "Special Offers",
     "stat1": "Free SmartPaw Feeder",
     "stat2": "Free Scheduled Delivery",
-    "stat3": "No product shortages"
+    "stat3": "No product shortages",
+    "feederBadge": "Get a free SmartPaw Feeder with 150 GEL+ monthly spend"
   },
   "products": {
     "regular": {
@@ -901,7 +902,8 @@ export const translations = {
     "ctaSpecials": "შეთავაზებები",
     "stat1": "უფასო SmartPaw ფიდერი",
     "stat2": "უფასო რეგულარული მიწოდება",
-    "stat3": "პროდუქცია არასოდეს იწურება"
+    "stat3": "პროდუქცია არასოდეს იწურება",
+    "feederBadge": "მიიღე უფასო სმარტ ფიდერი 150 ლარი+ ყოველთვიური დანახარჯისას"
   },
   "products": {
     "regular": {

@@ -176,6 +176,19 @@ smartpet.ge-style filter sidebar + sort bar + mobile drawer.
   - Pushed social icon row from `lg:flex` to `2xl:flex` so both languages share the same compact desktop layout (logo + nav + lang toggle + CTA) on 1280–1535px; socials reappear at 1536px+.
 - Verified visually at 1280px and 1440px in both EN and KA: full nav + CTA visible, identical layout in both languages.
 
+### Lead & Contact Email Notifications via Resend (Feb 2026) — COMPLETED
+- ✅ `/app/backend/email_service.py` implements `notify_new_lead` and `notify_new_contact` via the Resend SDK (`asyncio.to_thread`-wrapped synchronous calls, swallowed exceptions, branded inline-HTML templates with Reply on WhatsApp + Reply by email CTAs).
+- ✅ Wired into `POST /api/leads` and `POST /api/contact-inquiries` via FastAPI `BackgroundTasks` so the API responds immediately even if Resend is slow.
+- ✅ Env keys in `/app/backend/.env`: `RESEND_API_KEY`, `LEAD_SENDER_EMAIL=SmartPaw <onboarding@resend.dev>` (until `smartpaw.ge` is verified in Resend), `LEAD_NOTIFICATION_EMAIL=george.abashidze@gmail.com`, `ADMIN_WHATSAPP_NUMBER=995591969901`, `PUBLIC_BASE_URL`.
+- ✅ Verified end-to-end via curl: 4 emails delivered (admin + customer × lead + contact). Logs show Resend ids returned successfully.
+- ⚠️ Resend domain `smartpaw.ge` is **NOT yet verified** — customer emails to addresses outside the Resend account owner may bounce. Once DNS is set up, switch `LEAD_SENDER_EMAIL` to e.g. `SmartPaw <noreply@smartpaw.ge>`.
+
+### Hero Feeder Badge i18n (Feb 2026) — COMPLETED
+- ✅ Replaced hardcoded "Free SmartPaw Feeder for 150GEL+ packages" with `t.hero.feederBadge`.
+- ✅ EN: "Get a free SmartPaw Feeder with 150 GEL+ monthly spend".
+- ✅ KA: "მიიღე უფასო სმარტ ფიდერი 150 ლარი+ ყოველთვიური დანახარჯისას".
+- Updated in `/app/frontend/src/components/Hero.jsx`, `/app/frontend/src/lib/i18n.js`, and `/app/frontend/src/lib/i18n/en.js`. Verified in KA via screenshot.
+
 
 
 

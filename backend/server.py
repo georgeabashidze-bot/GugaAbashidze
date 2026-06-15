@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -22,6 +22,7 @@ from seed_plans import seed_plans_if_empty
 from auth import seed_admin
 from admin_routes import admin_router
 from products_import import import_router
+from email_service import notify_new_lead, notify_new_contact
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -122,11 +123,18 @@ async def get_status_checks():
 
 
 @api_router.post("/leads", response_model=LeadResponse, status_code=201)
-async def create_lead(payload: LeadCreate):
+async def create_lead(payload: LeadCreate, background_tasks: BackgroundTasks):
     lead = Lead(**payload.model_dump())
     doc = lead.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     await db.leads.insert_one(doc)
+    background_tasks.add_task(
+        notify_new_lead,
+        lead_id=lead.id,
+        name=lead.name,
+        email=lead.email,
+        source="Website lead form",
+    )
     return LeadResponse(
         id=lead.id,
         name=lead.name,
@@ -157,11 +165,20 @@ class ContactInquiryResponse(BaseModel):
 
 
 @api_router.post("/contact-inquiries", response_model=ContactInquiryResponse, status_code=201)
-async def create_contact_inquiry(payload: ContactInquiryCreate):
+async def create_contact_inquiry(payload: ContactInquiryCreate, background_tasks: BackgroundTasks):
     inquiry = ContactInquiry(**payload.model_dump())
     doc = inquiry.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     await db.contact_inquiries.insert_one(doc)
+    background_tasks.add_task(
+        notify_new_contact,
+        inquiry_id=inquiry.id,
+        name=inquiry.name,
+        email=inquiry.email,
+        subject=inquiry.subject,
+        message=inquiry.message,
+        department=inquiry.department or "general",
+    )
     return ContactInquiryResponse(
         id=inquiry.id,
         name=inquiry.name,
