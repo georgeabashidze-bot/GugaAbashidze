@@ -3,27 +3,56 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#000000" />
-        <meta name="description" content="A product of emergent.sh" />
+        <meta name="theme-color" content="#F25C05" />
+
+        <!-- Primary SEO -->
+        <title>SmartPaw Food — Premium Pet Food Delivery in Tbilisi</title>
+        <meta name="description" content="Vet-aligned dog and cat food, hygiene and vitamins delivered across Tbilisi on a subscription you can pause anytime. Free SmartPaw Feeder with eligible plans." />
+        <meta name="keywords" content="pet food delivery Tbilisi, dog food Georgia, cat food Georgia, SmartPaw, smartpawfood, pet subscription Tbilisi" />
+        <link rel="canonical" href="https://smartpawfood.ge/" />
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg" />
+        <link rel="apple-touch-icon" href="%PUBLIC_URL%/favicon.svg" />
+
+        <!-- Open Graph -->
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="SmartPaw Food" />
+        <meta property="og:title" content="SmartPaw Food — Premium Pet Food Delivery in Tbilisi" />
+        <meta property="og:description" content="Vet-aligned dog and cat food, hygiene and vitamins delivered across Tbilisi. Free SmartPaw Feeder with eligible plans." />
+        <meta property="og:url" content="https://smartpawfood.ge/" />
+        <meta property="og:image" content="https://smartpawfood.ge/favicon.svg" />
+        <meta property="og:locale" content="en_GE" />
+        <meta property="og:locale:alternate" content="ka_GE" />
+
+        <!-- Twitter / X -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="SmartPaw Food — Premium Pet Food Delivery in Tbilisi" />
+        <meta name="twitter:description" content="Vet-aligned dog and cat food, hygiene and vitamins delivered across Tbilisi. Free SmartPaw Feeder with eligible plans." />
+        <meta name="twitter:image" content="https://smartpawfood.ge/favicon.svg" />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
-        <!--
-        manifest.json provides metadata used when your web app is installed on a
-        user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-        -->
-        <!--
-        Notice the use of %PUBLIC_URL% in the tags above.
-        It will be replaced with the URL of the `public` folder during the build.
-        Only files inside the `public` folder can be referenced from the HTML.
 
-        Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-        work correctly both with client-side routing and a non-root public URL.
-        Learn how to configure a non-root public URL by running `npm run build`.
-        -->
-        <title>Emergent | Fullstack App</title>
         <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
         <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
+
+        <!-- Google Analytics 4 (loads only when REACT_APP_GA4_ID is set at build time) -->
+        <script>
+          (function () {
+            var GA_ID = "%REACT_APP_GA4_ID%";
+            if (!GA_ID || GA_ID.indexOf("REACT_APP_GA4_ID") !== -1) return;
+            var s = document.createElement("script");
+            s.async = true;
+            s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+            document.head.appendChild(s);
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () { window.dataLayer.push(arguments); };
+            window.gtag("js", new Date());
+            window.gtag("config", GA_ID, { anonymize_ip: true });
+          })();
+        </script>
     </head>
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>

@@ -2,6 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { Plus, Minus, Search, MessageCircle } from 'lucide-react';
 import PageShell from '@/components/PageShell';
 import SeoMeta, { breadcrumbJsonLd } from '@/components/SeoMeta';
+import { WHATSAPP_URL as buildWhatsAppUrl } from '@/lib/siteConfig';
+
+const WHATSAPP_HREF = buildWhatsAppUrl();
 
 const CATEGORIES = [
   { key: 'all', label: 'All' },
@@ -136,7 +139,7 @@ export default function FAQPage() {
               Try a different keyword, switch the category, or just WhatsApp us.
             </p>
             <a
-              href="https://wa.me/995591969901"
+              href={WHATSAPP_HREF}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary mt-5 inline-flex"
@@ -189,7 +192,7 @@ export default function FAQPage() {
           Showing <span className="font-bold text-[#05223D]">{filtered.length}</span> of {FAQS.length} questions.
         </p>
         <a
-          href="https://wa.me/995591969901"
+          href={WHATSAPP_HREF}
           target="_blank"
           rel="noopener noreferrer"
           className="btn-secondary mt-4 inline-flex"

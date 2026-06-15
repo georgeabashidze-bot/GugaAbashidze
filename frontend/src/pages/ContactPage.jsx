@@ -5,11 +5,12 @@ import SeoMeta, { breadcrumbJsonLd } from '@/components/SeoMeta';
 import { api } from '@/lib/api';
 import { useSignup } from '@/lib/SignupContext';
 import { useLang } from '@/lib/LangContext';
+import { WHATSAPP_URL as buildWhatsAppUrl } from '@/lib/siteConfig';
 
 // Static contact facts (not translatable)
 const PHONE_VALUE = '+995 591 96 99 01';
 const EMAIL_VALUE = 'guga@smartpaw.ge';
-const WHATSAPP_URL = 'https://wa.me/995591969901';
+const WHATSAPP_URL = buildWhatsAppUrl();
 
 const DEPARTMENT_META = [
   { key: 'general', icon: HeartHandshake, email: EMAIL_VALUE },

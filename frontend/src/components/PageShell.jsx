@@ -4,6 +4,7 @@ import { ArrowRight, MessageCircle } from 'lucide-react';
 import Breadcrumbs from './Breadcrumbs';
 import { useSignup } from '@/lib/SignupContext';
 import { useLang } from '@/lib/LangContext';
+import { WHATSAPP_URL } from '@/lib/siteConfig';
 
 // Reusable hero strip + content shell for inner pages.
 // Provides: breadcrumbs, eyebrow, title, intro, optional image, child content block, CTA strip.
@@ -105,7 +106,7 @@ export default function PageShell({
                 <ArrowRight size={18} />
               </button>
               <a
-                href="https://wa.me/995591969901"
+                href={WHATSAPP_URL()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-secondary !border-white !text-white hover:!bg-white hover:!text-[#0A4D8C]"

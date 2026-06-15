@@ -6,6 +6,7 @@ load_dotenv(ROOT_DIR / '.env')
 
 from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import Response, PlainTextResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
@@ -488,6 +489,119 @@ async def get_blog_post(slug: str):
 app.include_router(api_router)
 app.include_router(admin_router)
 app.include_router(import_router)
+
+
+# ------------- SEO endpoints -------------
+SITE_URL = os.environ.get("SITE_URL", "https://smartpawfood.ge").rstrip("/")
+
+STATIC_SITEMAP_PATHS: List[tuple[str, str]] = [
+    ("/", "1.0"),
+    ("/plans", "0.9"),
+    ("/products", "0.9"),
+    ("/how-it-works", "0.7"),
+    ("/about", "0.6"),
+    ("/contact", "0.6"),
+    ("/faq", "0.5"),
+    ("/blog", "0.6"),
+    ("/privacy", "0.3"),
+    ("/terms", "0.3"),
+    ("/delivery", "0.3"),
+    ("/refund", "0.3"),
+]
+
+
+def _xml_escape(value: str) -> str:
+    return (
+        value.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&apos;")
+    )
+
+
+@app.get("/api/sitemap.xml", include_in_schema=False)
+async def sitemap_xml() -> Response:
+    """Dynamic sitemap.xml combining static routes, published products and blog posts."""
+    today = datetime.now(timezone.utc).date().isoformat()
+    urls: List[str] = []
+
+    for path, priority in STATIC_SITEMAP_PATHS:
+        urls.append(
+            f"  <url>\n"
+            f"    <loc>{SITE_URL}{path}</loc>\n"
+            f"    <lastmod>{today}</lastmod>\n"
+            f"    <changefreq>weekly</changefreq>\n"
+            f"    <priority>{priority}</priority>\n"
+            f"  </url>"
+        )
+
+    try:
+        product_cursor = db["products"].find(
+            {"status": "published"},
+            {"slug": 1, "updated_at": 1, "_id": 0},
+        )
+        async for doc in product_cursor:
+            slug = doc.get("slug")
+            if not slug:
+                continue
+            lastmod = doc.get("updated_at") or today
+            if isinstance(lastmod, datetime):
+                lastmod = lastmod.date().isoformat()
+            urls.append(
+                f"  <url>\n"
+                f"    <loc>{SITE_URL}/products/{_xml_escape(str(slug))}</loc>\n"
+                f"    <lastmod>{lastmod}</lastmod>\n"
+                f"    <changefreq>weekly</changefreq>\n"
+                f"    <priority>0.7</priority>\n"
+                f"  </url>"
+            )
+    except Exception as e:  # noqa: BLE001
+        logger.warning("sitemap: failed to load products: %s", e)
+
+    try:
+        blog_cursor = db["blog_posts"].find(
+            {"status": "published"},
+            {"slug": 1, "updated_at": 1, "published_at": 1, "_id": 0},
+        )
+        async for doc in blog_cursor:
+            slug = doc.get("slug")
+            if not slug:
+                continue
+            lastmod = doc.get("updated_at") or doc.get("published_at") or today
+            if isinstance(lastmod, datetime):
+                lastmod = lastmod.date().isoformat()
+            urls.append(
+                f"  <url>\n"
+                f"    <loc>{SITE_URL}/blog/{_xml_escape(str(slug))}</loc>\n"
+                f"    <lastmod>{lastmod}</lastmod>\n"
+                f"    <changefreq>monthly</changefreq>\n"
+                f"    <priority>0.6</priority>\n"
+                f"  </url>"
+            )
+    except Exception as e:  # noqa: BLE001
+        logger.warning("sitemap: failed to load blog posts: %s", e)
+
+    body = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(urls)
+        + "\n</urlset>\n"
+    )
+    return Response(content=body, media_type="application/xml")
+
+
+@app.get("/api/robots.txt", include_in_schema=False)
+async def robots_txt() -> PlainTextResponse:
+    body = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /admin\n"
+        "Disallow: /admin/\n\n"
+        f"Sitemap: {SITE_URL}/api/sitemap.xml\n"
+    )
+    return PlainTextResponse(content=body)
+
 
 # Serve uploaded images (admin uploads land here, ingress routes /api/* to backend)
 _upload_dir = Path(os.environ.get('UPLOAD_DIR', '/app/backend/uploads'))

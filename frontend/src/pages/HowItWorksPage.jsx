@@ -5,6 +5,9 @@ import HowItWorks from '@/components/HowItWorks';
 import WhySmartPaw from '@/components/WhySmartPaw';
 import SeoMeta, { breadcrumbJsonLd } from '@/components/SeoMeta';
 import { useSignup } from '@/lib/SignupContext';
+import { WHATSAPP_URL as buildWhatsAppUrl } from '@/lib/siteConfig';
+
+const WHATSAPP_HREF = buildWhatsAppUrl();
 
 const TIMELINE = [
   {
@@ -156,7 +159,7 @@ export default function HowItWorksPage() {
               <ArrowRight size={18} />
             </button>
             <a
-              href="https://wa.me/995591969901"
+              href={WHATSAPP_HREF}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary"

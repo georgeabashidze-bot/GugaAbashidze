@@ -1,16 +1,16 @@
 import React from 'react';
 import { TID } from '@/constants/testIds';
+import { WHATSAPP_URL } from '@/lib/siteConfig';
 
-const WHATSAPP_NUMBER = '995591969901';
-const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+const HREF = WHATSAPP_URL(
   "Hi SmartPaw — I'd like to learn more about your pet delivery plans."
-)}`;
+);
 
 export default function WhatsAppFab() {
   return (
     <a
       data-testid={TID.whatsappFab}
-      href={WHATSAPP_URL}
+      href={HREF}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with SmartPaw on WhatsApp"

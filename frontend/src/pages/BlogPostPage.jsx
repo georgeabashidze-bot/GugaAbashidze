@@ -9,6 +9,9 @@ import SeoMeta, { articleJsonLd, breadcrumbJsonLd } from '@/components/SeoMeta';
 import { useSignup } from '@/lib/SignupContext';
 import { useLang } from '@/lib/LangContext';
 import { api } from '@/lib/api';
+import { WHATSAPP_URL as buildWhatsAppUrl } from '@/lib/siteConfig';
+
+const WHATSAPP_HREF = buildWhatsAppUrl();
 
 const COPY = {
   loadError: { en: 'Couldn’t load this article.', ka: 'სტატიის ჩატვირთვა ვერ მოხერხდა.' },
@@ -305,7 +308,7 @@ export default function BlogPostPage() {
                     <ArrowRight size={18} />
                   </button>
                   <a
-                    href="https://wa.me/995591969901"
+                    href={WHATSAPP_HREF}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-secondary !border-white !text-white hover:!bg-white hover:!text-[#0A4D8C]"
