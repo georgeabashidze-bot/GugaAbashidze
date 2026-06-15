@@ -415,6 +415,31 @@ async def run_import(
     if limit:
         raw_rows = raw_rows[:limit]
 
+    # Fast dry-run: skip LLM enrichment entirely. The operator only needs to
+    # see how many rows were parsed and how they split by brand / pet-type,
+    # without spending several minutes (and LLM budget) on Claude calls. The
+    # storefront /admin/products page already shows enriched bilingual fields
+    # for previously-imported drafts.
+    if dry_run:
+        by_brand_pre: Dict[str, int] = {}
+        by_pet_pre: Dict[str, int] = {}
+        for r in raw_rows:
+            by_brand_pre[r["brand"]] = by_brand_pre.get(r["brand"], 0) + 1
+            by_pet_pre[r["pet_type"]] = by_pet_pre.get(r["pet_type"], 0) + 1
+        return {
+            "total_parsed": len(raw_rows),
+            "inserted": 0,
+            "updated": 0,
+            "skipped": 0,
+            "by_brand": by_brand_pre,
+            "by_pet_type": by_pet_pre,
+            "llm_failures": [],
+            "llm_failure_count": 0,
+            "dry_run": True,
+            "status_used": "draft",
+            "currency": "GEL",
+        }
+
     enriched = await enrich_batch(api_key, raw_rows, concurrency=concurrency)
     docs = [build_document(r, e) for r, e in zip(raw_rows, enriched)]
     result = await upsert_products(db, docs, dry_run=dry_run)
