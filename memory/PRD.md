@@ -189,6 +189,15 @@ smartpet.ge-style filter sidebar + sort bar + mobile drawer.
 - ✅ KA: "მიიღე უფასო სმარტ ფიდერი 150 ლარი+ ყოველთვიური დანახარჯისას".
 - Updated in `/app/frontend/src/components/Hero.jsx`, `/app/frontend/src/lib/i18n.js`, and `/app/frontend/src/lib/i18n/en.js`. Verified in KA via screenshot.
 
+### Phase 7 — WhatsApp Click-to-Chat Deep Links (Feb 2026) — COMPLETED
+- ✅ Chose **deep-link** approach (no Twilio/Cloud API costs). Triggers email already; admin replies on WhatsApp in 1 tap.
+- ✅ **Admin email** "Reply on WhatsApp" button now uses the **lead's** phone (not the admin's), with prefilled greeting. Falls back to `ADMIN_WHATSAPP_NUMBER` if phone missing.
+  - `_admin_lead_html` accepts new `phone` param; `notify_new_lead` accepts and forwards `phone=lead.phone` from `server.py`.
+- ✅ **Admin Leads UI** (`/admin/leads`): added compact green `WA` button next to every phone number → opens `https://wa.me/<digits>?text=Hi <name>, this is SmartPaw…`.
+  - Extended `SimpleList` columns to accept an optional `render(row)` callback.
+- ⚠️ Contact inquiries have no phone field — admin still uses the email + admin's own WA fallback for those alerts.
+- Scope deferred: Future orders flow (not yet built); will inherit the same `wa.me` helper.
+
 
 
 

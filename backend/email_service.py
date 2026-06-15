@@ -64,15 +64,20 @@ def _send(params: dict) -> Optional[str]:
 # HTML templates
 # ---------------------------------------------------------------------------
 
-def _wa_link(cfg: dict, prefilled: str = "") -> str:
-    num = cfg["admin_whatsapp"].lstrip("+")
-    if not num:
+def _wa_link_for_phone(phone: str, prefilled: str = "") -> str:
+    """Build a wa.me deep link for any phone number."""
+    digits = "".join(ch for ch in (phone or "") if ch.isdigit())
+    if not digits:
         return ""
     text = ""
     if prefilled:
         from urllib.parse import quote
         text = f"?text={quote(prefilled)}"
-    return f"https://wa.me/{num}{text}"
+    return f"https://wa.me/{digits}{text}"
+
+
+def _wa_link(cfg: dict, prefilled: str = "") -> str:
+    return _wa_link_for_phone(cfg["admin_whatsapp"], prefilled)
 
 
 def _shell(title: str, body_html: str, cta_html: str = "") -> str:
@@ -103,9 +108,12 @@ def _shell(title: str, body_html: str, cta_html: str = "") -> str:
 """
 
 
-def _admin_lead_html(name: str, email: str, source: str, lead_id: str) -> str:
+def _admin_lead_html(name: str, email: str, source: str, lead_id: str,
+                     phone: str = "") -> str:
     cfg = _config()
-    wa = _wa_link(cfg, f"Hi {name}, thanks for joining the SmartPaw waitlist!")
+    # Prefer deep-linking to the LEAD's WhatsApp so the admin can reply in one tap.
+    wa = _wa_link_for_phone(phone, f"Hi {name}, thanks for joining the SmartPaw waitlist!") \
+         or _wa_link(cfg, f"Hi {name}, thanks for joining the SmartPaw waitlist!")
     wa_btn = (
         f'<a href="{wa}" style="display:inline-block;background:#25D366;color:#ffffff;'
         f'text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:700;'
@@ -115,6 +123,12 @@ def _admin_lead_html(name: str, email: str, source: str, lead_id: str) -> str:
         f'<a href="mailto:{email}" style="display:inline-block;background:{BRAND_ORANGE};'
         f'color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:999px;'
         f'font-weight:700;font-size:14px;">Reply by email</a>'
+    )
+    phone_row = (
+        f'<tr><td style="padding:6px 0;font-size:13px;color:#7A8A99;">Phone</td>'
+        f'<td style="padding:6px 0;font-size:14px;color:{BRAND_NAVY};font-weight:600;">'
+        f'<a href="tel:{phone}" style="color:{BRAND_NAVY};">{phone}</a></td></tr>'
+        if phone else ""
     )
     body = f"""\
     <p style="margin:0 0 12px 0;font-size:15px;line-height:1.55;">
@@ -126,6 +140,7 @@ def _admin_lead_html(name: str, email: str, source: str, lead_id: str) -> str:
           <td style="padding:6px 0;font-size:14px;color:{BRAND_DARK};font-weight:600;">{name}</td></tr>
       <tr><td style="padding:6px 0;font-size:13px;color:#7A8A99;">Email</td>
           <td style="padding:6px 0;font-size:14px;color:{BRAND_NAVY};font-weight:600;"><a href="mailto:{email}" style="color:{BRAND_NAVY};">{email}</a></td></tr>
+      {phone_row}
       <tr><td style="padding:6px 0;font-size:13px;color:#7A8A99;">Lead ID</td>
           <td style="padding:6px 0;font-size:12px;color:#7A8A99;font-family:monospace;">{lead_id}</td></tr>
     </table>
@@ -231,7 +246,8 @@ def _customer_contact_html(name: str, subject: str) -> str:
 # ---------------------------------------------------------------------------
 
 async def notify_new_lead(*, lead_id: str, name: str, email: str,
-                          source: str = "Website footer") -> None:
+                          source: str = "Website footer",
+                          phone: str = "") -> None:
     """Send admin alert + customer confirmation for a new newsletter lead."""
     cfg = _config()
     if not cfg["api_key"]:
@@ -243,7 +259,7 @@ async def notify_new_lead(*, lead_id: str, name: str, email: str,
             "from": cfg["from_email"],
             "to": [cfg["admin_email"]],
             "subject": f"[SmartPaw] New lead: {safe_name}",
-            "html": _admin_lead_html(safe_name, email, source, lead_id),
+            "html": _admin_lead_html(safe_name, email, source, lead_id, phone),
             "reply_to": email,
         })
 

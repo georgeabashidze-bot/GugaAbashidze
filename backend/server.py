@@ -133,6 +133,7 @@ async def create_lead(payload: LeadCreate, background_tasks: BackgroundTasks):
         lead_id=lead.id,
         name=lead.name,
         email=lead.email,
+        phone=lead.phone,
         source="Website lead form",
     )
     return LeadResponse(

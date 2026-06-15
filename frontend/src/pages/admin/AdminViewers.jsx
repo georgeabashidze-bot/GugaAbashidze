@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Loader2, Download } from 'lucide-react';
+import { Loader2, Download, MessageCircle } from 'lucide-react';
 import { adminApi } from '@/lib/adminApi';
 
 function toCsv(rows, columns) {
@@ -24,6 +24,45 @@ function downloadCsv(filename, csv) {
   URL.revokeObjectURL(url);
 }
 
+function waLink(phone, prefill = '') {
+  const digits = String(phone || '').replace(/\D+/g, '');
+  if (!digits) return '';
+  const q = prefill ? `?text=${encodeURIComponent(prefill)}` : '';
+  return `https://wa.me/${digits}${q}`;
+}
+
+function PhoneCell({ row }) {
+  const phone = row?.phone;
+  if (!phone) return <span className="text-[#7A8A99]">—</span>;
+  const url = waLink(
+    phone,
+    `Hi ${row?.name || 'there'}, this is SmartPaw — thanks for signing up! How can we help?`,
+  );
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      <a
+        href={`tel:${phone}`}
+        className="text-[#0A4D8C] font-semibold hover:underline"
+        data-testid="lead-phone-tel"
+      >
+        {phone}
+      </a>
+      {url && (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid="lead-whatsapp-link"
+          title="Reply on WhatsApp"
+          className="inline-flex items-center gap-1 rounded-full bg-[#25D366] hover:bg-[#1ebe57] text-white text-[11px] font-bold px-2.5 py-1 transition"
+        >
+          <MessageCircle size={12} /> WA
+        </a>
+      )}
+    </div>
+  );
+}
+
 export function AdminLeads() {
   return (
     <SimpleList
@@ -34,7 +73,7 @@ export function AdminLeads() {
       columns={[
         { key: 'name', label: 'Name' },
         { key: 'email', label: 'Email' },
-        { key: 'phone', label: 'Phone' },
+        { key: 'phone', label: 'Phone', render: (row) => <PhoneCell row={row} /> },
         { key: 'pet_type', label: 'Pet' },
         { key: 'pet_name', label: 'Pet name' },
         { key: 'pet_breed', label: 'Breed' },
@@ -156,7 +195,9 @@ function SimpleList({ title, eyebrow, fetcher, columns, csvName, testId }) {
                     {columns.map((c) => (
                       <td key={c.key} className="px-4 py-3 align-top max-w-xs">
                         <div className="text-[#05223D] line-clamp-3 break-words">
-                          {c.key === 'created_at' && row[c.key]
+                          {c.render
+                            ? c.render(row)
+                            : c.key === 'created_at' && row[c.key]
                             ? new Date(row[c.key]).toLocaleString()
                             : row[c.key] || '—'}
                         </div>
