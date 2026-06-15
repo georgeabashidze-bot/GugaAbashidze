@@ -1,0 +1,58 @@
+{
+  "summary": "Iter15 pre-launch smoke complete. Backend: 18/18 pytest pass (SEO assets, products/plans/blog/leads APIs, admin login + 401 + auth-required + product PUT round-trip + status filter). Frontend: Home loads cleanly in EN+KA, KA toggle persists across reload (sp-lang=ka), WhatsApp FAB href = wa.me/995591969901, signup modal opens via header CTA, catalogue/food shows 216 products with filters, FAQ/Plans/Blog routes render, admin login → /admin/products dashboard loads with tab-drafts + tab-published + 100+ product rows. Two route/data inconsistencies found around the new Legal Pages — see backend_issues + frontend_issues.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "/api/sitemap.xml",
+        "issue": "STATIC_SITEMAP_PATHS in server.py advertises /delivery and /refund, but the SPA routes are /delivery-policy and /refund-policy (App.js L60-61). Crawlers hitting the sitemap URLs receive the React SPA 404 fallback — bad for SEO. Fix: update server.py STATIC_SITEMAP_PATHS to /delivery-policy and /refund-policy (or add redirect routes)."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "LegalPages.jsx — DeliveryPage / RefundPage",
+        "issue": "data-testid='delivery-intro' and 'refund-intro' never render in DOM. Root cause: /app/frontend/src/data/legalContent.js DELIVERY (L377) and REFUND (L451) objects have no `lead` field, and LegalPages.jsx L62-64 wraps the <p data-testid={leadTestId}> inside `{doc.lead && (...)}`. PRIVACY (L20) and TERMS (L213) DO have a `lead` field — privacy-intro and terms-intro render correctly in both EN and KA. Fix: either add a `lead` field to DELIVERY/REFUND in legalContent.js, or change LegalPages.jsx L62 to always render the <p> using intro/lead as fallback so the testid is always present.",
+        "selector": "[data-testid=\"delivery-intro\"], [data-testid=\"refund-intro\"]",
+        "priority": "HIGH"
+      },
+      {
+        "component": "Legal page routes",
+        "issue": "Review request expects /delivery and /refund routes, but App.js routes are /delivery-policy and /refund-policy. Both /delivery and /refund currently render the SPA 404 page (visible '404 — This page doesn't exist'). Footer correctly links to /delivery-policy and /refund-policy, so the public site is internally consistent, but external links (sitemap, marketing collateral) using the spec'd URLs will 404. Decision needed: rename routes to /delivery and /refund, or accept the longer slugs.",
+        "selector": "n/a (routing)",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter15_smoke.py",
+    "/app/test_reports/pytest/iter15.xml"
+  ],
+  "action_items": [
+    "(HIGH) Add `lead` field (EN + KA) to DELIVERY and REFUND in /app/frontend/src/data/legalContent.js OR refactor LegalDocument in /app/frontend/src/pages/LegalPages.jsx L62-64 to always render <p data-testid={leadTestId}> (falling back to intro if doc.lead is missing). Acceptance: page.query_selector('[data-testid=\"delivery-intro\"]') and refund-intro return non-null on the live site in both EN and KA.",
+    "(MEDIUM) Reconcile /delivery vs /delivery-policy and /refund vs /refund-policy. Either (a) rename SPA routes in App.js L60-61 to /delivery and /refund and update footer + sitemap accordingly, or (b) update server.py STATIC_SITEMAP_PATHS to use /delivery-policy and /refund-policy. Current state: backend sitemap.xml advertises URLs that 404 in the SPA.",
+    "(LOW / informational) Signup modal opens correctly from the header CTA. Empty-submit validation didn't surface visible .error elements; browser native validation may be in play. Not blocking deploy but worth a manual eyeball before launch."
+  ],
+  "critical_code_review_comments": [
+    "LegalDocument component (LegalPages.jsx L51-100) renders the lead paragraph conditionally on doc.lead, but the data-testid contract requires it to always be present. Make the testid contract independent of content presence — either always render the <p> (empty if no lead) or hoist the testid onto a permanent wrapper.",
+    "server.py STATIC_SITEMAP_PATHS and frontend App.js routes drifted apart. Consider centralising the canonical public-route list (or generating sitemap entries from the React route table at build time) to prevent SEO/route drift in future.",
+    "admin_routes.py is now ~1123 lines — same comment as iter14: split per-resource before A8.",
+    "Backend tests use ADMIN_PASSWORD='Pdatisandro13' which matches /app/memory/test_credentials.md and the live seed. iter14 reported 'ChangeMe123!' which is stale — test_credentials.md is the source of truth."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter15_smoke.py (new)"
+  ],
+  "success_rate": {
+    "backend": "100% (18/18)",
+    "frontend": "~85% (2 legal-page issues — delivery-intro/refund-intro testids missing, /delivery & /refund routes 404)"
+  },
+  "test_credentials": "admin@smartpawfood.com / Pdatisandro13 — verified via API (200, role=admin) and UI (login → /admin → /admin/products dashboard with tab-drafts + tab-published + 101 row checkboxes).",
+  "seed_data_creation": "Created 1 TEST_iter15 lead via POST /api/leads (cleanup not strictly required — only ~1 row, prefixed). Round-tripped a single product PUT: appended ' (TEST_iter15)' to its name, asserted the change persisted, then PUT it back to the original name. Net DB delta: 1 new lead row, 0 net product changes.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend is rock-solid for launch. The two outstanding issues are scoped to the new bilingual Legal Pages batch: (1) delivery-intro / refund-intro testids never render because the data file is missing the lead key, and (2) the route names /delivery and /refund advertised in the sitemap and the review spec don't match the actual SPA routes /delivery-policy and /refund-policy. Both are 5-minute fixes for E1. After the fix, re-run only the legal-pages portion of the playwright check (the rest of the smoke suite is green).",
+  "rca of the issue": "delivery-intro/refund-intro RCA: In /app/frontend/src/data/legalContent.js, the PRIVACY (L20) and TERMS (L213) objects expose a `lead` key with EN+KA strings. DELIVERY (L377) and REFUND (L451) do NOT define `lead`. In /app/frontend/src/pages/LegalPages.jsx L62, `{doc.lead && (<p data-testid={leadTestId}>...</p>)}` short-circuits to null when doc.lead is undefined, so the testid never reaches the DOM. Repro: open /delivery-policy, run document.querySelector('[data-testid=\"delivery-intro\"]') in DevTools → null. Mitigation: add `lead: { en: '...', ka: '...' }` to DELIVERY and REFUND, or change L62 to `<p data-testid={leadTestId}>{doc.lead ? renderInline(pickLocale(doc.lead, lang)) : null}</p>` (always render the wrapper). /delivery & /refund 404 RCA: App.js routes the bilingual legal pages at /privacy, /terms, /delivery-policy, /refund-policy. server.py STATIC_SITEMAP_PATHS lists /delivery and /refund (without -policy). The SPA's catch-all renders the 404 page for those URLs."
+}
