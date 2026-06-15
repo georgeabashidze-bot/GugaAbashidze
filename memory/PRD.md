@@ -162,6 +162,15 @@ smartpet.ge-style filter sidebar + sort bar + mobile drawer.
 - Generator script: `/app/backend/scripts/build_monge_catalogue.py`.
 - Awaiting client to fill in missing fields (images, EAN, exact descriptions) before mass import via Admin.
 
+### Translation Refresh (Feb 2026) — COMPLETED
+- ✅ Applied 498 revised Georgian translations from `translation_review_revised.xlsx` via `/app/backend/scripts/apply_translations.py`. Regenerated `/app/frontend/src/lib/i18n.js` (1725 lines).
+- ✅ Fixed `ContactPage.jsx` regression: previously matched i18n departments by `key` field which gets translated to Georgian (e.g., "ზოგადი" not "general") — now matches by index (preserves backward compatibility via `.find()` fallback). Verified: EN + KA both render department chips with title/body correctly.
+- ✅ E2E sanity sweep across 8 KA routes (/, /catalogue, /special-offers, /plans, /how-it-works, /blog, /faq, /about, /contact) — zero console errors / pageerrors.
+- Known minor: hero stat badge "Free SmartPaw Feeder for 150GEL+ packages" still hardcoded English (P2).
+- Long-term refactor (P2): `apply_translations.py` should merge Excel leaf strings onto a hand-maintained schema skeleton instead of regenerating from scratch, plus add a contract test enumerating every i18n path each page consumes.
+
+
+
 
 - Routes centralised in `/app/frontend/src/constants/routes.js`.
 - Signup modal globally controlled via `useSignup()` from `lib/SignupContext.jsx`.

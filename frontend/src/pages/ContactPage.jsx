@@ -6,17 +6,24 @@ import { api } from '@/lib/api';
 import { useSignup } from '@/lib/SignupContext';
 import { useLang } from '@/lib/LangContext';
 
-const DEPARTMENT_KEYS = [
-  { key: 'general', icon: HeartHandshake, email: 'guga@smartpaw.ge' },
-  { key: 'partnerships', icon: Building2, email: 'guga@smartpaw.ge' },
-  { key: 'press', icon: Newspaper, email: 'guga@smartpaw.ge' },
-  { key: 'careers', icon: Briefcase, email: 'guga@smartpaw.ge' },
+// Static contact facts (not translatable)
+const PHONE_VALUE = '+995 591 96 99 01';
+const EMAIL_VALUE = 'guga@smartpaw.ge';
+const WHATSAPP_URL = 'https://wa.me/995591969901';
+
+const DEPARTMENT_META = [
+  { key: 'general', icon: HeartHandshake, email: EMAIL_VALUE },
+  { key: 'partnerships', icon: Building2, email: EMAIL_VALUE },
+  { key: 'press', icon: Newspaper, email: EMAIL_VALUE },
+  { key: 'careers', icon: Briefcase, email: EMAIL_VALUE },
 ];
 
 export default function ContactPage() {
   const { openSignup } = useSignup();
   const { t } = useLang();
-  const c = t.contact;
+  const c = t.contact || {};
+  const cf = c.form || {};
+  const departments = Array.isArray(c.departments) ? c.departments : [];
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -35,7 +42,7 @@ export default function ContactPage() {
     setError('');
     setSuccess(false);
     if (!form.name || !form.email || !form.subject || !form.message) {
-      setError(c.form.missing);
+      setError(cf.errorRequired || 'Please fill in every field before sending.');
       return;
     }
     setSubmitting(true);
@@ -44,20 +51,24 @@ export default function ContactPage() {
       setSuccess(true);
       setForm({ name: '', email: '', subject: '', message: '', department: 'general' });
     } catch (err) {
-      setError(err.message || c.form.error);
+      setError(err.message || cf.errorGeneric || 'Could not send your message — please try WhatsApp.');
     } finally {
       setSubmitting(false);
     }
   };
 
+  const whatsappLabel = t?.common?.talkToUs || 'Chat on WhatsApp';
+  const startPlanLabel = t?.common?.startPlan || 'Start your plan';
+  const sendingLabel = cf.sending || `${cf.submit || 'Send message'}…`;
+
   return (
     <>
       <SeoMeta
-        title={c.seoTitle}
-        description={c.seoDescription}
+        title={`${c.eyebrow || 'Contact'} · SmartPaw Food`}
+        description={c.intro || ''}
         jsonLd={breadcrumbJsonLd([
           { name: 'Home', path: '/' },
-          { name: c.eyebrow, path: '/contact' },
+          { name: c.eyebrow || 'Contact', path: '/contact' },
         ])}
       />
     <PageShell
@@ -68,28 +79,28 @@ export default function ContactPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-7" data-testid="contact-top-grid">
         {/* Contact details */}
         <div className="lg:col-span-5 card-soft p-7 md:p-9 space-y-6" data-testid="contact-details-card">
-          <ContactRow icon={<MapPin size={18} />} label={c.labels.address} value={c.values.address} />
-          <ContactRow icon={<Phone size={18} />} label={c.labels.phone} value={c.values.phone} />
-          <ContactRow icon={<Mail size={18} />} label={c.labels.email} value={c.values.email} />
-          <ContactRow icon={<Clock size={18} />} label={c.labels.hours} value={c.values.hours} comingSoon comingSoonText={c.toConfirm} />
+          <ContactRow icon={<MapPin size={18} />} label={c.address} value={c.addressValue} />
+          <ContactRow icon={<Phone size={18} />} label={c.phone} value={PHONE_VALUE} />
+          <ContactRow icon={<Mail size={18} />} label={c.email} value={EMAIL_VALUE} />
+          <ContactRow icon={<Clock size={18} />} label={c.hours} value={c.hoursValue} comingSoon comingSoonText={c.hoursToConfirm} />
 
           <div className="pt-4 border-t border-[#0A4D8C]/10 flex flex-wrap gap-3">
             <a
-              href="https://wa.me/995591969901"
+              href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary"
               data-testid="contact-whatsapp-button"
             >
               <MessageCircle size={16} />
-              {c.buttons.whatsapp}
+              {whatsappLabel}
             </a>
             <button
               onClick={openSignup}
               className="btn-secondary"
               data-testid="contact-start-plan-button"
             >
-              {c.buttons.startPlan}
+              {startPlanLabel}
             </button>
           </div>
         </div>
@@ -98,7 +109,7 @@ export default function ContactPage() {
         <div className="lg:col-span-7 card-soft p-0 overflow-hidden" data-testid="contact-map-card">
           <div className="aspect-[5/4] sm:aspect-[16/10] w-full">
             <iframe
-              title={c.mapTitle}
+              title={c.addressValue || 'SmartPaw Food location'}
               src="https://www.google.com/maps?q=0102%20Tsereteli%20Ave%20118%2C%20Tbilisi%2C%20Georgia&output=embed"
               width="100%"
               height="100%"
@@ -115,18 +126,18 @@ export default function ContactPage() {
       {/* Inquiry form */}
       <section className="mt-14 md:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-7" data-testid="contact-inquiry-section">
         <div className="lg:col-span-5">
-          <p className="text-xs tracking-[0.22em] uppercase font-bold text-[#F25C05]">{c.form.eyebrow}</p>
+          <p className="text-xs tracking-[0.22em] uppercase font-bold text-[#F25C05]">{c.sendEyebrow}</p>
           <h2 className="font-display font-bold text-[#05223D] text-4xl sm:text-5xl tracking-[-0.02em] leading-[1.02] mt-3">
-            {c.form.title}
+            {c.sendTitle}
           </h2>
           <p className="text-[#465B70] text-lg leading-relaxed mt-5">
-            {c.form.body}
+            {c.sendBody}
           </p>
           <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {DEPARTMENT_KEYS.map((d) => {
+            {DEPARTMENT_META.map((d, idx) => {
               const Icon = d.icon;
               const active = form.department === d.key;
-              const dept = c.departments[d.key];
+              const dept = departments[idx] || departments.find((dx) => dx && dx.key === d.key) || {};
               return (
                 <button
                   key={d.key}
@@ -154,7 +165,7 @@ export default function ContactPage() {
           data-testid="contact-inquiry-form"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field label={c.form.name} id="contact-name">
+            <Field label={cf.name} id="contact-name">
               <input
                 id="contact-name"
                 type="text"
@@ -163,10 +174,10 @@ export default function ContactPage() {
                 required
                 data-testid="contact-name-input"
                 className="form-input"
-                placeholder={c.form.namePlaceholder}
+                placeholder={cf.namePh}
               />
             </Field>
-            <Field label={c.form.email} id="contact-email">
+            <Field label={cf.email} id="contact-email">
               <input
                 id="contact-email"
                 type="email"
@@ -175,11 +186,11 @@ export default function ContactPage() {
                 required
                 data-testid="contact-email-input"
                 className="form-input"
-                placeholder={c.form.emailPlaceholder}
+                placeholder={cf.emailPh}
               />
             </Field>
           </div>
-          <Field label={c.form.subject} id="contact-subject">
+          <Field label={cf.subject} id="contact-subject">
             <input
               id="contact-subject"
               type="text"
@@ -188,10 +199,10 @@ export default function ContactPage() {
               required
               data-testid="contact-subject-input"
               className="form-input"
-              placeholder={c.form.subjectPlaceholder}
+              placeholder={cf.subjectPh}
             />
           </Field>
-          <Field label={c.form.message} id="contact-message">
+          <Field label={cf.message} id="contact-message">
             <textarea
               id="contact-message"
               rows={5}
@@ -200,7 +211,7 @@ export default function ContactPage() {
               required
               data-testid="contact-message-input"
               className="form-input resize-none"
-              placeholder={c.form.messagePlaceholder}
+              placeholder={cf.messagePh}
             />
           </Field>
 
@@ -219,7 +230,7 @@ export default function ContactPage() {
               data-testid="contact-form-success"
             >
               <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
-              <span>{c.form.success}</span>
+              <span>{cf.success}</span>
             </div>
           )}
 
@@ -231,10 +242,10 @@ export default function ContactPage() {
               data-testid="contact-submit-button"
             >
               <Send size={16} />
-              {submitting ? c.form.sending : c.form.submit}
+              {submitting ? sendingLabel : (cf.submit || 'Send message')}
             </button>
             <p className="text-xs text-[#465B70]">
-              {c.form.routedTo} <span className="font-bold text-[#0A4D8C]">{DEPARTMENT_KEYS.find((d) => d.key === form.department)?.email}</span>
+              {cf.routedTo} <span className="font-bold text-[#0A4D8C]">{DEPARTMENT_META.find((d) => d.key === form.department)?.email}</span>
             </p>
           </div>
         </form>
