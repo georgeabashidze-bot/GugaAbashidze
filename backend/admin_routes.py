@@ -297,6 +297,49 @@ async def admin_delete_product(product_id: str, _=Depends(get_current_admin)):
 
 
 # ============================================================================
+# BEWITAL PARTNER CATALOGUE IMPORT (one-click)
+# ============================================================================
+class BewitalImportResponse(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    total_parsed: int
+    inserted: int
+    updated: int = 0
+    skipped: int = 0
+    by_brand: dict = Field(default_factory=dict)
+    by_pet_type: dict = Field(default_factory=dict)
+    llm_failures: list = Field(default_factory=list)
+    llm_failure_count: int = 0
+    dry_run: bool = False
+    status_used: str = "draft"
+    currency: str = "GEL"
+
+
+@admin_router.post("/products/import/bewital", response_model=BewitalImportResponse)
+async def admin_import_bewital(
+    dry_run: bool = False,
+    limit: Optional[int] = None,
+    _=Depends(get_current_admin),
+):
+    """Run the Bewital partner-catalogue enrichment pipeline.
+
+    - Parses /app/backend/scripts/data/bewital_pricelist.xlsx
+    - Enriches every row with EN + KA name/description/tags via Emergent LLM
+    - Inserts new products as status='draft' in GEL; skips slugs that already exist
+    """
+    from server import db
+    from scripts.import_bewital_catalogue import run_import
+
+    try:
+        summary = await run_import(db, dry_run=dry_run, limit=limit)
+    except RuntimeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=500, detail=f"Bewital import failed: {e}")
+    return BewitalImportResponse(**summary)
+
+
+# ============================================================================
 # SPECIAL OFFERS CRUD
 # ============================================================================
 class SpecialOfferIn(BaseModel):

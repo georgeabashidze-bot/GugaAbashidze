@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   AlertTriangle,
   ArrowLeft,
+  Sparkles,
 } from 'lucide-react';
 import { adminApi } from '@/lib/adminApi';
 
@@ -18,6 +19,9 @@ export default function AdminProductsImport() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [downloadingTpl, setDownloadingTpl] = useState(false);
+  const [bewitalBusy, setBewitalBusy] = useState(false);
+  const [bewitalResult, setBewitalResult] = useState(null);
+  const [bewitalError, setBewitalError] = useState('');
   const inputRef = useRef(null);
 
   const onFileChange = (e) => {

@@ -185,6 +185,14 @@ export const adminApi = {
     return request(`/api/admin/products/import?${qs}`, { method: 'POST', body: fd });
   },
 
+  // Bewital partner-catalogue AI enrichment (one-click)
+  importBewital: ({ dryRun = false, limit = null } = {}) => {
+    const params = { dry_run: dryRun ? 'true' : 'false' };
+    if (limit) params.limit = String(limit);
+    const qs = new URLSearchParams(params).toString();
+    return request(`/api/admin/products/import/bewital?${qs}`, { method: 'POST' });
+  },
+
   // leads / contacts
   listLeads: () => request('/api/admin/leads'),
   listContacts: () => request('/api/admin/contact-inquiries'),
