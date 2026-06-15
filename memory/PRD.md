@@ -152,9 +152,15 @@ smartpet.ge-style filter sidebar + sort bar + mobile drawer.
 - ✅ Database hygiene: purged 5 TEST_/QA seed `contact_inquiries` rows post-test. Collection clean.
 
 ### Known minor polish (non-blocking)
-- `ContactPage.jsx` is hard-coded English (address/labels not yet using `useLang`). All other public pages are bilingual.
+- ✅ **FIXED Feb 2026**: `ContactPage.jsx` fully localized via `useLang()` — address, labels, departments, form fields, buttons, errors. Shared `PageShell` (CTA strip, Coming soon badge) + `Breadcrumbs` now localized too.
 - Two i18n source files exist (`/app/frontend/src/lib/i18n.js` legacy + `/app/frontend/src/lib/i18n/{en,ka}.js`). Confirm only the split version is consumed; delete legacy to prevent drift.
 - Consolidate contact constants into a single `CONTACT_INFO` module shared by Footer/ContactPage/LegalPages.
+
+### Monge catalog (Feb 2026)
+- Parsed Monge PDF catalogue → 91 products written into Bulk Upload Excel template.
+- File: `GET /api/uploads/public/monge-catalogue.xlsx` (validated against import schema).
+- Generator script: `/app/backend/scripts/build_monge_catalogue.py`.
+- Awaiting client to fill in missing fields (images, EAN, exact descriptions) before mass import via Admin.
 
 
 - Routes centralised in `/app/frontend/src/constants/routes.js`.

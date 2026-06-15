@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, MessageCircle } from 'lucide-react';
 import Breadcrumbs from './Breadcrumbs';
 import { useSignup } from '@/lib/SignupContext';
+import { useLang } from '@/lib/LangContext';
 
 // Reusable hero strip + content shell for inner pages.
 // Provides: breadcrumbs, eyebrow, title, intro, optional image, child content block, CTA strip.
@@ -17,6 +18,8 @@ export default function PageShell({
   children,
 }) {
   const { openSignup } = useSignup();
+  const { t } = useLang();
+  const ps = t.pageShell || {};
   const hasHero = Boolean(title || eyebrow || intro || image || comingSoon);
 
   return (
@@ -47,7 +50,7 @@ export default function PageShell({
                 {comingSoon && (
                   <div className="mt-6 inline-flex items-center gap-2 bg-[#F25C05]/10 border border-[#F25C05]/30 rounded-full px-4 py-2 text-sm font-bold text-[#F25C05]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#F25C05] animate-pulse" />
-                    Coming soon{comingSoonNote ? ` — ${comingSoonNote}` : ''}
+                    {ps.comingSoon || 'Coming soon'}{comingSoonNote ? ` — ${comingSoonNote}` : ''}
                   </div>
                 )}
               </div>
@@ -89,7 +92,7 @@ export default function PageShell({
             <div className="relative">
               <p className="text-xs tracking-[0.22em] uppercase font-bold text-[#F25C05]">SmartPaw Food</p>
               <h2 className="font-display font-bold text-white text-3xl md:text-4xl tracking-[-0.02em] leading-tight mt-2 max-w-lg">
-                Ready to skip the next pet-shop run?
+                {ps.ctaTitle || 'Ready to skip the next pet-shop run?'}
               </h2>
             </div>
             <div className="relative flex flex-wrap items-center gap-3">
@@ -98,7 +101,7 @@ export default function PageShell({
                 className="btn-primary"
                 data-testid="page-shell-start-button"
               >
-                Start your plan
+                {ps.ctaStart || 'Start your plan'}
                 <ArrowRight size={18} />
               </button>
               <a
@@ -109,7 +112,7 @@ export default function PageShell({
                 data-testid="page-shell-whatsapp-link"
               >
                 <MessageCircle size={16} />
-                Chat on WhatsApp
+                {ps.ctaWhatsapp || 'Chat on WhatsApp'}
               </a>
             </div>
           </div>

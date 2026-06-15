@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight, Home as HomeIcon } from 'lucide-react';
 import { ROUTES } from '@/constants/routes';
+import { useLang } from '@/lib/LangContext';
 
 // Build crumbs from current path using ROUTES tree.
 function buildCrumbs(pathname) {
@@ -29,7 +30,9 @@ function buildCrumbs(pathname) {
 
 export default function Breadcrumbs({ trailing }) {
   const { pathname } = useLocation();
+  const { t } = useLang();
   const crumbs = buildCrumbs(pathname);
+  const labelFor = (path, fallback) => t.breadcrumbs?.labels?.[path] || fallback;
 
   if (crumbs.length === 0 && !trailing) return null;
 
@@ -45,23 +48,24 @@ export default function Breadcrumbs({ trailing }) {
         data-testid="breadcrumb-home-link"
       >
         <HomeIcon size={14} />
-        <span className="sr-only">Home</span>
+        <span className="sr-only">{t.breadcrumbs?.home || 'Home'}</span>
       </Link>
       {crumbs.map((c, i) => {
         const last = i === crumbs.length - 1 && !trailing;
+        const display = labelFor(c.path, c.label);
         return (
           <React.Fragment key={c.path}>
             <ChevronRight size={14} className="text-[#465B70]/50" aria-hidden />
             {last ? (
               <span className="font-semibold text-[#05223D] capitalize" aria-current="page">
-                {c.label}
+                {display}
               </span>
             ) : (
               <Link
                 to={c.path}
                 className="hover:text-[#F25C05] capitalize transition-colors"
               >
-                {c.label}
+                {display}
               </Link>
             )}
           </React.Fragment>
