@@ -33,6 +33,11 @@ An **Admin Control Panel** at `/admin/*` lets the team manage products, special 
 
 ## CHANGELOG (most recent first)
 
+### 2026-02 — Strip legacy competitor-catalogue boilerplate (P1 complete)
+- New script `/app/backend/scripts/strip_boilerplate.py` — regex-cleans the `"— sold by X. Pre-filled from competitor catalogue; please rewrite this description in your own words…"` boilerplate from product `description` / `description_*` / `short_description_*` fields.
+- Ran once: 189 published products inspected, **189 cleaned** in-place. Descriptions now contain only the product name (e.g. `"TAURO MIXING BOTTLE 1000 ml (BUTEL131)"`) — no more embarrassing "please rewrite" text on the storefront.
+- Idempotent — safe to re-run.
+
 ### 2026-02 — Home page category cards regression fix (P0 complete)
 - Root cause: `/app/frontend/src/lib/i18n.js` (the real i18n source, not the unused `i18n/` folder) had KA `products.regular.items` and `products.specials.items` using Georgian strings for the `key` field (e.g. `"key": "საკვები"`). Image lookup in `ProductSections.jsx` is keyed on canonical English ids (`food`, `hygiene`, …) so KA cards rendered with no image and broken data-testids.
 - Restored canonical keys in KA: `food / hygiene / vitamins` and `toys / tech / services`.
