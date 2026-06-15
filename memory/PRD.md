@@ -170,9 +170,11 @@ smartpet.ge-style filter sidebar + sort bar + mobile drawer.
 - Long-term refactor (P2): `apply_translations.py` should merge Excel leaf strings onto a hand-maintained schema skeleton instead of regenerating from scratch, plus add a contract test enumerating every i18n path each page consumes.
 
 ### Header Overflow Fix in Georgian (Feb 2026) — COMPLETED
-- ✅ Fixed Header CTA disappearing on 1280–1440px screens in KA mode (`/app/frontend/src/components/Header.jsx`).
-- Approach: language-aware breakpoints — desktop nav pushed to `2xl:flex` and hamburger appears below `2xl` when `lang === 'ka'`; socials also hidden below `2xl` in KA. EN retains the original `xl` breakpoint and full social icon row.
-- Verified visually at 1280px and 1440px in both EN and KA: CTA "დარეგისტრირდი" visible, hamburger drawer renders full nav + CTA + socials.
+- ✅ Fixed Header CTA disappearing on 1280–1440px screens in KA (`/app/frontend/src/components/Header.jsx`).
+- Final approach (per user feedback to keep identical EN/KA style):
+  - Shortened KA "plans" label from "მომსახურების პაკეტები" to "პაკეტები" in `/app/frontend/src/lib/i18n.js`.
+  - Pushed social icon row from `lg:flex` to `2xl:flex` so both languages share the same compact desktop layout (logo + nav + lang toggle + CTA) on 1280–1535px; socials reappear at 1536px+.
+- Verified visually at 1280px and 1440px in both EN and KA: full nav + CTA visible, identical layout in both languages.
 
 
 

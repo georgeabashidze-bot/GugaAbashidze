@@ -864,7 +864,7 @@ export const translations = {
     "home": "მთავარი",
     "catalogue": "კატალოგი",
     "specials": "შეთავაზებები",
-    "plans": "მომსახურების პაკეტები",
+    "plans": "პაკეტები",
     "how": "როგორ მუშაობს",
     "blog": "ბლოგი",
     "about": "ჩვენ შესახებ",

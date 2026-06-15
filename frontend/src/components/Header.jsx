@@ -45,14 +45,6 @@ export default function Header({ onOpenSignup }) {
 
   const closeMobile = () => setOpen(false);
 
-  const isKa = lang === 'ka';
-  // In Georgian, labels are ~40% longer, so we push the desktop nav to 2xl
-  // (1536px+) and hide socials below 2xl to keep the CTA visible.
-  const navShowClass = isKa ? 'hidden 2xl:flex' : 'hidden xl:flex';
-  const navHideClass = isKa ? '2xl:hidden' : 'xl:hidden';
-  const socialsShowClass = isKa ? 'hidden 2xl:flex' : 'hidden lg:flex';
-  const navItemClass = isKa ? 'px-2 py-2 text-[13px]' : 'px-3.5 py-2 text-sm';
-
   return (
     <header
       className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
@@ -79,7 +71,7 @@ export default function Header({ onOpenSignup }) {
           </span>
         </Link>
 
-        <nav className={`${navShowClass} items-center gap-0.5`}>
+        <nav className="hidden xl:flex items-center gap-0.5">
           {navItems.map((it) => (
             <NavLink
               key={it.to}
@@ -87,7 +79,7 @@ export default function Header({ onOpenSignup }) {
               end={it.end}
               data-testid={it.tid}
               className={({ isActive }) =>
-                `${navItemClass} font-medium transition-colors whitespace-nowrap ${
+                `px-3.5 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
                   isActive ? 'text-[#F25C05]' : 'text-[#05223D] hover:text-[#F25C05]'
                 }`
               }
@@ -99,7 +91,7 @@ export default function Header({ onOpenSignup }) {
 
         <div className="flex items-center gap-2">
           {/* Socials (desktop only) */}
-          <div className={`${socialsShowClass} items-center gap-1 mr-1`} aria-label="Social links">
+          <div className="hidden 2xl:flex items-center gap-1 mr-1" aria-label="Social links">
             {SOCIALS.map((s) => {
               const Icon = s.icon;
               return (
@@ -151,7 +143,7 @@ export default function Header({ onOpenSignup }) {
           <button
             data-testid={TID.header.mobileMenu}
             onClick={() => setOpen((v) => !v)}
-            className={`${navHideClass} w-11 h-11 rounded-full border border-[#0A4D8C33] flex items-center justify-center text-[#0A4D8C]`}
+            className="xl:hidden w-11 h-11 rounded-full border border-[#0A4D8C33] flex items-center justify-center text-[#0A4D8C]"
             aria-label="Open menu"
           >
             {open ? <X size={18} /> : <Menu size={18} />}
@@ -161,7 +153,7 @@ export default function Header({ onOpenSignup }) {
 
       {/* Mobile drawer */}
       {open && (
-        <div className={`${navHideClass} bg-[#FDFBF7] border-t border-[#0A4D8C1A] px-5 py-6`}>
+        <div className="xl:hidden bg-[#FDFBF7] border-t border-[#0A4D8C1A] px-5 py-6">
           <div className="flex flex-col gap-1">
             {navItems.map((it) => (
               <NavLink
