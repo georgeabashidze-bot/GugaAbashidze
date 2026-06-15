@@ -59,9 +59,11 @@ function LegalDocument({ doc, leadTestId }) {
       intro={pickLocale(doc.intro, lang)}
     >
       <div className="prose-like max-w-3xl mx-auto space-y-6 text-[#465B70] leading-relaxed">
-        {doc.lead && (
-          <p data-testid={leadTestId}>{renderInline(pickLocale(doc.lead, lang))}</p>
-        )}
+        <p data-testid={leadTestId}>
+          {doc.lead
+            ? renderInline(pickLocale(doc.lead, lang))
+            : renderInline(pickLocale(doc.intro, lang))}
+        </p>
 
         {doc.sections.map((section, idx) => (
           <React.Fragment key={idx}>

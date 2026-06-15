@@ -497,7 +497,11 @@ SITE_URL = os.environ.get("SITE_URL", "https://smartpawfood.ge").rstrip("/")
 STATIC_SITEMAP_PATHS: List[tuple[str, str]] = [
     ("/", "1.0"),
     ("/plans", "0.9"),
-    ("/products", "0.9"),
+    ("/catalogue", "0.9"),
+    ("/catalogue/food", "0.8"),
+    ("/catalogue/hygiene", "0.7"),
+    ("/catalogue/vitamins", "0.7"),
+    ("/special-offers", "0.7"),
     ("/how-it-works", "0.7"),
     ("/about", "0.6"),
     ("/contact", "0.6"),
@@ -505,8 +509,8 @@ STATIC_SITEMAP_PATHS: List[tuple[str, str]] = [
     ("/blog", "0.6"),
     ("/privacy", "0.3"),
     ("/terms", "0.3"),
-    ("/delivery", "0.3"),
-    ("/refund", "0.3"),
+    ("/delivery-policy", "0.3"),
+    ("/refund-policy", "0.3"),
 ]
 
 

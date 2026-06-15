@@ -33,6 +33,14 @@ An **Admin Control Panel** at `/admin/*` lets the team manage products, special 
 
 ## CHANGELOG (most recent first)
 
+### 2026-02 — Pre-launch Polish Batch (P0 complete — launch-ready)
+- SEO: dynamic `/api/sitemap.xml` (static routes + published products + blog posts), `public/robots.txt`, full OG/Twitter/JSON-LD meta in `public/index.html`. Sitemap paths reconciled with real SPA routes (`/catalogue/*`, `/delivery-policy`, `/refund-policy`).
+- Analytics scaffolding: GA4 + Plausible gated by `REACT_APP_GA4_ID` / `REACT_APP_PLAUSIBLE_DOMAIN` env vars (no-op until populated).
+- Favicon: `public/favicon.svg` with SmartPaw orange paw.
+- Bilingual Legal Pages: full EN+KA Privacy, Terms, Delivery, Refund Policy in `src/data/legalContent.js` (~525 lines), rendered by refactored `src/pages/LegalPages.jsx` (`LegalDocument` component, `useLang()` + `pickLocale`, `**bold**` parser, ordered/unordered lists, mandatory `legal-entity-block` footer with Cleanpaw International LLC info). Lead testid wrapper always present regardless of `doc.lead` presence.
+- Centralised site constants in `src/lib/siteConfig.js` (WhatsApp URL, brand details) — consumed by `WhatsAppFab`, `FAQPage`, `PageShell`.
+- Smoke test via testing_agent_v3_fork → backend 18/18 green, frontend ~100% after legal-page fixes.
+
 ### 2026-02 — Phase A7 AI Catalog Enrichment Pipeline + Bulk Actions (P1 complete)
 - Backend: new shared service `/app/backend/services/llm_enrichment.py` (enrich_product_doc + needs_enrichment heuristic — EN-desc≥30 chars + name_ka + description_ka≥30 chars).
 - Backend: in-memory job tracker `/app/backend/services/job_store.py` driving async polling.
