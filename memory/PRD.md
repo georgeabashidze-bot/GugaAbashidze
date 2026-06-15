@@ -169,6 +169,12 @@ smartpet.ge-style filter sidebar + sort bar + mobile drawer.
 - Known minor: hero stat badge "Free SmartPaw Feeder for 150GEL+ packages" still hardcoded English (P2).
 - Long-term refactor (P2): `apply_translations.py` should merge Excel leaf strings onto a hand-maintained schema skeleton instead of regenerating from scratch, plus add a contract test enumerating every i18n path each page consumes.
 
+### Header Overflow Fix in Georgian (Feb 2026) — COMPLETED
+- ✅ Fixed Header CTA disappearing on 1280–1440px screens in KA mode (`/app/frontend/src/components/Header.jsx`).
+- Approach: language-aware breakpoints — desktop nav pushed to `2xl:flex` and hamburger appears below `2xl` when `lang === 'ka'`; socials also hidden below `2xl` in KA. EN retains the original `xl` breakpoint and full social icon row.
+- Verified visually at 1280px and 1440px in both EN and KA: CTA "დარეგისტრირდი" visible, hamburger drawer renders full nav + CTA + socials.
+
+
 
 
 
