@@ -353,7 +353,7 @@ export default function AdminProducts() {
           <option value="all">All brands</option>
           {brandOptions.map((b) => (
             <option key={b.name} value={b.name}>
-              {b.name} ({b.count})
+              {`${b.name} (${b.count})`}
             </option>
           ))}
         </select>

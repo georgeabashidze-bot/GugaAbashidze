@@ -33,6 +33,17 @@ An **Admin Control Panel** at `/admin/*` lets the team manage products, special 
 
 ## CHANGELOG (most recent first)
 
+### 2026-02 — Phase A7 AI Catalog Enrichment Pipeline + Bulk Actions (P1 complete)
+- Backend: new shared service `/app/backend/services/llm_enrichment.py` (enrich_product_doc + needs_enrichment heuristic — EN-desc≥30 chars + name_ka + description_ka≥30 chars).
+- Backend: in-memory job tracker `/app/backend/services/job_store.py` driving async polling.
+- Backend: `POST /api/admin/products/enrich-bulk` (returns `{job_id,total,skipped_already_enriched}`) + `GET /api/admin/jobs/{job_id}` polling. asyncio.Semaphore(3) to respect LLM budget.
+- Backend: `GET /api/admin/products` now accepts `needs_enrichment=true`. `GET /api/admin/products/summary` returns `status_counts` + `needs_enrichment` count + `by_brand` list — counts agree exactly with the filtered list (verified at 187 == 187 on live catalogue).
+- Backend: bulk action endpoints `POST /api/admin/products/bulk-publish`, `/bulk-unpublish`, `/bulk-delete`.
+- Frontend: `AdminProducts.jsx` rewritten with 4 status tabs (All / Needs AI enrichment / Drafts / Published), brand filter from summary, per-row checkbox, sticky bulk action bar (Enrich/Publish/Unpublish/Delete + overwrite toggle), JobProgressCard with 1.5s polling that auto-refreshes counts when the job lands.
+- Frontend: `adminApi.js` wrappers — `enrichBulk`, `getJob`, `productsSummary`, `bulkPublish`, `bulkUnpublish`, `bulkDelete`.
+- Verified end-to-end by `testing_agent_v3_fork` iteration_14 → backend 10/10 pytest, frontend all flows green. Live run: needs_enrichment count moved 187 → 182, ~3 LLM calls total. Idempotency (overwrite=false) skips 100% of already-enriched rows; overwrite=true regenerates content.
+- Cosmetic fix: brand-filter `<option>` label collapsed to single template string to silence the dev-overlay "<span> cannot be a child of <option>" hydration warning.
+
 ### 2026-02 — Strip legacy competitor-catalogue boilerplate (P1 complete)
 - New script `/app/backend/scripts/strip_boilerplate.py` — regex-cleans the `"— sold by X. Pre-filled from competitor catalogue; please rewrite this description in your own words…"` boilerplate from product `description` / `description_*` / `short_description_*` fields.
 - Ran once: 189 published products inspected, **189 cleaned** in-place. Descriptions now contain only the product name (e.g. `"TAURO MIXING BOTTLE 1000 ml (BUTEL131)"`) — no more embarrassing "please rewrite" text on the storefront.
@@ -67,10 +78,10 @@ An **Admin Control Panel** at `/admin/*` lets the team manage products, special 
 
 ### P0 — done ✅
 - Bewital AI-enriched one-click import + UI section + dry-run optimization.
+- Phase A7 AI Catalog Enrichment Pipeline + Bulk Actions (`/enrich-bulk` async job + draft-review tabs in /admin/products).
 
 ### P1 — next
-- **Phase A7 — Bulk Importer Monitor / Draft Review UX**: filter products by `status=draft` in /admin/products, bulk-publish, bulk-delete, inline edit of EN+KA fields for the 166 imported drafts.
-- **Background-job pattern**: convert the *live* Bewital import (`dry_run=False`) to an async job with `/api/admin/jobs/{id}` polling so the operator gets immediate feedback instead of waiting on a single long HTTP request.
+- **Background-job pattern for live Bewital import**: convert the *live* Bewital import (`dry_run=False`) to use the same `/api/admin/jobs/{id}` pattern as `/enrich-bulk` so the operator gets immediate feedback instead of waiting on a single long HTTP request.
 
 ### P2 — soon
 - Stabilise brute-force lockout identifier (email-only fallback when X-Forwarded-For rotates).
