@@ -8,13 +8,25 @@ const REGULAR_IMGS = {
   vitamins: 'https://images.pexels.com/photos/8434641/pexels-photo-8434641.jpeg?auto=compress&cs=tinysrgb&w=1200',
 };
 
+const REGULAR_ROUTES = {
+  food: '/catalogue/food',
+  hygiene: '/catalogue/hygiene',
+  vitamins: '/catalogue/vitamins',
+};
+
 const SPECIAL_IMGS = {
   toys: 'https://images.pexels.com/photos/4445456/pexels-photo-4445456.jpeg?auto=compress&cs=tinysrgb&w=1200',
   tech: 'https://images.pexels.com/photos/27435433/pexels-photo-27435433.jpeg?auto=compress&cs=tinysrgb&w=1200',
   services: 'https://images.pexels.com/photos/6816858/pexels-photo-6816858.jpeg?auto=compress&cs=tinysrgb&w=1200',
 };
 
-export function RegularProducts({ onOpenSignup }) {
+const SPECIAL_ROUTES = {
+  toys: '/special-offers/toys-accessories',
+  tech: '/special-offers/innovation-tech',
+  services: '/special-offers/services',
+};
+
+export function RegularProducts() {
   const { t } = useLang();
   const p = t.products.regular;
   return (
@@ -25,13 +37,13 @@ export function RegularProducts({ onOpenSignup }) {
       body={p.body}
       items={p.items}
       images={REGULAR_IMGS}
-      onOpenSignup={onOpenSignup}
+      routes={REGULAR_ROUTES}
       testIdPrefix="regular-products"
     />
   );
 }
 
-export function SpecialOffers({ onOpenSignup }) {
+export function SpecialOffers() {
   const { t } = useLang();
   const p = t.products.specials;
   return (
@@ -42,7 +54,7 @@ export function SpecialOffers({ onOpenSignup }) {
       body={p.body}
       items={p.items}
       images={SPECIAL_IMGS}
-      onOpenSignup={onOpenSignup}
+      routes={SPECIAL_ROUTES}
       testIdPrefix="special-offers"
       surface="alt"
     />

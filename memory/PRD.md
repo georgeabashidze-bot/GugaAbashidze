@@ -33,6 +33,13 @@ An **Admin Control Panel** at `/admin/*` lets the team manage products, special 
 
 ## CHANGELOG (most recent first)
 
+### 2026-02 — Home page category cards regression fix (P0 complete)
+- Root cause: `/app/frontend/src/lib/i18n.js` (the real i18n source, not the unused `i18n/` folder) had KA `products.regular.items` and `products.specials.items` using Georgian strings for the `key` field (e.g. `"key": "საკვები"`). Image lookup in `ProductSections.jsx` is keyed on canonical English ids (`food`, `hygiene`, …) so KA cards rendered with no image and broken data-testids.
+- Restored canonical keys in KA: `food / hygiene / vitamins` and `toys / tech / services`.
+- `ProductSection.jsx` — replaced `<button onClick={onOpenSignup}>` with `<Link to={routes[it.key]}>` so cards navigate to `/catalogue/<id>` and `/special-offers/<id>` instead of opening the signup modal.
+- `ProductSections.jsx` — added per-section route maps (`REGULAR_ROUTES`, `SPECIAL_ROUTES`) and dropped the now-unused `onOpenSignup` prop.
+- Smoke-tested via screenshot tool: all 6 cards show images in KA, clicking the food card lands on `/catalogue/food`.
+
 ### 2026-02 — Bewital one-click import (P0 complete)
 - Added `POST /api/admin/products/import/bewital` (admin-only).
 - New script `/app/backend/scripts/import_bewital_catalogue.py` parses `bewital_pricelist.xlsx`, enriches each row with EN+KA bilingual fields via Emergent LLM, and upserts as `status="draft"` in GEL.

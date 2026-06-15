@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useReveal } from '@/lib/useReveal';
 
-// Section accepts: id, eyebrow, title, body, items (3), images map, accentReverse for visual variety, testIdPrefix
+// Section accepts: id, eyebrow, title, body, items (3), images map, routes map, testIdPrefix
 export default function ProductSection({
   id,
   eyebrow,
@@ -10,7 +11,7 @@ export default function ProductSection({
   body,
   items,
   images,
-  onOpenSignup,
+  routes,
   testIdPrefix = 'product',
   surface = 'light',
 }) {
@@ -36,10 +37,10 @@ export default function ProductSection({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-7">
           {items.map((it) => (
-            <button
+            <Link
               key={it.key}
+              to={routes?.[it.key] || '/catalogue'}
               data-testid={`${testIdPrefix}-${it.key}-card`}
-              onClick={onOpenSignup}
               className="group text-left card-soft p-0 overflow-hidden hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(10,77,140,0.10)] transition-all duration-300 flex flex-col"
             >
               <div className="relative aspect-[5/4] overflow-hidden">
@@ -62,7 +63,7 @@ export default function ProductSection({
                   <ArrowUpRight size={16} />
                 </span>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </div>
