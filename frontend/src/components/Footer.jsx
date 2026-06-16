@@ -13,21 +13,21 @@ export default function Footer({ onOpenSignup }) {
   const companyLinks = [
     { key: 'about', to: ROUTES.about.path, label: t.footer.company[0] || 'About' },
     { key: 'blog', to: ROUTES.blog.path, label: t.footer.company[1] || 'Blog' },
-    { key: 'faq', to: ROUTES.faq.path, label: 'FAQ' },
+    { key: 'faq', to: ROUTES.faq.path, label: t.footer.legal?.faq || 'FAQ' },
   ];
 
   const exploreLinks = [
     { key: 'catalogue', to: ROUTES.catalogue.path, label: t.footer.explore[0] || 'Catalogue' },
     { key: 'how', to: ROUTES.how.path, label: t.footer.explore[1] || 'How it works' },
     { key: 'plans', to: ROUTES.plans.path, label: t.footer.explore[2] || 'Plans' },
-    { key: 'specials', to: ROUTES.specials.path, label: 'Special Offers' },
+    { key: 'specials', to: ROUTES.specials.path, label: t.footer.explore[3] || 'Special Offers' },
   ];
 
   const legalLinks = [
-    { key: 'privacy', to: ROUTES.privacy.path, label: 'Privacy' },
-    { key: 'terms', to: ROUTES.terms.path, label: 'Terms' },
-    { key: 'delivery', to: ROUTES.delivery.path, label: 'Delivery' },
-    { key: 'refund', to: ROUTES.refund.path, label: 'Refund' },
+    { key: 'privacy', to: ROUTES.privacy.path, label: t.footer.legal?.privacy || 'Privacy' },
+    { key: 'terms', to: ROUTES.terms.path, label: t.footer.legal?.terms || 'Terms' },
+    { key: 'delivery', to: ROUTES.delivery.path, label: t.footer.legal?.delivery || 'Delivery' },
+    { key: 'refund', to: ROUTES.refund.path, label: t.footer.legal?.refund || 'Refund' },
   ];
 
   return (

@@ -797,8 +797,16 @@ export const translations = {
     "explore": [
       "Catalogue",
       "How it works",
-      "Plans"
+      "Plans",
+      "Special Offers"
     ],
+    "legal": {
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "delivery": "Delivery",
+      "refund": "Refund",
+      "faq": "FAQ"
+    },
     "address": "0102 Tsereteli Ave. 118, Tbilisi, Georgia",
     "rights": "All rights reserved."
   },
@@ -1657,8 +1665,16 @@ export const translations = {
     "explore": [
       "კატალოგი",
       "როგორ მუშაობს",
-      "პაკეტები"
+      "პაკეტები",
+      "შეთავაზებები"
     ],
+    "legal": {
+      "privacy": "კონფიდენციალურობა",
+      "terms": "პირობები",
+      "delivery": "მიწოდება",
+      "refund": "დაბრუნება",
+      "faq": "ხშირი კითხვები"
+    },
     "address": "0102 წერეთლის გამზ. 118, თბილისი, საქართველო",
     "rights": "ყველა უფლება დაცულია."
   },
