@@ -492,7 +492,7 @@ app.include_router(import_router)
 
 
 # ------------- SEO endpoints -------------
-SITE_URL = os.environ.get("SITE_URL", "https://smartpawfood.ge").rstrip("/")
+SITE_URL = os.environ.get("SITE_URL", "https://smartpaw.ge").rstrip("/")
 
 STATIC_SITEMAP_PATHS: List[tuple[str, str]] = [
     ("/", "1.0"),

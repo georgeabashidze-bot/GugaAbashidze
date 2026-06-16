@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 
-Sitemap: https://smartpawfood.ge/api/sitemap.xml
+Sitemap: https://smartpaw.ge/api/sitemap.xml

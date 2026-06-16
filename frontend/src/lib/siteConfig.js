@@ -11,7 +11,7 @@ export const WHATSAPP_URL = (message) =>
   }`;
 
 export const SITE_URL =
-  (process.env.REACT_APP_SITE_URL || 'https://smartpawfood.ge').replace(
+  (process.env.REACT_APP_SITE_URL || 'https://smartpaw.ge').replace(
     /\/$/,
     ''
   );
