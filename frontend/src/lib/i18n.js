@@ -1850,7 +1850,7 @@ export const translations = {
     "productTypes": {
       "dry-food": "მშრალი საკვები",
       "wet-food": "სველი საკვები",
-      "snacks": "გამახარისხებლები",
+      "snacks": "ხემსები",
       "teeth-care": "კბილების მოვლა",
       "grooming": "მოვლა",
       "pads": "ხელსახოცები",
