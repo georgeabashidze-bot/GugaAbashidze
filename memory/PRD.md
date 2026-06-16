@@ -33,6 +33,12 @@ An **Admin Control Panel** at `/admin/*` lets the team manage products, special 
 
 ## CHANGELOG (most recent first)
 
+### 2026-02 — Domain Migration to `smartpaw.ge` (P0 complete)
+- Site went live on the custom domain `smartpaw.ge`.
+- Canonical URL flipped from `smartpawfood.ge` → `smartpaw.ge` across: `backend/server.py` (`SITE_URL` default, drives `/api/sitemap.xml` + structured data), `public/index.html` (canonical, og:url, og:image, twitter:image, keywords), `public/robots.txt` (sitemap pointer), `src/lib/siteConfig.js`.
+- Default language switched to **Georgian (ka)** for first-time visitors — `LangContext` default + `<html lang="ka">` + `og:locale=ka_GE` (en_GE as alternate). Returning visitors keep their stored preference.
+- Verified `/api/sitemap.xml` now serves `https://smartpaw.ge/...` entries.
+
 ### 2026-02 — Pre-launch Polish Batch (P0 complete — launch-ready)
 - SEO: dynamic `/api/sitemap.xml` (static routes + published products + blog posts), `public/robots.txt`, full OG/Twitter/JSON-LD meta in `public/index.html`. Sitemap paths reconciled with real SPA routes (`/catalogue/*`, `/delivery-policy`, `/refund-policy`).
 - Analytics scaffolding: GA4 + Plausible gated by `REACT_APP_GA4_ID` / `REACT_APP_PLAUSIBLE_DOMAIN` env vars (no-op until populated).
