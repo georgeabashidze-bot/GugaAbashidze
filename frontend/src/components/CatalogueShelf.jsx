@@ -5,20 +5,13 @@ import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
 import { api } from '@/lib/api';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
+import { useLang } from '@/lib/LangContext';
 import {
   deriveLifeStage,
   deriveSizeBucket,
   compareSizes,
-  LIFE_STAGE_LABELS,
+  LIFE_STAGE_ORDER,
 } from '@/lib/productFacets';
-
-const SORT_OPTIONS = [
-  { value: 'featured', label: 'Featured first' },
-  { value: 'price-asc', label: 'Price: low → high' },
-  { value: 'price-desc', label: 'Price: high → low' },
-  { value: 'alpha-asc', label: 'A → Z' },
-  { value: 'alpha-desc', label: 'Z → A' },
-];
 
 function applyFilters(productsWithFacets, filters, sort) {
   let list = productsWithFacets;
@@ -65,6 +58,19 @@ function applyFilters(productsWithFacets, filters, sort) {
  * Filter UX is modelled on smartpet.ge.
  */
 export default function CatalogueShelf({ subCategory, category = 'catalogue' }) {
+  const { t } = useLang();
+
+  const SORT_OPTIONS = useMemo(
+    () => [
+      { value: 'featured', label: t('catalogue.sort.featured') },
+      { value: 'price-asc', label: t('catalogue.sort.priceAsc') },
+      { value: 'price-desc', label: t('catalogue.sort.priceDesc') },
+      { value: 'alpha-asc', label: t('catalogue.sort.alphaAsc') },
+      { value: 'alpha-desc', label: t('catalogue.sort.alphaDesc') },
+    ],
+    [t],
+  );
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ['products', category, subCategory],
     queryFn: () => api.listProducts({ category, sub_category: subCategory }),
@@ -103,7 +109,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
       productsWithFacets.map((p) => p._lifeStage).filter(Boolean),
     );
     // keep the canonical display order
-    return Object.keys(LIFE_STAGE_LABELS).filter((k) => seen.has(k));
+    return LIFE_STAGE_ORDER.filter((k) => seen.has(k));
   }, [productsWithFacets]);
 
   // Distinct product_type values present in the current shelf (only relevant
@@ -167,7 +173,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
         className="flex items-center justify-center py-16 text-[#465B70]"
       >
         <Loader2 className="w-6 h-6 animate-spin text-[#F25C05]" />
-        <span className="ml-3 font-medium">Loading the shelf…</span>
+        <span className="ml-3 font-medium">{t('catalogue.shelf.loading')}</span>
       </div>
     );
   }
@@ -175,9 +181,9 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
   if (isError) {
     return (
       <div data-testid={`${testIdGrid}-error`} className="card-soft p-7 text-center">
-        <p className="font-bold text-[#05223D]">We couldn’t load this shelf just now.</p>
+        <p className="font-bold text-[#05223D]">{t('catalogue.shelf.loadErrorTitle')}</p>
         <p className="text-sm text-[#465B70] mt-2">
-          Please refresh, or message us on WhatsApp — we’ll send you the list directly.
+          {t('catalogue.shelf.loadErrorBody')}
         </p>
       </div>
     );
@@ -187,9 +193,9 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
     return (
       <div data-testid={`${testIdGrid}-empty`} className="card-soft p-10 text-center">
         <PawPrint className="w-8 h-8 text-[#F25C05] mx-auto" />
-        <p className="font-display font-bold text-[#05223D] text-xl mt-3">This shelf is being stocked.</p>
+        <p className="font-display font-bold text-[#05223D] text-xl mt-3">{t('catalogue.shelf.emptyTitle')}</p>
         <p className="text-sm text-[#465B70] mt-2 max-w-md mx-auto">
-          We’re finalising listings with our partner brands. Register interest and we’ll tailor your first box around your pet.
+          {t('catalogue.shelf.emptyBody')}
         </p>
       </div>
     );
@@ -236,7 +242,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
               className="lg:hidden inline-flex items-center gap-2 rounded-full border border-[#0A4D8C26] px-4 py-2 text-sm font-bold text-[#0A4D8C] hover:bg-[#0A4D8C] hover:text-white transition-all"
             >
               <SlidersHorizontal size={14} />
-              Filters
+              {t('catalogue.filters.filtersButton')}
               {activeFilterCount > 0 && (
                 <span className="ml-1 bg-[#F25C05] text-white rounded-full text-[10px] font-bold w-5 h-5 inline-flex items-center justify-center">
                   {activeFilterCount}
@@ -245,12 +251,12 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
             </button>
             <p data-testid="shelf-result-count" className="text-sm text-[#465B70]">
               <span className="font-bold text-[#05223D]">{filtered.length}</span>
-              {' '}/ {products.length} products
+              {' '}/ {products.length} {t('catalogue.shelf.products')}
             </p>
           </div>
 
           <label className="flex items-center gap-2 text-sm text-[#465B70]">
-            <span className="hidden sm:inline">Sort:</span>
+            <span className="hidden sm:inline">{t('catalogue.sort.label')}</span>
             <div className="relative">
               <select
                 value={sort}
@@ -276,10 +282,10 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
           >
             <PawPrint className="w-8 h-8 text-[#F25C05] mx-auto" />
             <p className="font-display font-bold text-[#05223D] text-xl mt-3">
-              Nothing matches those filters.
+              {t('catalogue.shelf.noResultsTitle')}
             </p>
             <p className="text-sm text-[#465B70] mt-2">
-              Try clearing a filter — or switch to ‘All’ pet types.
+              {t('catalogue.shelf.noResultsBody')}
             </p>
           </div>
         ) : (
@@ -296,7 +302,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-[88%] max-w-sm overflow-y-auto p-0 border-r-0 bg-[#FDFBF7]">
-          <SheetTitle className="sr-only">Filters</SheetTitle>
+          <SheetTitle className="sr-only">{t('catalogue.filters.title')}</SheetTitle>
           {mobileOpen && <div className="p-5">{filtersNode}</div>}
         </SheetContent>
       </Sheet>

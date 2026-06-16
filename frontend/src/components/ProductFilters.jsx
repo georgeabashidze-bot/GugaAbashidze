@@ -1,24 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { Check, ChevronDown, X, Search } from 'lucide-react';
 import PriceRangeSlider from '@/components/PriceRangeSlider';
-import { LIFE_STAGE_LABELS } from '@/lib/productFacets';
+import { useLang } from '@/lib/LangContext';
 
 const BRAND_VISIBLE_LIMIT = 8;
 const SIZE_VISIBLE_LIMIT = 8;
-
-// Display labels for product_type values, scoped by sub_category.
-const PRODUCT_TYPE_LABELS = {
-  // Food
-  'dry-food': 'Dry food',
-  'wet-food': 'Wet food',
-  'snacks': 'Snacks',
-  // Hygiene
-  'teeth-care': 'Teeth care',
-  'grooming': 'Grooming',
-  'pads': 'Pads',
-  // Shared
-  'other': 'Other',
-};
 
 // Canonical display order per sub_category.
 const PRODUCT_TYPE_ORDER = {
@@ -79,7 +65,7 @@ function CheckRow({ label, checked, onToggle, testId }) {
  *     lifeStages: string[],
  *     brands: string[],
  *     sizes: string[],
- *     priceRange: [number, number],   // current [low, high]
+ *     priceRange: [number, number],
  *     featured: boolean,
  *   }
  */
@@ -91,11 +77,16 @@ export default function ProductFilters({
   lifeStages,
   productTypes = [],
   subCategory,
-  priceBounds, // [absMin, absMax]
+  priceBounds,
   totalCount,
   filteredCount,
   onClose,
 }) {
+  const { t } = useLang();
+  const tf = t.catalogue.filters;
+  const lifeStageLabels = t.catalogue.lifeStages;
+  const productTypeLabels = t.catalogue.productTypes;
+
   const [brandSearch, setBrandSearch] = useState('');
   const [showAllBrands, setShowAllBrands] = useState(false);
   const [showAllSizes, setShowAllSizes] = useState(false);
@@ -134,7 +125,6 @@ export default function ProductFilters({
     filters.featured ||
     priceDirty;
 
-  // Brand list with search + show-all collapse
   const filteredBrands = useMemo(() => {
     const q = brandSearch.trim().toLowerCase();
     if (!q) return brands;
@@ -143,11 +133,9 @@ export default function ProductFilters({
   const visibleBrands = showAllBrands ? filteredBrands : filteredBrands.slice(0, BRAND_VISIBLE_LIMIT);
   const hiddenBrandCount = filteredBrands.length - visibleBrands.length;
 
-  // Sizes with show-all collapse
   const visibleSizes = showAllSizes ? sizes : sizes.slice(0, SIZE_VISIBLE_LIMIT);
   const hiddenSizeCount = sizes.length - visibleSizes.length;
 
-  // Product type — only relevant for food / hygiene sub-categories. Order by canonical list.
   const showTypeFilter =
     (subCategory === 'food' || subCategory === 'hygiene') && productTypes.length > 0;
   const orderedProductTypes = showTypeFilter
@@ -161,9 +149,9 @@ export default function ProductFilters({
     >
       <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#0A4D8C14]">
         <div>
-          <p className="font-display font-bold text-[#05223D] text-lg leading-tight">Filters</p>
+          <p className="font-display font-bold text-[#05223D] text-lg leading-tight">{tf.title}</p>
           <p data-testid="filters-result-count" className="text-xs text-[#465B70] mt-0.5">
-            Showing <span className="font-bold text-[#0A4D8C]">{filteredCount}</span> of {totalCount}
+            {tf.showing} <span className="font-bold text-[#0A4D8C]">{filteredCount}</span> {tf.of} {totalCount}
           </p>
         </div>
         {onClose && (
@@ -171,7 +159,7 @@ export default function ProductFilters({
             type="button"
             onClick={onClose}
             className="lg:hidden w-9 h-9 rounded-full border border-[#0A4D8C26] flex items-center justify-center text-[#0A4D8C]"
-            aria-label="Close filters"
+            aria-label={tf.closeFilters}
             data-testid="filters-close-button"
           >
             <X size={16} />
@@ -179,7 +167,7 @@ export default function ProductFilters({
         )}
       </div>
 
-      {/* Clear button at top, smartpet-style */}
+      {/* Clear button */}
       <button
         type="button"
         onClick={clear}
@@ -191,13 +179,13 @@ export default function ProductFilters({
             : 'border-[#0A4D8C1A] text-[#465B70]/60 cursor-not-allowed'
         }`}
       >
-        ↺ Clear all filters
+        {tf.clearAll}
       </button>
 
       {/* Price */}
       {pMax > pMin && (
         <FilterGroup
-          title="Price"
+          title={tf.price}
           count={priceDirty ? 1 : 0}
           testId="filter-group-price"
         >
@@ -213,15 +201,15 @@ export default function ProductFilters({
 
       {/* Pet type */}
       <FilterGroup
-        title="Pet type"
+        title={tf.petType}
         count={filters.petType !== 'all' ? 1 : 0}
         testId="filter-group-pet-type"
       >
-        <div className="flex bg-[#F5F2EB] rounded-full p-1" role="radiogroup" aria-label="Pet type">
+        <div className="flex bg-[#F5F2EB] rounded-full p-1" role="radiogroup" aria-label={tf.petType}>
           {[
-            { v: 'all', l: 'All' },
-            { v: 'dog', l: 'Dogs' },
-            { v: 'cat', l: 'Cats' },
+            { v: 'all', l: tf.petTypeAll },
+            { v: 'dog', l: tf.petTypeDog },
+            { v: 'cat', l: tf.petTypeCat },
           ].map((opt) => (
             <button
               key={opt.v}
@@ -245,18 +233,18 @@ export default function ProductFilters({
       {/* Type (food / hygiene only) */}
       {showTypeFilter && (
         <FilterGroup
-          title="Type"
+          title={tf.type}
           count={filters.productTypes ? filters.productTypes.length : 0}
           testId="filter-group-product-type"
         >
           <div className="space-y-0.5">
-            {orderedProductTypes.map((t) => (
+            {orderedProductTypes.map((pt) => (
               <CheckRow
-                key={t}
-                label={PRODUCT_TYPE_LABELS[t] || t}
-                checked={(filters.productTypes || []).includes(t)}
-                onToggle={() => toggleArr('productTypes', t)}
-                testId={`filter-product-type-${t}`}
+                key={pt}
+                label={productTypeLabels[pt] || pt}
+                checked={(filters.productTypes || []).includes(pt)}
+                onToggle={() => toggleArr('productTypes', pt)}
+                testId={`filter-product-type-${pt}`}
               />
             ))}
           </div>
@@ -266,7 +254,7 @@ export default function ProductFilters({
       {/* Life stage */}
       {lifeStages.length > 0 && (
         <FilterGroup
-          title="Life stage"
+          title={tf.lifeStage}
           count={filters.lifeStages.length}
           testId="filter-group-life-stage"
         >
@@ -274,7 +262,7 @@ export default function ProductFilters({
             {lifeStages.map((stage) => (
               <CheckRow
                 key={stage}
-                label={LIFE_STAGE_LABELS[stage] || stage}
+                label={lifeStageLabels[stage] || stage}
                 checked={filters.lifeStages.includes(stage)}
                 onToggle={() => toggleArr('lifeStages', stage)}
                 testId={`filter-life-stage-${stage}`}
@@ -284,10 +272,10 @@ export default function ProductFilters({
         </FilterGroup>
       )}
 
-      {/* Brand with search + show all */}
+      {/* Brand */}
       {brands.length > 0 && (
         <FilterGroup
-          title="Brand"
+          title={tf.brand}
           count={filters.brands.length}
           testId="filter-group-brand"
         >
@@ -298,7 +286,7 @@ export default function ProductFilters({
                 type="text"
                 value={brandSearch}
                 onChange={(e) => setBrandSearch(e.target.value)}
-                placeholder="Search brand"
+                placeholder={tf.searchBrand}
                 data-testid="filter-brand-search"
                 className="w-full pl-8 pr-3 py-1.5 text-sm border border-[#0A4D8C26] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#F25C05]/30"
               />
@@ -315,7 +303,7 @@ export default function ProductFilters({
               />
             ))}
             {filteredBrands.length === 0 && (
-              <p className="text-xs text-[#465B70] py-2">No brand matches “{brandSearch}”</p>
+              <p className="text-xs text-[#465B70] py-2">{tf.noBrandMatch(brandSearch)}</p>
             )}
           </div>
           {hiddenBrandCount > 0 && (
@@ -325,7 +313,7 @@ export default function ProductFilters({
               data-testid="filter-brand-show-all"
               className="mt-2 text-xs font-bold text-[#0A4D8C] hover:text-[#F25C05] transition"
             >
-              Show all ({filteredBrands.length}) ↓
+              {tf.showAll(filteredBrands.length)}
             </button>
           )}
           {showAllBrands && filteredBrands.length > BRAND_VISIBLE_LIMIT && (
@@ -334,7 +322,7 @@ export default function ProductFilters({
               onClick={() => setShowAllBrands(false)}
               className="mt-2 text-xs font-bold text-[#0A4D8C] hover:text-[#F25C05] transition"
             >
-              Collapse ↑
+              {tf.collapse}
             </button>
           )}
         </FilterGroup>
@@ -343,7 +331,7 @@ export default function ProductFilters({
       {/* Weight / Size */}
       {sizes.length > 0 && (
         <FilterGroup
-          title="Weight"
+          title={tf.weight}
           count={filters.sizes.length}
           testId="filter-group-size"
         >
@@ -365,7 +353,7 @@ export default function ProductFilters({
               data-testid="filter-size-show-all"
               className="mt-2 text-xs font-bold text-[#0A4D8C] hover:text-[#F25C05] transition"
             >
-              Show all ({sizes.length}) ↓
+              {tf.showAll(sizes.length)}
             </button>
           )}
           {showAllSizes && sizes.length > SIZE_VISIBLE_LIMIT && (
@@ -374,16 +362,16 @@ export default function ProductFilters({
               onClick={() => setShowAllSizes(false)}
               className="mt-2 text-xs font-bold text-[#0A4D8C] hover:text-[#F25C05] transition"
             >
-              Collapse ↑
+              {tf.collapse}
             </button>
           )}
         </FilterGroup>
       )}
 
       {/* Featured */}
-      <FilterGroup title="Status" defaultOpen={false} testId="filter-group-featured">
+      <FilterGroup title={tf.status} defaultOpen={false} testId="filter-group-featured">
         <CheckRow
-          label="Featured only"
+          label={tf.featuredOnly}
           checked={filters.featured}
           onToggle={() => setFilters((f) => ({ ...f, featured: !f.featured }))}
           testId="filter-featured-toggle"

@@ -458,6 +458,68 @@ const en = {
 
   partners: 'Smartpaw Partner Brands',
 
+  // ---- Catalogue / filters ----
+  catalogue: {
+    filters: {
+      title: 'Filters',
+      showing: 'Showing',
+      of: 'of',
+      clearAll: '↺ Clear all filters',
+      price: 'Price',
+      petType: 'Pet type',
+      petTypeAll: 'All',
+      petTypeDog: 'Dogs',
+      petTypeCat: 'Cats',
+      type: 'Type',
+      lifeStage: 'Life stage',
+      brand: 'Brand',
+      weight: 'Weight',
+      status: 'Status',
+      featuredOnly: 'Featured only',
+      searchBrand: 'Search brand',
+      noBrandMatch: (q) => `No brand matches "${q}"`,
+      showAll: (n) => `Show all (${n}) ↓`,
+      collapse: 'Collapse ↑',
+      closeFilters: 'Close filters',
+      filtersButton: 'Filters',
+    },
+    sort: {
+      label: 'Sort:',
+      featured: 'Featured first',
+      priceAsc: 'Price: low → high',
+      priceDesc: 'Price: high → low',
+      alphaAsc: 'A → Z',
+      alphaDesc: 'Z → A',
+    },
+    shelf: {
+      loading: 'Loading the shelf…',
+      loadErrorTitle: 'We couldn’t load this shelf just now.',
+      loadErrorBody: 'Please refresh, or message us on WhatsApp — we’ll send you the list directly.',
+      emptyTitle: 'This shelf is being stocked.',
+      emptyBody: 'We’re finalising listings with our partner brands. Register interest and we’ll tailor your first box around your pet.',
+      noResultsTitle: 'Nothing matches those filters.',
+      noResultsBody: 'Try clearing a filter — or switch to ‘All’ pet types.',
+      products: 'products',
+    },
+    lifeStages: {
+      puppy: 'Puppy',
+      junior: 'Junior',
+      adult: 'Adult',
+      senior: 'Senior',
+      kitten: 'Kitten',
+      cat: 'Cat',
+    },
+    productTypes: {
+      'dry-food': 'Dry food',
+      'wet-food': 'Wet food',
+      'snacks': 'Snacks',
+      'teeth-care': 'Teeth care',
+      'grooming': 'Grooming',
+      'pads': 'Pads',
+      'other': 'Other',
+    },
+  },
+
   // ---- Signup modal ----
   signup: {
     title: 'Start your plan',

@@ -63,6 +63,11 @@ export function compareSizes(a, b) {
   return parseFloat(ma[1]) - parseFloat(mb[1]);
 }
 
+// Canonical display order for life-stage facets. Labels are resolved by
+// callers via the i18n dictionary (catalogue.lifeStages.*).
+export const LIFE_STAGE_ORDER = ['puppy', 'junior', 'adult', 'senior', 'kitten', 'cat'];
+
+// Kept for backwards-compatibility / English fallback. Prefer i18n.
 export const LIFE_STAGE_LABELS = {
   puppy:  'Puppy',
   junior: 'Junior',
