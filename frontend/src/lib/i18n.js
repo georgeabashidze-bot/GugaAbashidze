@@ -1549,7 +1549,7 @@ export const translations = {
     "tags": "თეგები",
     "relatedTitle": "განაგრძე კითხვა.",
     "ctaEyebrow": "SmartPaw კვება",
-    "ctaTitle": "მზად ხარ შემდეგი მაღაზიის ვიზიტი თავიდან აიცილო?",
+    "ctaTitle": "გინდა საერთოდ აღარ იარო ზოომაღაზიაში?",
     "loadError": "ვერ ჩაიტვირთა სტატია."
   },
   "categories": {
@@ -1694,7 +1694,7 @@ export const translations = {
   },
   "pageShell": {
     "comingSoon": "მალე ხელმისაწვდომი",
-    "ctaTitle": "მზად ხარ შემდეგი ცხოველის მაღაზიის სვლის გამოტოვებას?",
+    "ctaTitle": "გინდა საერთოდ აღარ იარო ზოომაღაზიაში?",
     "ctaStart": "დაიწყე გეგმა",
     "ctaWhatsapp": "WhatsApp-ით საუბარი"
   },

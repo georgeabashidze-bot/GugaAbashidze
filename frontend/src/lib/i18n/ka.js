@@ -402,7 +402,7 @@ const ka = {
     tags: 'თეგები',
     relatedTitle: 'განაგრძე კითხვა.',
     ctaEyebrow: 'SmartPaw Food',
-    ctaTitle: 'მზად ხარ შემდეგი მაღაზიის ვიზიტი გამოტოვო?',
+    ctaTitle: 'გინდა საერთოდ აღარ იარო ზოომაღაზიაში?',
     loadError: 'ვერ ჩაიტვირთა სტატია.',
     minRead: (m) => `${m} წთ კითხვა`,
   },

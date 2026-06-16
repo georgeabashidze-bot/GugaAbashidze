@@ -33,6 +33,11 @@ An **Admin Control Panel** at `/admin/*` lets the team manage products, special 
 
 ## CHANGELOG (most recent first)
 
+### 2026-02 — Georgian CTA copy update (P0 complete)
+- Reworded the bottom CTA strip headline (used by `PageShell` across all subpages) from `მზად ხარ შემდეგი მაღაზიის ვიზიტი გამოტოვო?` → **`გინდა საერთოდ აღარ იარო ზოომაღაზიაში?`** for more natural local terminology.
+- Updated in `src/lib/i18n/ka.js` and both flattened occurrences in `src/lib/i18n.js`.
+- Verified on `/catalog` via screenshot. Pending user click on "Deploy" to push live.
+
 ### 2026-02 — Domain Migration to `smartpaw.ge` (P0 complete)
 - Site went live on the custom domain `smartpaw.ge`.
 - Canonical URL flipped from `smartpawfood.ge` → `smartpaw.ge` across: `backend/server.py` (`SITE_URL` default, drives `/api/sitemap.xml` + structured data), `public/index.html` (canonical, og:url, og:image, twitter:image, keywords), `public/robots.txt` (sitemap pointer), `src/lib/siteConfig.js`.
