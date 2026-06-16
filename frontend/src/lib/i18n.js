@@ -868,6 +868,66 @@ export const translations = {
       "/delivery-policy": "Delivery Policy",
       "/refund-policy": "Refund Policy"
     }
+  },
+  "catalogue": {
+    "filters": {
+      "title": "Filters",
+      "showing": "Showing",
+      "of": "of",
+      "clearAll": "↺ Clear all filters",
+      "price": "Price",
+      "petType": "Pet type",
+      "petTypeAll": "All",
+      "petTypeDog": "Dogs",
+      "petTypeCat": "Cats",
+      "type": "Type",
+      "lifeStage": "Life stage",
+      "brand": "Brand",
+      "weight": "Weight",
+      "status": "Status",
+      "featuredOnly": "Featured only",
+      "searchBrand": "Search brand",
+      "noBrandMatch": (q) => `No brand matches "${q}"`,
+      "showAll": (n) => `Show all (${n}) ↓`,
+      "collapse": "Collapse ↑",
+      "closeFilters": "Close filters",
+      "filtersButton": "Filters"
+    },
+    "sort": {
+      "label": "Sort:",
+      "featured": "Featured first",
+      "priceAsc": "Price: low → high",
+      "priceDesc": "Price: high → low",
+      "alphaAsc": "A → Z",
+      "alphaDesc": "Z → A"
+    },
+    "shelf": {
+      "loading": "Loading the shelf…",
+      "loadErrorTitle": "We couldn’t load this shelf just now.",
+      "loadErrorBody": "Please refresh, or message us on WhatsApp — we’ll send you the list directly.",
+      "emptyTitle": "This shelf is being stocked.",
+      "emptyBody": "We’re finalising listings with our partner brands. Register interest and we’ll tailor your first box around your pet.",
+      "noResultsTitle": "Nothing matches those filters.",
+      "noResultsBody": "Try clearing a filter — or switch to ‘All’ pet types.",
+      "products": "products"
+    },
+    "lifeStages": {
+      "puppy": "Puppy",
+      "junior": "Junior",
+      "adult": "Adult",
+      "senior": "Senior",
+      "kitten": "Kitten",
+      "cat": "Cat"
+    },
+    "productTypes": {
+      "dry-food": "Dry food",
+      "wet-food": "Wet food",
+      "snacks": "Snacks",
+      "teeth-care": "Teeth care",
+      "grooming": "Grooming",
+      "pads": "Pads",
+      "other": "Other"
+    }
   }
 },
   ka: {
@@ -1735,6 +1795,66 @@ export const translations = {
       "/terms": "წესები და პირობები",
       "/delivery-policy": "მიწოდების პოლიტიკა",
       "/refund-policy": "დაბრუნების პოლიტიკა"
+    }
+  },
+  "catalogue": {
+    "filters": {
+      "title": "ფილტრები",
+      "showing": "ნაჩვენებია",
+      "of": "-დან",
+      "clearAll": "↺ ფილტრების გასუფთავება",
+      "price": "ფასი",
+      "petType": "ცხოველის ტიპი",
+      "petTypeAll": "ყველა",
+      "petTypeDog": "ძაღლები",
+      "petTypeCat": "კატები",
+      "type": "ტიპი",
+      "lifeStage": "ცხოვრების ეტაპი",
+      "brand": "ბრენდი",
+      "weight": "წონა",
+      "status": "სტატუსი",
+      "featuredOnly": "მხოლოდ რჩეული",
+      "searchBrand": "მოძებნე ბრენდი",
+      "noBrandMatch": (q) => `ბრენდი ვერ მოიძებნა „${q}"-ისთვის`,
+      "showAll": (n) => `ნახე ყველა (${n}) ↓`,
+      "collapse": "დახურვა ↑",
+      "closeFilters": "ფილტრების დახურვა",
+      "filtersButton": "ფილტრები"
+    },
+    "sort": {
+      "label": "სორტირება:",
+      "featured": "რჩეული პირველი",
+      "priceAsc": "ფასი: დაბლიდან მაღლა",
+      "priceDesc": "ფასი: მაღლიდან დაბლა",
+      "alphaAsc": "ა → ჰ",
+      "alphaDesc": "ჰ → ა"
+    },
+    "shelf": {
+      "loading": "თარო იტვირთება…",
+      "loadErrorTitle": "თარო ვერ ჩაიტვირთა.",
+      "loadErrorBody": "გთხოვ, განაახლე გვერდი, ან მოგვწერე WhatsApp-ში — ჩვენ პირდაპირ გამოგიგზავნით სიას.",
+      "emptyTitle": "ეს თარო ივსება.",
+      "emptyBody": "ჩვენ ვასრულებთ პოზიციების სიას პარტნიორ ბრენდებთან. დარეგისტრირდი — და შენი ცხოველის ირგვლივ ავაწყობთ პირველ ყუთს.",
+      "noResultsTitle": "ფილტრებს არაფერი ემთხვევა.",
+      "noResultsBody": "სცადე ფილტრის გასუფთავება — ან გადართე „ყველა\" ცხოველის ტიპზე.",
+      "products": "პროდუქცია"
+    },
+    "lifeStages": {
+      "puppy": "ლეკვი",
+      "junior": "მოზარდი",
+      "adult": "ზრდასრული",
+      "senior": "ხანდაზმული",
+      "kitten": "კნუტი",
+      "cat": "კატა"
+    },
+    "productTypes": {
+      "dry-food": "მშრალი საკვები",
+      "wet-food": "სველი საკვები",
+      "snacks": "გამახარისხებლები",
+      "teeth-care": "კბილების მოვლა",
+      "grooming": "მოვლა",
+      "pads": "ხელსახოცები",
+      "other": "სხვა"
     }
   }
 },

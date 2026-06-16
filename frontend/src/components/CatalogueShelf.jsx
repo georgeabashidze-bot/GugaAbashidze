@@ -59,16 +59,17 @@ function applyFilters(productsWithFacets, filters, sort) {
  */
 export default function CatalogueShelf({ subCategory, category = 'catalogue' }) {
   const { t } = useLang();
+  const tc = t.catalogue;
 
   const SORT_OPTIONS = useMemo(
     () => [
-      { value: 'featured', label: t('catalogue.sort.featured') },
-      { value: 'price-asc', label: t('catalogue.sort.priceAsc') },
-      { value: 'price-desc', label: t('catalogue.sort.priceDesc') },
-      { value: 'alpha-asc', label: t('catalogue.sort.alphaAsc') },
-      { value: 'alpha-desc', label: t('catalogue.sort.alphaDesc') },
+      { value: 'featured', label: tc.sort.featured },
+      { value: 'price-asc', label: tc.sort.priceAsc },
+      { value: 'price-desc', label: tc.sort.priceDesc },
+      { value: 'alpha-asc', label: tc.sort.alphaAsc },
+      { value: 'alpha-desc', label: tc.sort.alphaDesc },
     ],
-    [t],
+    [tc],
   );
 
   const { data, isLoading, isError } = useQuery({
@@ -173,7 +174,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
         className="flex items-center justify-center py-16 text-[#465B70]"
       >
         <Loader2 className="w-6 h-6 animate-spin text-[#F25C05]" />
-        <span className="ml-3 font-medium">{t('catalogue.shelf.loading')}</span>
+        <span className="ml-3 font-medium">{tc.shelf.loading}</span>
       </div>
     );
   }
@@ -181,9 +182,9 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
   if (isError) {
     return (
       <div data-testid={`${testIdGrid}-error`} className="card-soft p-7 text-center">
-        <p className="font-bold text-[#05223D]">{t('catalogue.shelf.loadErrorTitle')}</p>
+        <p className="font-bold text-[#05223D]">{tc.shelf.loadErrorTitle}</p>
         <p className="text-sm text-[#465B70] mt-2">
-          {t('catalogue.shelf.loadErrorBody')}
+          {tc.shelf.loadErrorBody}
         </p>
       </div>
     );
@@ -193,9 +194,9 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
     return (
       <div data-testid={`${testIdGrid}-empty`} className="card-soft p-10 text-center">
         <PawPrint className="w-8 h-8 text-[#F25C05] mx-auto" />
-        <p className="font-display font-bold text-[#05223D] text-xl mt-3">{t('catalogue.shelf.emptyTitle')}</p>
+        <p className="font-display font-bold text-[#05223D] text-xl mt-3">{tc.shelf.emptyTitle}</p>
         <p className="text-sm text-[#465B70] mt-2 max-w-md mx-auto">
-          {t('catalogue.shelf.emptyBody')}
+          {tc.shelf.emptyBody}
         </p>
       </div>
     );
@@ -242,7 +243,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
               className="lg:hidden inline-flex items-center gap-2 rounded-full border border-[#0A4D8C26] px-4 py-2 text-sm font-bold text-[#0A4D8C] hover:bg-[#0A4D8C] hover:text-white transition-all"
             >
               <SlidersHorizontal size={14} />
-              {t('catalogue.filters.filtersButton')}
+              {tc.filters.filtersButton}
               {activeFilterCount > 0 && (
                 <span className="ml-1 bg-[#F25C05] text-white rounded-full text-[10px] font-bold w-5 h-5 inline-flex items-center justify-center">
                   {activeFilterCount}
@@ -251,12 +252,12 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
             </button>
             <p data-testid="shelf-result-count" className="text-sm text-[#465B70]">
               <span className="font-bold text-[#05223D]">{filtered.length}</span>
-              {' '}/ {products.length} {t('catalogue.shelf.products')}
+              {' '}/ {products.length} {tc.shelf.products}
             </p>
           </div>
 
           <label className="flex items-center gap-2 text-sm text-[#465B70]">
-            <span className="hidden sm:inline">{t('catalogue.sort.label')}</span>
+            <span className="hidden sm:inline">{tc.sort.label}</span>
             <div className="relative">
               <select
                 value={sort}
@@ -282,10 +283,10 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
           >
             <PawPrint className="w-8 h-8 text-[#F25C05] mx-auto" />
             <p className="font-display font-bold text-[#05223D] text-xl mt-3">
-              {t('catalogue.shelf.noResultsTitle')}
+              {tc.shelf.noResultsTitle}
             </p>
             <p className="text-sm text-[#465B70] mt-2">
-              {t('catalogue.shelf.noResultsBody')}
+              {tc.shelf.noResultsBody}
             </p>
           </div>
         ) : (
@@ -302,7 +303,7 @@ export default function CatalogueShelf({ subCategory, category = 'catalogue' }) 
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="w-[88%] max-w-sm overflow-y-auto p-0 border-r-0 bg-[#FDFBF7]">
-          <SheetTitle className="sr-only">{t('catalogue.filters.title')}</SheetTitle>
+          <SheetTitle className="sr-only">{tc.filters.title}</SheetTitle>
           {mobileOpen && <div className="p-5">{filtersNode}</div>}
         </SheetContent>
       </Sheet>
