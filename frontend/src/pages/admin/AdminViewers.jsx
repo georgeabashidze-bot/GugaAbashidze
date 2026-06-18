@@ -104,6 +104,28 @@ export function AdminContacts() {
   );
 }
 
+export function AdminCabinetCustomers() {
+  return (
+    <SimpleList
+      title="Cabinet Customers"
+      eyebrow="Registered users"
+      testId="admin-cabinet-customers-page"
+      fetcher={() => adminApi.listCabinetCustomers()}
+      columns={[
+        { key: 'name', label: 'Name' },
+        { key: 'email', label: 'Email' },
+        { key: 'phone', label: 'Phone', render: (row) => <PhoneCell row={row} /> },
+        { key: 'provider', label: 'Provider' },
+        { key: 'subscription_count', label: 'Subs' },
+        { key: 'pet_count', label: 'Pets' },
+        { key: 'address_count', label: 'Addresses' },
+        { key: 'created_at', label: 'Joined' },
+      ]}
+      csvName="smartpaw-cabinet-customers.csv"
+    />
+  );
+}
+
 function SimpleList({ title, eyebrow, fetcher, columns, csvName, testId }) {
   const [items, setItems] = useState(null);
   const [error, setError] = useState('');
@@ -199,6 +221,8 @@ function SimpleList({ title, eyebrow, fetcher, columns, csvName, testId }) {
                             ? c.render(row)
                             : c.key === 'created_at' && row[c.key]
                             ? new Date(row[c.key]).toLocaleString()
+                            : row[c.key] === 0
+                            ? '0'
                             : row[c.key] || '—'}
                         </div>
                       </td>

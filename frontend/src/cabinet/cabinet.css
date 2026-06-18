@@ -1,0 +1,92 @@
+/* ----------------------------------------------------------------------------
+ * SmartPaw Cabinet — scoped Shadcn-style design tokens.
+ *
+ * These tokens are required by the cabinet pages (ported from the standalone
+ * MVP) which were styled against HSL variables (Shadcn convention).
+ *
+ * They are placed inside ".cabinet-scope" so they DO NOT leak into the legacy
+ * marketing/admin site (which uses its own --sp-* tokens defined in
+ * /src/index.css).
+ *
+ * The values mirror the SmartPaw palette: cream background, deep navy text,
+ * vivid orange CTA — identical to the rest of smartpaw.ge.
+ * --------------------------------------------------------------------------- */
+
+.cabinet-scope {
+  --background: 39 50% 98%;            /* cream  #FDFBF7 */
+  --foreground: 211 86% 13%;           /* navy   #05223D */
+
+  --card: 0 0% 100%;
+  --card-foreground: 211 86% 13%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 211 86% 13%;
+
+  --primary: 22 96% 48%;               /* orange #F25C05 */
+  --primary-foreground: 39 50% 98%;
+
+  --secondary: 36 30% 94%;             /* warm sand */
+  --secondary-foreground: 211 86% 13%;
+
+  --muted: 36 24% 92%;
+  --muted-foreground: 215 18% 38%;
+
+  --accent: 22 96% 94%;
+  --accent-foreground: 211 86% 13%;
+
+  --destructive: 0 78% 50%;
+  --destructive-foreground: 39 50% 98%;
+
+  --border: 36 20% 88%;
+  --input: 36 20% 88%;
+  --ring: 22 96% 48%;
+
+  --radius: 0.9rem;
+
+  --chart-1: 22 96% 48%;
+  --chart-2: 211 86% 13%;
+  --chart-3: 92 22% 44%;
+  --chart-4: 36 55% 55%;
+  --chart-5: 195 78% 40%;
+
+  --terracotta: 22 96% 48%;            /* alias → orange */
+  --sage: 92 22% 56%;
+  --cocoa: 211 86% 13%;
+
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: "DM Sans", "Noto Sans Georgian", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.cabinet-scope h1,
+.cabinet-scope h2,
+.cabinet-scope h3,
+.cabinet-scope h4,
+.cabinet-scope .font-serif {
+  font-family: "DM Sans", "Noto Sans Georgian", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.cabinet-scope .app-shell { background-color: hsl(var(--background)); }
+
+/* Utilities that cabinet pages rely on */
+.cabinet-scope .tabular-nums { font-variant-numeric: tabular-nums; }
+.cabinet-scope .text-cocoa { color: hsl(var(--cocoa)); }
+.cabinet-scope .bg-cream { background-color: hsl(39 50% 98%); }
+.cabinet-scope .bg-paper { background-color: hsl(0 0% 100%); }
+.cabinet-scope .bg-sand { background-color: hsl(36 30% 94%); }
+.cabinet-scope .bg-terracotta { background-color: hsl(var(--terracotta)); }
+.cabinet-scope .text-terracotta { color: hsl(var(--terracotta)); }
+.cabinet-scope .bg-sage { background-color: hsl(var(--sage)); }
+.cabinet-scope .text-sage { color: hsl(var(--sage)); }
+.cabinet-scope .text-navy { color: hsl(var(--foreground)); }
+.cabinet-scope .dashboard-gradient {
+  background-image:
+    radial-gradient(1200px circle at 20% 0%, rgba(242, 92, 5, 0.10), transparent 55%),
+    radial-gradient(900px circle at 80% 10%, rgba(5, 34, 61, 0.06), transparent 55%);
+}
+
+/* When the cabinet takes over a full-screen route (e.g. /cabinet/login),
+   ensure the background covers the whole viewport. */
+.cabinet-scope { min-height: 100vh; }

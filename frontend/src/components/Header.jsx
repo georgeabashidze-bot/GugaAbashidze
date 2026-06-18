@@ -132,6 +132,14 @@ export default function Header({ onOpenSignup }) {
             ))}
           </div>
 
+          <Link
+            to="/cabinet/login"
+            data-testid="header-signin-link"
+            className="hidden md:inline-flex text-sm font-bold text-[#0A4D8C] hover:text-[#F25C05] transition-colors whitespace-nowrap"
+          >
+            {lang === 'ka' ? 'შესვლა' : 'Sign in'}
+          </Link>
+
           <button
             data-testid={TID.header.cta}
             onClick={onOpenSignup}
@@ -178,6 +186,14 @@ export default function Header({ onOpenSignup }) {
             >
               {t.nav.cta}
             </button>
+            <Link
+              to="/cabinet/login"
+              onClick={closeMobile}
+              data-testid="header-signin-link-mobile"
+              className="mt-2 text-center text-sm font-bold text-[#0A4D8C] hover:text-[#F25C05]"
+            >
+              {lang === 'ka' ? 'შესვლა' : 'Sign in'}
+            </Link>
             <div className="flex items-center justify-center gap-2 mt-5">
               {SOCIALS.map((s) => {
                 const Icon = s.icon;

@@ -221,6 +221,10 @@ export const adminApi = {
   listLeads: () => request('/api/admin/leads'),
   listContacts: () => request('/api/admin/contact-inquiries'),
 
+  // cabinet (customer dashboard)
+  listCabinetCustomers: () => request('/api/admin/cabinet-customers'),
+  cabinetStats: () => request('/api/admin/cabinet-stats'),
+
   // plans
   listPlans: () => request('/api/admin/plans'),
   getPlan: (id) => request(`/api/admin/plans/${id}`),

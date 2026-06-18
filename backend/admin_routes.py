@@ -1120,3 +1120,65 @@ async def admin_list_contacts(_=Depends(get_current_admin)):
         .to_list(2000)
     )
     return items
+
+
+# ============================================================================
+# CABINET CUSTOMERS (registrants from the customer cabinet)
+# ============================================================================
+@admin_router.get("/cabinet-customers")
+async def admin_list_cabinet_customers(_=Depends(get_current_admin)):
+    """List all self-registered cabinet customers with subscription/pet counts.
+
+    Powers the "Cabinet customers" view in the admin panel so newly registered
+    users from the /cabinet experience surface here immediately.
+    """
+    from server import db
+
+    items = (
+        await db.users.find(
+            {"role": "customer"},
+            {"_id": 0, "password_hash": 0},
+        )
+        .sort("created_at", -1)
+        .to_list(5000)
+    )
+    out = []
+    for u in items:
+        uid = u.get("id")
+        sub_count = await db.subscriptions.count_documents(
+            {"user_id": uid, "status": {"$ne": "cancelled"}}
+        )
+        pet_count = await db.pets.count_documents({"user_id": uid})
+        addr_count = await db.addresses.count_documents({"user_id": uid})
+        out.append(
+            {
+                **u,
+                "subscription_count": sub_count,
+                "pet_count": pet_count,
+                "address_count": addr_count,
+            }
+        )
+    return out
+
+
+@admin_router.get("/cabinet-stats")
+async def admin_cabinet_stats(_=Depends(get_current_admin)):
+    """High-level cabinet KPIs for the admin dashboard."""
+    from datetime import datetime, timedelta, timezone
+    from server import db
+
+    total_customers = await db.users.count_documents({"role": "customer"})
+    active_subs = await db.subscriptions.count_documents({"status": "active"})
+    paused_subs = await db.subscriptions.count_documents({"status": "paused"})
+    total_orders = await db.orders.count_documents({})
+    since = datetime.now(timezone.utc) - timedelta(days=7)
+    new_this_week = await db.users.count_documents(
+        {"role": "customer", "created_at": {"$gte": since.isoformat()}}
+    )
+    return {
+        "total_customers": total_customers,
+        "new_customers_7d": new_this_week,
+        "active_subscriptions": active_subs,
+        "paused_subscriptions": paused_subs,
+        "total_orders": total_orders,
+    }
