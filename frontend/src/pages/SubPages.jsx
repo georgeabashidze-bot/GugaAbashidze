@@ -6,58 +6,16 @@ import { PARTNER_BRANDS } from '@/data/partnerBrands';
 // ──────────────────────────────────────────────────────────────────────
 // Food / Hygiene / Vitamins:
 //   While the SmartPaw product catalogue is being populated, these three
-//   pages show a curated partner-brand grid (links open in a new tab) instead
-//   of an empty product list. When real products are ready, flip
+//   pages show breadcrumbs → partner-brand grid → CTA, without a hero or
+//   image (kept intentionally minimal). When real products are ready, flip
 //   PARTNER_BRANDS.<category>.useBrandGrid to false and the page falls back
 //   to <SubCategoryPage>.
 // ──────────────────────────────────────────────────────────────────────
 
-const FOOD_HERO = {
-  eyebrow: { en: 'Catalogue · Food', ka: 'კატალოგი · საკვები' },
-  title: {
-    en: 'Food that fuels routine, not surprises.',
-    ka: 'საკვები, რომელიც რეჟიმს კვებავს — და არა ნერვებს.',
-  },
-  intro: {
-    en: 'Dry kibble, wet food, treats and prescription diets — sized to your pet, delivered before you run out.',
-    ka: 'მშრალი საკვები, სველი საკვები, წახემსები და სამედიცინო რაციონები — შენი ცხოველის ზომაზე, მიწოდება შენი მარაგის გათავებამდე.',
-  },
-  image: 'https://images.pexels.com/photos/8434637/pexels-photo-8434637.jpeg?auto=compress&cs=tinysrgb&w=1400',
-  imageAlt: { en: 'Dog eating dry kibble from a bowl', ka: 'ძაღლი ჭამს მშრალ საკვებს თასიდან' },
-};
-
-const HYGIENE_HERO = {
-  eyebrow: { en: 'Catalogue · Hygiene', ka: 'კატალოგი · ჰიგიენა' },
-  title: {
-    en: 'Clean coat, clean home, quietly handled.',
-    ka: 'სუფთა ბეწვი, სუფთა სახლი — შეუმჩნევლად.',
-  },
-  intro: {
-    en: 'The hygiene basics most owners only remember when they’ve already run out — restocked on a schedule that matches your pet’s routine.',
-    ka: 'ჰიგიენის საშუალებები, რომელთა გათავება ჩვეულებრივ ბოლო წუთს გვახსოვს — ჩვენ რეგულარულად ვაგზავნით შენი ცხოველის რეჟიმის გათვალისწინებით.',
-  },
-  image: 'https://images.pexels.com/photos/1436139/pexels-photo-1436139.jpeg?auto=compress&cs=tinysrgb&w=1400',
-  imageAlt: { en: 'Puppy being bathed', ka: 'ლეკვი ბანაობს' },
-};
-
-const VITAMINS_HERO = {
-  eyebrow: { en: 'Catalogue · Vitamins & Additives', ka: 'კატალოგი · ვიტამინები და დანამატები' },
-  title: {
-    en: 'Daily care, not after-care.',
-    ka: 'ყოველდღიური ზრუნვა — და არა ფაქტის შემდგომი.',
-  },
-  intro: {
-    en: 'Joint support, skin and coat, digestive health, immunity and senior formulas — the supplements vets actually recommend.',
-    ka: 'სახსრების მხარდაჭერა, კანი და ბეწვი, საჭმლის მონელება, იმუნიტეტი და ხანდაზმული ცხოველის ფორმულები — ვეტერინარების მიერ რეკომენდებული დანამატები.',
-  },
-  image: 'https://images.pexels.com/photos/8434641/pexels-photo-8434641.jpeg?auto=compress&cs=tinysrgb&w=1400',
-  imageAlt: { en: 'Pet supplements and vitamins', ka: 'ცხოველის ვიტამინები და დანამატები' },
-};
-
 export function FoodPage() {
   const cfg = PARTNER_BRANDS.food;
   if (cfg?.useBrandGrid) {
-    return <PartnerCategoryPage config={cfg} category="food" hero={FOOD_HERO} />;
+    return <PartnerCategoryPage config={cfg} category="food" />;
   }
   return (
     <SubCategoryPage
@@ -74,7 +32,7 @@ export function FoodPage() {
 export function HygienePage() {
   const cfg = PARTNER_BRANDS.hygiene;
   if (cfg?.useBrandGrid) {
-    return <PartnerCategoryPage config={cfg} category="hygiene" hero={HYGIENE_HERO} />;
+    return <PartnerCategoryPage config={cfg} category="hygiene" />;
   }
   return (
     <SubCategoryPage
@@ -91,7 +49,7 @@ export function HygienePage() {
 export function VitaminsPage() {
   const cfg = PARTNER_BRANDS.vitamins;
   if (cfg?.useBrandGrid) {
-    return <PartnerCategoryPage config={cfg} category="vitamins" hero={VITAMINS_HERO} />;
+    return <PartnerCategoryPage config={cfg} category="vitamins" />;
   }
   return (
     <SubCategoryPage
