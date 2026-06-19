@@ -1,6 +1,6 @@
 import React from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Repeat, ShoppingBag, Sparkles, Cat, MapPin, Receipt, UserCircle2, BellRing, LogOut, Shield } from "lucide-react";
+import { NavLink, Outlet, useNavigate, Link } from "react-router-dom";
+import { LayoutDashboard, Repeat, ShoppingBag, Sparkles, Cat, MapPin, Receipt, UserCircle2, BellRing, LogOut, Shield, ArrowLeft, Home } from "lucide-react";
 import { useI18n } from "@/cabinet/i18n";
 import { useAuth } from "@/cabinet/context/AuthContext";
 import BrandMark from "./BrandMark";
@@ -53,9 +53,10 @@ function MobileTab({ to, icon: Icon, label, testId }) {
 }
 
 export default function AppShell() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const backLabel = lang === "ka" ? "მთავარ გვერდზე დაბრუნება" : "Back to main site";
 
   const onLogout = async () => {
     await logout();
@@ -74,6 +75,15 @@ export default function AppShell() {
             <span className="hidden text-xs text-[hsl(var(--muted-foreground))] sm:inline">| {t("brand.tagline")}</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/"
+              data-testid="cabinet-back-to-main-link"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[hsl(var(--border))] bg-paper px-3 py-1.5 text-xs font-bold text-[hsl(var(--foreground))] hover:border-[hsl(var(--terracotta))] hover:text-[hsl(var(--terracotta))] transition-colors"
+              title={backLabel}
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>{backLabel}</span>
+            </Link>
             <LanguageToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -88,6 +98,9 @@ export default function AppShell() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="truncate">{user?.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/")} data-testid="account-menu-back-to-main" className="md:hidden">
+                  <Home className="mr-2 h-4 w-4" /> {backLabel}
+                </DropdownMenuItem>
                 {user?.role === "admin" && (
                   <DropdownMenuItem onClick={() => navigate("/cabinet/admin")} data-testid="account-menu-admin">
                     <Shield className="mr-2 h-4 w-4 text-[hsl(var(--primary))]" /> Admin panel
@@ -123,6 +136,15 @@ export default function AppShell() {
             <NavItem to="/cabinet/addresses" icon={MapPin} label={t("nav.addresses")} testId="sidebar-addresses" />
             <NavItem to="/cabinet/profile" icon={UserCircle2} label={t("nav.profile")} testId="sidebar-profile" />
             <NavItem to="/cabinet/notifications" icon={BellRing} label={t("nav.notifications")} testId="sidebar-notifications" />
+            <div className="my-2 h-px bg-[hsl(var(--border))]" />
+            <Link
+              to="/"
+              data-testid="sidebar-back-to-main"
+              className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] hover:text-[hsl(var(--terracotta))] transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="truncate">{backLabel}</span>
+            </Link>
           </nav>
         </aside>
 

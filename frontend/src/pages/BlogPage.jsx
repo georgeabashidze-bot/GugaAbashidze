@@ -28,6 +28,38 @@ const COPY = {
   minRead: { en: 'min read', ka: 'წთ კითხვა' },
 };
 
+// Bilingual labels for the most common blog tags. Falls back to the raw slug
+// (with `#`) for any tag that doesn't have a Georgian mapping yet.
+const TAG_LABELS = {
+  cats:           { en: 'cats',          ka: 'კატები' },
+  dogs:           { en: 'dogs',          ka: 'ძაღლები' },
+  feeding:        { en: 'feeding',       ka: 'კვება' },
+  nutrition:      { en: 'nutrition',     ka: 'კვება' },
+  health:         { en: 'health',        ka: 'ჯანმრთელობა' },
+  wellness:       { en: 'wellness',      ka: 'კეთილდღეობა' },
+  hygiene:        { en: 'hygiene',       ka: 'ჰიგიენა' },
+  routine:        { en: 'routine',       ka: 'რეჟიმი' },
+  lifestyle:      { en: 'lifestyle',     ka: 'ცხოვრების სტილი' },
+  indoor:         { en: 'indoor',        ka: 'სახლის' },
+  outdoor:        { en: 'outdoor',       ka: 'გარე' },
+  puppy:          { en: 'puppy',         ka: 'ლეკვი' },
+  kitten:         { en: 'kitten',        ka: 'კნუტი' },
+  training:       { en: 'training',      ka: 'წვრთნა' },
+  travel:         { en: 'travel',        ka: 'მგზავრობა' },
+  tbilisi:        { en: 'tbilisi',       ka: 'თბილისი' },
+  transition:     { en: 'transition',    ka: 'გადასვლა' },
+  'smart-feeder': { en: 'smart-feeder',  ka: 'სმარტ-მიმწოდებელი' },
+  'vet-tips':     { en: 'vet-tips',      ka: 'ვეტ-რჩევები' },
+  supplements:    { en: 'supplements',   ka: 'დანამატები' },
+  vitamins:       { en: 'vitamins',      ka: 'ვიტამინები' },
+};
+
+function localizedTag(slug, lang) {
+  const entry = TAG_LABELS[slug];
+  if (entry) return entry[lang] || entry.en || slug;
+  return slug;
+}
+
 function formatDate(iso, lang) {
   if (!iso) return '';
   try {
@@ -91,7 +123,7 @@ export default function BlogPage() {
                       : 'bg-white text-[#0A4D8C] border-[#0A4D8C]/20 hover:border-[#0A4D8C]/40'
                   }`}
                 >
-                  {t === 'all' ? L(COPY.all) : `#${t}`}
+                  {t === 'all' ? L(COPY.all) : `#${localizedTag(t, lang)}`}
                 </button>
               );
             })}
@@ -159,7 +191,7 @@ export default function BlogPage() {
                     />
                     {p.tag && (
                       <span className="absolute top-4 left-4 bg-white/95 backdrop-blur text-[#0A4D8C] text-xs font-bold tracking-wider uppercase rounded-full px-3 py-1.5">
-                        {p.tag}
+                        #{localizedTag(p.tag, lang)}
                       </span>
                     )}
                   </div>

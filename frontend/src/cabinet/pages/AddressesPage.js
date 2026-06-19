@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useI18n } from "@/cabinet/i18n";
 import { api, formatApiError } from "@/cabinet/lib/api";
 import PageHeader from "@/cabinet/components/layout/PageHeader";
+import AddressMapPicker from "@/cabinet/components/AddressMapPicker";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,11 +18,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 const BLANK = {
   label: "Home", recipient: "", phone: "", city: "Tbilisi", district: "", street: "", building: "",
-  apartment: "", postal_code: "", notes: "", is_default: false,
+  apartment: "", postal_code: "", notes: "", is_default: false, lat: null, lng: null,
 };
 
 export default function AddressesPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -75,9 +76,28 @@ export default function AddressesPage() {
             <DialogTrigger asChild>
               <Button onClick={openCreate} className="rounded-xl" data-testid="addresses-add-address-button"><Plus className="mr-2 h-4 w-4" />{t("addresses.add")}</Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
               <DialogHeader><DialogTitle>{editing ? t("addresses.edit") : t("addresses.add")}</DialogTitle></DialogHeader>
               <form className="grid grid-cols-2 gap-3" onSubmit={submit}>
+                {/* Map picker — full width on top */}
+                <div className="col-span-2">
+                  <Label className="mb-2 block">
+                    {lang === "ka" ? "მონიშნე მისამართი რუკაზე" : "Pin your address on the map"}
+                  </Label>
+                  <AddressMapPicker
+                    value={form.lat != null && form.lng != null ? { lat: form.lat, lng: form.lng } : undefined}
+                    onChange={(p) => setForm((f) => ({ ...f, lat: p.lat, lng: p.lng }))}
+                    onResolved={(addr) => setForm((f) => ({
+                      ...f,
+                      street: addr.street && (!f.street || f.street.trim().length < 3) ? addr.street : f.street,
+                      district: addr.district || f.district,
+                      city: addr.city || f.city,
+                      postal_code: addr.postal_code || f.postal_code,
+                    }))}
+                    lang={lang}
+                    testId="addresses-form-map"
+                  />
+                </div>
                 <div className="space-y-1.5"><Label>{t("addresses.label")}</Label><Input value={form.label} onChange={(e)=>setForm({...form,label:e.target.value})} required data-testid="addresses-form-label" /></div>
                 <div className="space-y-1.5"><Label>{t("addresses.recipient")}</Label><Input value={form.recipient} onChange={(e)=>setForm({...form,recipient:e.target.value})} required data-testid="addresses-form-recipient" /></div>
                 <div className="space-y-1.5"><Label>{t("addresses.phone")}</Label><Input value={form.phone} onChange={(e)=>setForm({...form,phone:e.target.value})} required data-testid="addresses-form-phone" /></div>

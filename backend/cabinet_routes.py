@@ -199,6 +199,8 @@ class StarterAddress(BaseModel):
     apartment: Optional[str] = None
     postal_code: Optional[str] = None
     notes: Optional[str] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
 
 
 class StarterPet(BaseModel):
@@ -284,6 +286,8 @@ class AddressIn(BaseModel):
     postal_code: Optional[str] = None
     notes: Optional[str] = None
     is_default: bool = False
+    lat: Optional[float] = None
+    lng: Optional[float] = None
 
 
 class SubscriptionCreate(BaseModel):
@@ -307,10 +311,10 @@ class SubscriptionUpdate(BaseModel):
 class NotificationPrefs(BaseModel):
     email_enabled: bool = True
     sms_enabled: bool = True
-    whatsapp_enabled: bool = False
+    whatsapp_enabled: bool = True
     delivery_reminders: bool = True
     low_stock_alerts: bool = True
-    marketing: bool = False
+    marketing: bool = True
 
 
 # ------------------------------------------------------------------------------- #
@@ -361,6 +365,8 @@ async def _create_starter_data(
                 "apartment": address.get("apartment"),
                 "postal_code": address.get("postal_code"),
                 "notes": address.get("notes"),
+                "lat": address.get("lat"),
+                "lng": address.get("lng"),
                 "is_default": True,
                 "created_at": now_utc(),
             }

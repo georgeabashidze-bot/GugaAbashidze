@@ -160,9 +160,16 @@ export default function PetsPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{Array.from({length:3}).map((_,i)=><Skeleton key={i} className="h-44 rounded-2xl" />)}</div>
       ) : pets.length === 0 ? (
         <Card className="border-dashed bg-paper" data-testid="pets-empty">
-          <CardContent className="p-8 text-center">
-            <PawPrint className="mx-auto mb-3 h-8 w-8 text-[hsl(var(--muted-foreground))]" />
+          <CardContent className="p-10 text-center">
+            <PawPrint className="mx-auto mb-3 h-10 w-10 text-[hsl(var(--muted-foreground))]" />
             <p className="text-sm text-[hsl(var(--muted-foreground))]">{t("pets.no_pets")}</p>
+            <Button
+              className="mt-5 rounded-xl"
+              data-testid="pets-empty-add-pet-button"
+              onClick={openCreate}
+            >
+              <Plus className="mr-2 h-4 w-4" />{t("pets.add")}
+            </Button>
           </CardContent>
         </Card>
       ) : (

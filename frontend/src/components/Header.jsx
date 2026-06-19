@@ -53,25 +53,25 @@ export default function Header({ onOpenSignup }) {
           : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-5 md:px-10 h-24 md:h-28 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-10 h-20 md:h-24 lg:h-28 flex items-center justify-between gap-3">
         <Link
           data-testid={TID.header.logo}
           to="/"
           onClick={closeMobile}
-          className="flex items-center gap-3 group shrink-0"
+          className="flex items-center gap-2.5 group shrink-0"
           aria-label="SmartPaw Food"
         >
           <img
             src={LOGO}
             alt="SmartPaw Food"
-            className="h-16 w-16 md:h-20 md:w-20 object-contain transition-transform duration-300 group-hover:rotate-[-6deg]"
+            className="h-12 w-12 md:h-16 md:w-16 lg:h-20 lg:w-20 object-contain transition-transform duration-300 group-hover:rotate-[-6deg]"
           />
-          <span className="font-display font-extrabold text-[#0A4D8C] text-xl md:text-2xl tracking-tight hidden sm:block leading-none">
+          <span className="font-display font-extrabold text-[#0A4D8C] text-lg md:text-xl lg:text-2xl tracking-tight hidden sm:block leading-none">
             SmartPaw <span className="text-[#F25C05]">Food</span>
           </span>
         </Link>
 
-        <nav className="hidden xl:flex items-center gap-0.5">
+        <nav className="hidden lg:flex items-center gap-0.5">
           {navItems.map((it) => (
             <NavLink
               key={it.to}
@@ -79,7 +79,7 @@ export default function Header({ onOpenSignup }) {
               end={it.end}
               data-testid={it.tid}
               className={({ isActive }) =>
-                `px-3.5 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
+                `px-2.5 xl:px-3.5 py-2 text-[13px] xl:text-sm font-medium transition-colors whitespace-nowrap ${
                   isActive ? 'text-[#F25C05]' : 'text-[#05223D] hover:text-[#F25C05]'
                 }`
               }
@@ -89,8 +89,8 @@ export default function Header({ onOpenSignup }) {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          {/* Socials (desktop only) */}
+        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+          {/* Socials (only on the widest screens) */}
           <div className="hidden 2xl:flex items-center gap-1 mr-1" aria-label="Social links">
             {SOCIALS.map((s) => {
               const Icon = s.icon;
@@ -112,7 +112,7 @@ export default function Header({ onOpenSignup }) {
 
           <div
             data-testid={TID.header.langToggle}
-            className="hidden sm:flex items-center bg-white border border-[#0A4D8C1A] rounded-full p-1"
+            className="hidden sm:flex items-center bg-white border border-[#0A4D8C1A] rounded-full p-0.5 md:p-1"
             role="group"
             aria-label="Language toggle"
           >
@@ -121,7 +121,7 @@ export default function Header({ onOpenSignup }) {
                 key={l.code}
                 onClick={() => setLang(l.code)}
                 data-testid={`lang-${l.code}-button`}
-                className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all ${
+                className={`text-[11px] md:text-xs font-bold px-2.5 md:px-3 py-1 md:py-1.5 rounded-full transition-all ${
                   lang === l.code
                     ? 'bg-[#0A4D8C] text-white'
                     : 'text-[#465B70] hover:text-[#0A4D8C]'
@@ -135,7 +135,7 @@ export default function Header({ onOpenSignup }) {
           <Link
             to="/cabinet/login"
             data-testid="header-signin-link"
-            className="hidden md:inline-flex text-sm font-bold text-[#0A4D8C] hover:text-[#F25C05] transition-colors whitespace-nowrap"
+            className="hidden md:inline-flex text-[13px] md:text-sm font-bold text-[#0A4D8C] hover:text-[#F25C05] transition-colors whitespace-nowrap px-2"
           >
             {lang === 'ka' ? 'შესვლა' : 'Sign in'}
           </Link>
@@ -143,7 +143,7 @@ export default function Header({ onOpenSignup }) {
           <button
             data-testid={TID.header.cta}
             onClick={onOpenSignup}
-            className="hidden md:inline-flex btn-primary text-sm whitespace-nowrap"
+            className="hidden md:inline-flex btn-primary !text-[13px] md:!text-sm !px-4 md:!px-5 !py-2.5 md:!py-3 whitespace-nowrap"
           >
             {t.nav.cta}
           </button>
@@ -151,7 +151,7 @@ export default function Header({ onOpenSignup }) {
           <button
             data-testid={TID.header.mobileMenu}
             onClick={() => setOpen((v) => !v)}
-            className="xl:hidden w-11 h-11 rounded-full border border-[#0A4D8C33] flex items-center justify-center text-[#0A4D8C]"
+            className="lg:hidden w-10 h-10 md:w-11 md:h-11 rounded-full border border-[#0A4D8C33] flex items-center justify-center text-[#0A4D8C] shrink-0"
             aria-label="Open menu"
           >
             {open ? <X size={18} /> : <Menu size={18} />}
@@ -161,7 +161,7 @@ export default function Header({ onOpenSignup }) {
 
       {/* Mobile drawer */}
       {open && (
-        <div className="xl:hidden bg-[#FDFBF7] border-t border-[#0A4D8C1A] px-5 py-6">
+        <div className="lg:hidden bg-[#FDFBF7] border-t border-[#0A4D8C1A] px-5 py-6">
           <div className="flex flex-col gap-1">
             {navItems.map((it) => (
               <NavLink
