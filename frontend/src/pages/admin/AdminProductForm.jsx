@@ -52,6 +52,34 @@ export default function AdminProductForm() {
   const [error, setError] = useState('');
   const [tagInput, setTagInput] = useState('');
 
+  // Read AI-extracted data parked in sessionStorage by QuickAddDialog
+  useEffect(() => {
+    if (!isNew) return;
+    try {
+      const raw = sessionStorage.getItem('smartpaw_quick_add_prefill');
+      if (raw) {
+        sessionStorage.removeItem('smartpaw_quick_add_prefill');
+        const ai = JSON.parse(raw);
+        setForm((f) => ({
+          ...f,
+          name: ai.name || '',
+          name_ka: ai.name_ka || '',
+          brand: ai.brand || '',
+          sub_category: CATALOGUE_SUBS.includes(ai.category) ? ai.category : 'food',
+          product_type: ai.sub_category || '',
+          pet_type: ai.pet_type || 'both',
+          image: ai.image_url || '',
+          description: ai.description || '',
+          description_ka: ai.description_ka || '',
+          size: ai.size || '',
+          price: ai.price != null ? String(ai.price) : '',
+          currency: (ai.currency || 'GEL').toUpperCase(),
+          status: 'draft',
+        }));
+      }
+    } catch (_) {/* ignore */}
+  }, [isNew]);
+
   useEffect(() => {
     if (isNew) return;
     let alive = true;

@@ -16,6 +16,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { adminApi } from '@/lib/adminApi';
+import QuickAddDialog from './QuickAddDialog';
 
 const SUB_LABELS = {
   food: 'Food',
@@ -38,6 +39,7 @@ const PAGE_SIZE = 50;
 export default function AdminProducts() {
   const [items, setItems] = useState(null); // current page result
   const [summary, setSummary] = useState(null);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [error, setError] = useState('');
   const [q, setQ] = useState('');
   const [tab, setTab] = useState('all');
@@ -283,6 +285,14 @@ export default function AdminProducts() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setQuickAddOpen(true)}
+            data-testid="quick-add-product-button"
+            className="inline-flex items-center gap-2 rounded-full border border-[#F25C05] bg-[#F25C05]/8 text-[#F25C05] hover:bg-[#F25C05] hover:text-white text-sm font-bold px-5 py-2.5 transition"
+          >
+            <Sparkles size={16} /> Quick add (AI)
+          </button>
           <Link
             to="/admin/products/import"
             data-testid="import-products-button"
@@ -299,6 +309,7 @@ export default function AdminProducts() {
           </Link>
         </div>
       </div>
+      <QuickAddDialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-2 mb-5" data-testid="status-tabs">
