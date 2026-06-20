@@ -43,6 +43,7 @@ export default function QuickAddDialog({ open, onClose }) {
   const [url, setUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [blocked, setBlocked] = useState(false);
   const [result, setResult] = useState(null);
   const fileRef = useRef(null);
 
@@ -52,8 +53,16 @@ export default function QuickAddDialog({ open, onClose }) {
     setUrl('');
     setBusy(false);
     setError('');
+    setBlocked(false);
     setResult(null);
     setMode('url');
+  };
+
+  const switchToImage = () => {
+    setError('');
+    setBlocked(false);
+    setResult(null);
+    setMode('image');
   };
 
   const close = () => {
@@ -73,7 +82,14 @@ export default function QuickAddDialog({ open, onClose }) {
       const data = await postJSON('/api/admin/products/quick-extract-url', { url: url.trim() });
       setResult(data);
     } catch (e) {
-      setError(e.message || 'Extraction failed');
+      const msg = e.message || 'Extraction failed';
+      // If the partner site blocks us, the backend returns a guidance message —
+      // surface it and offer to switch tabs.
+      const isBlocked = /blocking automated fetching|blocked|401|403|429|partner page returned/i.test(msg);
+      setError(isBlocked
+        ? `${msg}`
+        : msg);
+      setBlocked(isBlocked);
     } finally {
       setBusy(false);
     }
@@ -167,7 +183,17 @@ export default function QuickAddDialog({ open, onClose }) {
               className="mb-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3"
               data-testid="quick-add-error"
             >
-              {error}
+              <p>{error}</p>
+              {blocked && (
+                <button
+                  type="button"
+                  onClick={switchToImage}
+                  data-testid="quick-add-switch-to-photo-button"
+                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#F25C05] hover:bg-[#d44a00] text-white text-xs font-bold px-4 py-2"
+                >
+                  <ImageIcon size={14} /> Switch to "From a photo"
+                </button>
+              )}
             </div>
           )}
 

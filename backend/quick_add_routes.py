@@ -118,34 +118,124 @@ class UrlExtractRequest(BaseModel):
     url: str = Field(min_length=10)
 
 
+# Modern Chrome User-Agent + standard headers — covers ~30% of bot-protected
+# sites that just sniff the UA string.
+BROWSER_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    ),
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,"
+        "image/avif,image/webp,*/*;q=0.8"
+    ),
+    "Accept-Language": "en-US,en;q=0.9,ka;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Sec-Ch-Ua": '"Chromium";v="126", "Not_A Brand";v="24"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"Linux"',
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Upgrade-Insecure-Requests": "1",
+}
+
+
+async def _fetch_with_httpx(url: str) -> Optional[str]:
+    """Plain HTTP fetch with browser-like headers. Returns HTML or None on failure."""
+    try:
+        async with httpx.AsyncClient(
+            timeout=15,
+            follow_redirects=True,
+            headers=BROWSER_HEADERS,
+        ) as c:
+            r = await c.get(url)
+            if r.status_code in (401, 403, 429):
+                logger.info("httpx blocked by %d → fallback to Playwright", r.status_code)
+                return None
+            if r.status_code >= 400:
+                raise HTTPException(400, f"Partner page returned {r.status_code}")
+            html = r.text
+            # If the HTML is tiny (likely a JS-shell), also try Playwright
+            if len(html) < 1500:
+                logger.info("httpx HTML too small (%d chars) → fallback to Playwright", len(html))
+                return None
+            return html
+    except httpx.RequestError as e:
+        logger.info("httpx error %s → fallback to Playwright", e)
+        return None
+
+
+async def _fetch_with_playwright(url: str) -> Optional[str]:
+    """Headless Chromium fetch — handles JS-rendered pages and most bot blockers."""
+    try:
+        from playwright.async_api import async_playwright
+    except ImportError:
+        return None
+    try:
+        async with async_playwright() as pw:
+            browser = await pw.chromium.launch(
+                headless=True,
+                args=["--no-sandbox", "--disable-blink-features=AutomationControlled"],
+            )
+            try:
+                ctx = await browser.new_context(
+                    user_agent=BROWSER_HEADERS["User-Agent"],
+                    locale="en-US",
+                    viewport={"width": 1280, "height": 800},
+                )
+                page = await ctx.new_page()
+                await page.goto(url, wait_until="domcontentloaded", timeout=20000)
+                # Give JS a moment to populate the DOM
+                try:
+                    await page.wait_for_load_state("networkidle", timeout=5000)
+                except Exception:  # noqa: BLE001
+                    pass
+                html = await page.content()
+                return html
+            finally:
+                await browser.close()
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Playwright fetch failed: %s", e)
+        return None
+
+
 @quick_add_router.post("/quick-extract-url")
 async def quick_extract_from_url(body: UrlExtractRequest, _=Depends(get_current_admin)):
     from emergentintegrations.llm.chat import UserMessage
-    # Fetch the page (follow redirects, give it 15s)
-    try:
-        async with httpx.AsyncClient(timeout=15, follow_redirects=True,
-                                     headers={"User-Agent": "Mozilla/5.0 SmartPawBot"}) as c:
-            r = await c.get(body.url)
-        if r.status_code >= 400:
-            raise HTTPException(400, f"Partner page returned {r.status_code}")
-        html = r.text
-    except httpx.RequestError as e:
-        raise HTTPException(400, f"Could not fetch URL: {e}")
+
+    url = body.url.strip()
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+
+    # Strategy: try fast httpx first, fall back to Playwright (real browser).
+    html = await _fetch_with_httpx(url)
+    if html is None:
+        html = await _fetch_with_playwright(url)
+    if html is None:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "This partner site is blocking automated fetching. "
+                "Please switch to the 'From photo' tab and upload a screenshot "
+                "or product photo instead — that always works."
+            ),
+        )
 
     # Trim very large pages — we only need the meaningful content
     if len(html) > 100_000:
         html = html[:100_000]
 
-    chat = _build_chat(session_id=f"qa-url-{body.url[:32]}")
+    chat = _build_chat(session_id=f"qa-url-{url[:32]}")
     user_msg = UserMessage(
         text=(
-            f"Extract product data from this page (URL: {body.url}). "
+            f"Extract product data from this page (URL: {url}). "
             f"The image_url field MUST be an absolute URL — if the page uses a relative path, "
             f"resolve it against the URL above.\n\nHTML follows:\n\n{html}"
         )
     )
     data = await _send_for_extraction(chat, user_msg)
-    data["_source_url"] = body.url
+    data["_source_url"] = url
     return data
 
 
