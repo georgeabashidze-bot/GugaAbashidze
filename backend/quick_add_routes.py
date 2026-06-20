@@ -118,6 +118,32 @@ class UrlExtractRequest(BaseModel):
     url: str = Field(min_length=10)
 
 
+# Whitelist of local Georgian pet-shop domains we support for URL extraction.
+# International sites (royalcanin.com, chewy.com, zooplus.de, etc.) are
+# typically protected by enterprise anti-bot services and will fail anyway —
+# admins should use the photo-upload tab for those.
+#
+# To add a new site, append the bare hostname (lowercase, no www., no scheme).
+ALLOWED_DOMAINS = {
+    "smartpet.ge",
+    "mircopet.ge",
+    "zoomart.ge",
+    "petfood.ge",
+    "zoocity.ge",
+    # "zoostandard.ge",   # domain currently doesn't resolve — re-enable when fixed
+    # "zooplus.ge",       # Cloudflare-protected — admin should use photo upload
+}
+
+
+def _domain_of(url: str) -> str:
+    """Return a normalised bare hostname (no www., lowercase)."""
+    from urllib.parse import urlparse
+    host = (urlparse(url).hostname or "").lower()
+    if host.startswith("www."):
+        host = host[4:]
+    return host
+
+
 # Modern Chrome User-Agent + standard headers — covers ~30% of bot-protected
 # sites that just sniff the UA string.
 BROWSER_HEADERS = {
@@ -200,6 +226,12 @@ async def _fetch_with_playwright(url: str) -> Optional[str]:
         return None
 
 
+@quick_add_router.get("/quick-extract-allowed-domains")
+async def get_allowed_domains(_=Depends(get_current_admin)):
+    """Return the list of partner domains the URL extractor accepts."""
+    return {"domains": sorted(ALLOWED_DOMAINS)}
+
+
 @quick_add_router.post("/quick-extract-url")
 async def quick_extract_from_url(body: UrlExtractRequest, _=Depends(get_current_admin)):
     from emergentintegrations.llm.chat import UserMessage
@@ -207,6 +239,20 @@ async def quick_extract_from_url(body: UrlExtractRequest, _=Depends(get_current_
     url = body.url.strip()
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
+
+    # Whitelist enforcement — block international / unsupported domains early.
+    domain = _domain_of(url)
+    if domain not in ALLOWED_DOMAINS:
+        allowed = ", ".join(sorted(ALLOWED_DOMAINS))
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"This domain ({domain or 'unknown'}) isn't on the supported partner list. "
+                f"URL extraction is currently enabled only for: {allowed}. "
+                f"For any other source, please switch to the 'From photo' tab and upload "
+                f"a screenshot or product photo — that always works."
+            ),
+        )
 
     # Strategy: try fast httpx first, fall back to Playwright (real browser).
     html = await _fetch_with_httpx(url)

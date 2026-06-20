@@ -45,7 +45,20 @@ export default function QuickAddDialog({ open, onClose }) {
   const [error, setError] = useState('');
   const [blocked, setBlocked] = useState(false);
   const [result, setResult] = useState(null);
+  const [allowedDomains, setAllowedDomains] = useState([]);
   const fileRef = useRef(null);
+
+  // Fetch the supported partner-domain list when the dialog opens
+  React.useEffect(() => {
+    if (!open) return;
+    const token = localStorage.getItem(TOKEN_KEY);
+    fetch('/api/admin/products/quick-extract-allowed-domains', {
+      headers: { Authorization: token ? `Bearer ${token}` : '' },
+    })
+      .then((r) => (r.ok ? r.json() : { domains: [] }))
+      .then((j) => setAllowedDomains(j.domains || []))
+      .catch(() => setAllowedDomains([]));
+  }, [open]);
 
   if (!open) return null;
 
@@ -85,7 +98,7 @@ export default function QuickAddDialog({ open, onClose }) {
       const msg = e.message || 'Extraction failed';
       // If the partner site blocks us, the backend returns a guidance message —
       // surface it and offer to switch tabs.
-      const isBlocked = /blocking automated fetching|blocked|401|403|429|partner page returned/i.test(msg);
+      const isBlocked = /blocking automated fetching|blocked|401|403|429|partner page returned|isn't on the supported partner list/i.test(msg);
       setError(isBlocked
         ? `${msg}`
         : msg);
@@ -212,10 +225,24 @@ export default function QuickAddDialog({ open, onClose }) {
                 className="w-full rounded-xl border border-[#0A4D8C1A] px-4 py-3 text-sm focus:outline-none focus:border-[#F25C05]"
               />
               <p className="text-xs text-[#465B70]">
-                Paste the URL of any partner product page. We'll fetch it and ask the AI to extract
-                name, brand, size, image and description. Some sites block automated fetching — if
-                that happens, use the photo upload instead.
+                Paste the URL of a product page on one of our supported local partner sites.
+                International sites (Royal Canin, Hill's, Chewy, etc.) usually block automated
+                fetching — for those, use the photo upload instead.
               </p>
+              {allowedDomains.length > 0 && (
+                <div className="flex flex-wrap gap-1.5" data-testid="quick-add-allowed-domains">
+                  {allowedDomains.map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setUrl(`https://${d}/`)}
+                      className="text-[11px] font-bold bg-[#F5F2EB] hover:bg-[#0A4D8C] hover:text-white rounded-full px-2.5 py-1 text-[#05223D] transition"
+                    >
+                      {d}
+                    </button>
+                  ))}
+                </div>
+              )}
               <button
                 onClick={extractFromUrl}
                 disabled={busy || !url.trim()}
