@@ -6,6 +6,7 @@ import {
   Tag,
   Mail,
   Users,
+  UserCircle2,
   LogOut,
   Loader2,
   ExternalLink,
@@ -20,6 +21,8 @@ const NAV = [
   { to: '/admin/special-offers', label: 'Special Offers', icon: Tag, tid: 'admin-nav-offers' },
   { to: '/admin/plans', label: 'Plans', icon: Layers, tid: 'admin-nav-plans' },
   { to: '/admin/blog-posts', label: 'Blog', icon: Newspaper, tid: 'admin-nav-blog' },
+  { to: '/admin/cabinet-customers', label: 'Cabinet Customers', icon: UserCircle2, tid: 'admin-nav-cabinet' },
+  { to: '/admin/product-requests', label: 'Product Requests', icon: Mail, tid: 'admin-nav-product-requests' },
   { to: '/admin/leads', label: 'Leads', icon: Users, tid: 'admin-nav-leads' },
   { to: '/admin/contact-inquiries', label: 'Contacts', icon: Mail, tid: 'admin-nav-contacts' },
 ];

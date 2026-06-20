@@ -1,7 +1,22 @@
 import React from 'react';
 import SubCategoryPage from '@/components/SubCategoryPage';
+import PartnerCategoryPage from '@/components/PartnerCategoryPage';
+import { PARTNER_BRANDS } from '@/data/partnerBrands';
+
+// ──────────────────────────────────────────────────────────────────────
+// Food / Hygiene / Vitamins:
+//   While the SmartPaw product catalogue is being populated, these three
+//   pages show breadcrumbs → partner-brand grid → CTA, without a hero or
+//   image (kept intentionally minimal). When real products are ready, flip
+//   PARTNER_BRANDS.<category>.useBrandGrid to false and the page falls back
+//   to <SubCategoryPage>.
+// ──────────────────────────────────────────────────────────────────────
 
 export function FoodPage() {
+  const cfg = PARTNER_BRANDS.food;
+  if (cfg?.useBrandGrid) {
+    return <PartnerCategoryPage config={cfg} category="food" />;
+  }
   return (
     <SubCategoryPage
       eyebrow="Catalogue · Food"
@@ -10,23 +25,15 @@ export function FoodPage() {
       image="https://images.pexels.com/photos/8434637/pexels-photo-8434637.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Dog eating dry kibble from a bowl"
       subCategory="food"
-      willInclude={[
-        'Dry kibble — adult, puppy, senior, breed-specific',
-        'Wet food in pouches, cans and trays',
-        'Single-protein and hypoallergenic lines',
-        'Prescription diets (renal, urinary, weight, sensitivity)',
-        'Treats for training, dental and reward use',
-        'Bulk-friendly portions sized to your pet’s daily intake',
-      ]}
-      brands={[
-        'Royal Canin', 'Hill’s Science Plan', 'Purina Pro Plan',
-        'Acana', 'Orijen', 'Brit Care', 'Happy Dog', 'Happy Cat', 'Mera', 'Belcando',
-      ]}
     />
   );
 }
 
 export function HygienePage() {
+  const cfg = PARTNER_BRANDS.hygiene;
+  if (cfg?.useBrandGrid) {
+    return <PartnerCategoryPage config={cfg} category="hygiene" />;
+  }
   return (
     <SubCategoryPage
       eyebrow="Catalogue · Hygiene"
@@ -35,22 +42,15 @@ export function HygienePage() {
       image="https://images.pexels.com/photos/1436139/pexels-photo-1436139.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Puppy being bathed"
       subCategory="hygiene"
-      willInclude={[
-        'Shampoos and conditioners for every coat type',
-        'Dental sticks, toothpaste and oral rinses',
-        'Ear and eye cleaning solutions',
-        'Paw wipes and grooming wipes',
-        'Cat litter (clumping, silica, tofu, natural)',
-        'Odour neutralisers and home cleaning sprays',
-      ]}
-      brands={[
-        'Beaphar', 'TropiClean', 'Espree', 'Virbac', 'Bayer', 'Pet Head', 'Catsan', 'Ever Clean',
-      ]}
     />
   );
 }
 
 export function VitaminsPage() {
+  const cfg = PARTNER_BRANDS.vitamins;
+  if (cfg?.useBrandGrid) {
+    return <PartnerCategoryPage config={cfg} category="vitamins" />;
+  }
   return (
     <SubCategoryPage
       eyebrow="Catalogue · Vitamins & Additives"
@@ -59,17 +59,6 @@ export function VitaminsPage() {
       image="https://images.pexels.com/photos/8434641/pexels-photo-8434641.jpeg?auto=compress&cs=tinysrgb&w=1400"
       imageAlt="Pet supplements and vitamins"
       subCategory="vitamins"
-      willInclude={[
-        'Joint care: glucosamine, chondroitin, omega-3',
-        'Skin and coat: salmon oil, biotin, vitamin E',
-        'Digestive: probiotics, prebiotics, fibre boosters',
-        'Immune support: antioxidants, multivitamins',
-        'Senior formulas and life-stage boosters',
-        'Calming and anti-stress aids (travel, fireworks, vet visits)',
-      ]}
-      brands={[
-        'Vetoquinol', 'VetriScience', 'Nutramax', 'Beaphar', 'Canina', 'Animal Health', 'Trixie',
-      ]}
     />
   );
 }

@@ -7,7 +7,11 @@ const HERO_IMG = 'https://images.pexels.com/photos/30769356/pexels-photo-3076935
 const HERO_IMG_2 = 'https://images.pexels.com/photos/20109380/pexels-photo-20109380.jpeg?auto=compress&cs=tinysrgb&w=1200';
 
 export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
-  const { t } = useLang();
+  const { lang, t } = useLang();
+  const savedLabel = lang === 'ka' ? 'უკვე დავზოგეთ' : 'Saved';
+  const savedValue = lang === 'ka' ? '500+ მაღაზიაში ვიზიტი' : '500+ store runs';
+  const nextBoxLabel = lang === 'ka' ? 'შემდეგი ყუთი' : 'Next box';
+  const nextBoxValue = lang === 'ka' ? 'სამშაბათი · 09:00' : 'Tuesday · 09:00';
 
   return (
     <section id="home" className="relative pt-32 md:pt-40 pb-16 md:pb-28 overflow-hidden">
@@ -80,12 +84,12 @@ export default function Hero({ onOpenSignup, onBrowse, onSpecials }) {
             <div className="absolute inset-0 bg-gradient-to-t from-[#05223D]/40 via-transparent to-transparent" />
             <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between gap-3">
               <div className="bg-white/95 backdrop-blur rounded-2xl px-4 py-3 shadow-lg">
-                <p className="text-[10px] tracking-[0.2em] uppercase text-[#465B70] font-bold">Next box</p>
-                <p className="text-sm font-bold text-[#05223D]">Tuesday · 09:00</p>
+                <p className="text-[10px] tracking-[0.2em] uppercase text-[#465B70] font-bold">{nextBoxLabel}</p>
+                <p className="text-sm font-bold text-[#05223D]">{nextBoxValue}</p>
               </div>
               <div className="bg-[#0A4D8C] text-white rounded-2xl px-4 py-3 shadow-lg">
-                <p className="text-[10px] tracking-[0.2em] uppercase opacity-70 font-bold">Saved</p>
-                <p className="text-sm font-bold">3 store runs</p>
+                <p className="text-[10px] tracking-[0.2em] uppercase opacity-70 font-bold">{savedLabel}</p>
+                <p className="text-sm font-bold">{savedValue}</p>
               </div>
             </div>
           </div>

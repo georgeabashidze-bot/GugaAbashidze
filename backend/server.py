@@ -24,6 +24,9 @@ from auth import seed_admin
 from admin_routes import admin_router
 from products_import import import_router
 from email_service import notify_new_lead, notify_new_contact
+from cabinet_routes import cabinet_router
+from quick_add_routes import quick_add_router
+from product_requests_routes import requests_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -489,6 +492,9 @@ async def get_blog_post(slug: str):
 app.include_router(api_router)
 app.include_router(admin_router)
 app.include_router(import_router)
+app.include_router(cabinet_router)
+app.include_router(quick_add_router)
+app.include_router(requests_router)
 
 
 # ------------- SEO endpoints -------------
@@ -634,6 +640,21 @@ async def startup_seed_products():
         logger.info("Admin seed check complete.")
     except Exception as e:  # noqa: BLE001
         logger.error("Admin seeding failed: %s", e)
+    try:
+        # Cabinet indexes (idempotent)
+        await db.users.create_index("email", unique=True)
+        await db.users.create_index("id")
+        await db.pets.create_index("user_id")
+        await db.addresses.create_index("user_id")
+        await db.subscriptions.create_index("user_id")
+        await db.orders.create_index([("user_id", 1), ("created_at", -1)])
+        await db.notification_prefs.create_index("user_id", unique=True)
+        await db.cabinet_offers.create_index("slug", unique=True)
+        await db.product_requests.create_index([("user_id", 1), ("created_at", -1)])
+        await db.product_requests.create_index([("status", 1), ("created_at", -1)])
+        logger.info("Cabinet indexes ensured.")
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Cabinet index creation: %s", e)
     try:
         inserted = await seed_products_if_empty(db)
         if inserted:

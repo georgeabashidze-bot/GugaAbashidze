@@ -28,16 +28,33 @@ import AdminBlog from '@/pages/admin/AdminBlog';
 import AdminBlogForm from '@/pages/admin/AdminBlogForm';
 import AdminOffers from '@/pages/admin/AdminOffers';
 import AdminOfferForm from '@/pages/admin/AdminOfferForm';
-import { AdminLeads, AdminContacts } from '@/pages/admin/AdminViewers';
+import AdminProductRequests from '@/pages/admin/AdminProductRequests';
+import { AdminLeads, AdminContacts, AdminCabinetCustomers } from '@/pages/admin/AdminViewers';
+import RequestProductPage from '@/pages/RequestProductPage';
+
+// Customer Cabinet (merged from standalone MVP) — mounts under /cabinet/*
+import CabinetApp from '@/cabinet/CabinetApp';
+
+function CabinetMount() {
+  return (
+    <div className="cabinet-scope" data-testid="cabinet-scope">
+      <CabinetApp />
+    </div>
+  );
+}
 
 function App() {
   return (
     <Routes>
-      {/* Public site */}
+      {/* Customer Cabinet (logged-in customer experience) */}
+      <Route path="/cabinet/*" element={<CabinetMount />} />
+
+      {/* Public marketing site */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
 
         <Route path="/catalogue" element={<CataloguePage />} />
+        <Route path="/catalogue/request" element={<RequestProductPage />} />
         <Route path="/catalogue/food" element={<FoodPage />} />
         <Route path="/catalogue/hygiene" element={<HygienePage />} />
         <Route path="/catalogue/vitamins" element={<VitaminsPage />} />
@@ -80,6 +97,8 @@ function App() {
         <Route path="special-offers" element={<AdminOffers />} />
         <Route path="special-offers/new" element={<AdminOfferForm />} />
         <Route path="special-offers/:id" element={<AdminOfferForm />} />
+        <Route path="cabinet-customers" element={<AdminCabinetCustomers />} />
+        <Route path="product-requests" element={<AdminProductRequests />} />
         <Route path="leads" element={<AdminLeads />} />
         <Route path="contact-inquiries" element={<AdminContacts />} />
       </Route>
